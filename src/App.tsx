@@ -1,15 +1,13 @@
-import React from 'react';
-import './App.css';
-import {Motion, spring} from "react-motion"
-
-class ExprProps {
-  baseX: number = 0
-  baseY: number = 0
-}
-class VariableProps extends ExprProps {
-  fill: string = ""
-  free: boolean = false
-}
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React from "react"
+import _ from "lodash"
+import "./App.css"
+// import State from "./State"
+import styled from "styled-components"
+import { Motion, spring } from "react-motion"
+import { Var, Abs, Appl } from "./exprs"
+import { DrawProps } from "./draw"
 
 const App: React.FC = () => {
   return (
@@ -19,18 +17,26 @@ const App: React.FC = () => {
         <h3 className="App-subtitle">Graphical Lambda Calculus Evaluator</h3>
       </header>
       <div className="App-content">
-        <svg className="viewport">
-          <Variable fill="#550000" baseX={100} baseY={100} free={false}></Variable>
-        </svg>
+        <Drawboard circleRadius={30} heightMargin={20} widthMargin={20} strokeWidth={2} />
       </div>
     </div>
-  );
+  )
 }
 
-function Variable(props: VariableProps) {
-  return <Motion defaultStyle={{x: props.baseX, y: props.baseY}} style={{x: spring(300, {stiffness: 50}), y: spring(300, {stiffness: 50})}}>
-    {(style) => (<circle cx={style.x} cy={style.y} r={50} fill={props.fill} ></circle>)
-    }
-  </Motion>
+const Drawboard = (drawProps: DrawProps) => {
+  return (
+    <svg className="viewport">
+      <Var id="myvar" x={250} y={200} drawProps={drawProps} />
+      <Abs
+        id="myabs"
+        x={200}
+        y={200}
+        width={drawProps.circleRadius * 4 + drawProps.heightMargin * 2}
+        drawProps={drawProps}
+      />
+      <Appl id="myapp" x={200} y={300} width={300} drawProps={drawProps} />
+    </svg>
+  )
 }
-export default App;
+
+export default App
