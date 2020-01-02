@@ -10,19 +10,22 @@ export interface CoordsState {
 }
 
 export const ADD_CHILD = "ADD_CHILD"
-export const DUMMY = "DUMMY"
+export const SET_COORDS = "DUMMY"
 
 interface AddChildAction {
   type: typeof ADD_CHILD
-  parentID: string
+  exprID: string
   childHeight: number
   childWidth: number
-  widthBuffer: number
-  heightBuffer: number
+  widthPadding: number
+  heightPadding: number
 }
 
-interface DummyAction {
-  type: typeof DUMMY
+interface SetCoordsAction {
+  type: typeof SET_COORDS
+  exprID: string
+  x: number
+  y: number
 }
 
-export type CoordsAction = AddChildAction | DummyAction
+export type CoordsAction = AddChildAction | SetCoordsAction

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-children-prop */
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react"
@@ -8,6 +9,15 @@ import styled from "styled-components"
 import { Motion, spring } from "react-motion"
 import { Var, Abs, Appl } from "./exprs"
 import { DrawProps } from "./draw"
+import {
+  testTree,
+  TreeNode,
+  constructCoords,
+  TreeState,
+  APPLICATION,
+  ABSTRACTION,
+  VARIABLE
+} from "./Tree"
 
 const App: React.FC = () => {
   return (
@@ -24,19 +34,64 @@ const App: React.FC = () => {
 }
 
 const Drawboard = (drawProps: DrawProps) => {
-  return (
-    <svg className="viewport">
-      <Var id="myvar" x={250} y={200} drawProps={drawProps} />
-      <Abs
-        id="myabs"
-        x={200}
-        y={200}
-        width={drawProps.circleRadius * 4 + drawProps.heightMargin * 2}
-        drawProps={drawProps}
-      />
-      <Appl id="myapp" x={200} y={300} width={300} drawProps={drawProps} />
-    </svg>
-  )
+  return <svg className="viewport" children={createExprs(drawProps)}></svg>
+}
+
+const createExprs = (drawProps: DrawProps) => {
+  const x = constructCoords(testTree, {
+    circleRadius: 30,
+    heightMargin: 20,
+    widthMargin: 20,
+    strokeWidth: 2
+  })
+  console.log(x)
+  return _.map(x.nodes, (node, nodeID) => createExpr(nodeID, node, drawProps))
+}
+
+const createExpr = (nodeID: string, node: TreeNode, drawProps: DrawProps) => {
+  console.log(node)
+  switch (node.expr.type) {
+    case VARIABLE:
+      return (
+        <Var
+          key={nodeID}
+          id={nodeID}
+          x={node.coord.x}
+          y={node.coord.y}
+          radius={drawProps.circleRadius}
+        />
+      )
+    case ABSTRACTION:
+      return (
+        <Abs
+          key={nodeID}
+          id={nodeID}
+          x={node.coord.x}
+          y={node.coord.y}
+          width={node.coord.w}
+          radius={drawProps.circleRadius}
+          height={node.coord.h}
+          heightMargin={drawProps.heightMargin}
+          widthMargin={drawProps.widthMargin}
+          strokeWidth={drawProps.strokeWidth}
+        />
+      )
+    case APPLICATION:
+      return (
+        <Appl
+          key={nodeID}
+          id={nodeID}
+          x={node.coord.x}
+          y={node.coord.y}
+          radius={drawProps.circleRadius}
+          width={node.coord.w}
+          height={node.coord.h}
+          heightMargin={drawProps.heightMargin}
+          widthMargin={drawProps.widthMargin}
+          strokeWidth={drawProps.strokeWidth}
+        />
+      )
+  }
 }
 
 export default App

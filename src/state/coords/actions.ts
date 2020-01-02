@@ -1,18 +1,27 @@
-import { CoordsAction, ADD_CHILD } from "./types"
+import { CoordsAction, ADD_CHILD, SET_COORDS } from "./types"
 
-export function addChild(
+export function addPaddedChild(
   parentID: string,
   childHeight: number,
   childWidth: number,
-  widthBuffer: number,
-  heightBuffer: number
+  widthPadding: number,
+  heightPadding: number
 ): CoordsAction {
   return {
     type: ADD_CHILD,
-    parentID: parentID,
+    exprID: parentID,
     childHeight: childHeight,
     childWidth: childWidth,
-    widthBuffer: widthBuffer,
-    heightBuffer: heightBuffer
+    widthPadding: widthPadding,
+    heightPadding: heightPadding
+  }
+}
+
+export function setCoords(exprID: string, x: number, y: number): CoordsAction {
+  return {
+    type: SET_COORDS,
+    exprID: exprID,
+    x: x,
+    y: y
   }
 }

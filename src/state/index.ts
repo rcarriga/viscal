@@ -1,7 +1,16 @@
-// import { createStore } from "redux"
+import { createStore, applyMiddleware } from "redux"
+import thunk from "redux-thunk"
+import rootReducer from "./reducers"
+// import { State } from "./types"
 
-export const FILLER = "FILLER"
+export const store = createStore(rootReducer, applyMiddleware(thunk))
 
+// export function addChild(parentID: string, childID: string) {
+//   return (dispatch: any, getState: () => State) => {
+//     const child = getState().tree.nodes[childID]
+//     const parent = getState().tree.nodes[parentID]
+//   }
+// }
 // const TestTree = {
 //   app1: { type: NodeType.Application, children: ["var1", "abs1"] },
 //   var1: { type: NodeType.Variable, parent: "app1" },
