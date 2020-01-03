@@ -41,7 +41,7 @@ const createExprs = (drawProps: DrawProps) => {
   const x = constructCoords(testTree, {
     circleRadius: 30,
     heightMargin: 20,
-    widthMargin: 20,
+    widthMargin: 30,
     strokeWidth: 2
   })
   console.log(x)

@@ -9,37 +9,40 @@ export const APPLICATION = "APPLICATION"
 
 type NodeID = string
 
-interface Variable {
-  type: typeof VARIABLE
-  index: number
-  name: string
+interface BaseExpression {
+  readonly children: string[]
 }
 
-interface Abstraction {
-  type: typeof ABSTRACTION
-  variableName: string
-  child?: NodeID
+interface Variable extends BaseExpression {
+  readonly type: typeof VARIABLE
+  readonly index: number
+  readonly name: string
 }
 
-interface Application {
-  type: typeof APPLICATION
-  left: NodeID
-  right: NodeID
+interface Abstraction extends BaseExpression {
+  readonly type: typeof ABSTRACTION
+  readonly variableName: string
+}
+
+interface Application extends BaseExpression {
+  readonly type: typeof APPLICATION
+  readonly left: NodeID
+  readonly right: NodeID
 }
 
 export type Expression = Variable | Abstraction | Application
 
 export interface TreeNode {
-  expr: Expression
-  coord: Coord
-  parentID?: NodeID
+  readonly expr: Expression
+  readonly coord: Coord
+  readonly parentID?: NodeID
 }
 
 type Tree = { [nodeId: string]: TreeNode }
 
 export interface TreeState {
-  root?: NodeID
-  nodes: Tree
+  readonly root?: NodeID
+  readonly nodes: Tree
 }
 
 const defaultCoord = () => {
@@ -53,7 +56,8 @@ function variable(index: number, name: string, parentID?: NodeID): TreeNode {
     expr: {
       type: VARIABLE,
       index: index,
-      name: name
+      name: name,
+      children: []
     }
   }
 }
@@ -65,7 +69,7 @@ function abstraction(variableName: string, child?: string, parentID?: NodeID): T
     expr: {
       type: ABSTRACTION,
       variableName: variableName,
-      child: child
+      children: child ? [child] : []
     }
   }
 }
@@ -77,7 +81,8 @@ function application(left: string, right: string, parentID?: NodeID): TreeNode {
     expr: {
       type: APPLICATION,
       left: left,
-      right: right
+      right: right,
+      children: [left, right]
     }
   }
 }
@@ -87,27 +92,22 @@ export const testTree: TreeState = {
   nodes: {
     app1: application("abs1", "var1"),
     var1: variable(-1, "a", "app1"),
-    abs1: abstraction("b", "var2", "app1"),
+    abs1: abstraction("b", "abs2", "app1"),
+    abs2: abstraction("c", "var2", "abs1"),
     var2: variable(0, "b", "abs1")
   }
 }
 
-const updateCoords = (children: string[], tree: Tree, draw: DrawState): Tree =>
-  _.reduce(
-    children,
-    (tree, childID) => {
-      return constructDimensions(childID, tree, draw)
-    },
-    tree
-  )
-
 export function constructCoords(tree: TreeState, draw: DrawState): TreeState {
   const root = tree.root
   if (!root) return tree
-  return { root: root, nodes: populateCoords(root, constructDimensions(root, tree.nodes, draw), draw) }
+  return {
+    root: root,
+    nodes: fillCoords(root, addDimensions(root, tree.nodes, draw), draw)
+  }
 }
 
-function populateCoords(rootID: NodeID, tree: Tree, draw: DrawState, baseX: number = 50, baseY: number = 300): Tree {
+function fillCoords(rootID: NodeID, tree: Tree, draw: DrawState, baseX = 50, baseY = 300): Tree {
   const root = tree[rootID]
   const newTree = {
     ...tree,
@@ -115,76 +115,80 @@ function populateCoords(rootID: NodeID, tree: Tree, draw: DrawState, baseX: numb
       ...root,
       coord: {
         ...root.coord,
-        x: baseX + draw.widthMargin,
+        x: baseX,
         y: baseY
       }
     }
   }
-  if (root.expr.type === VARIABLE) return newTree
-  else {
-    const children = getChildren(root)
-    return _.reduce(
-      children,
-      (updatedTree, nodeID, index) => {
-        const childBase = baseX + draw.widthMargin + (index > 0 ? tree[children[index - 1]].coord.w : 0)
-        return populateCoords(nodeID, updatedTree, draw, childBase)
-      },
-      newTree
-    )
-  }
-}
-
-function constructDimensions(rootID: NodeID, tree: Tree, draw: DrawState): Tree {
-  const root = tree[rootID]
-  if (root.expr.type === VARIABLE)
-    return {
-      ...tree,
-      [rootID]: {
-        ...root,
-        coord: {
-          ...defaultCoord(),
-          w: draw.circleRadius * 2,
-          h: draw.circleRadius * 2
-        }
-      }
-    }
-  else {
-    const children = getChildren(root)
-    const updatedTree = updateCoords(children, tree, draw)
-    return {
-      ...updatedTree,
-      [rootID]: {
-        ...root,
-        coord: {
-          ...defaultCoord(),
-          w: elementWidth(children, updatedTree, draw),
-          h: elementsHeight(children, updatedTree, draw)
-        }
-      }
-    }
-  }
-}
-
-function getChildren(node: TreeNode): string[] {
-  const expr = node.expr
-  switch (expr.type) {
+  switch (root.expr.type) {
     case VARIABLE:
-      return []
-    case ABSTRACTION:
-      return expr.child ? [expr.child] : []
-    case APPLICATION:
-      return [expr.left, expr.right]
+      return newTree
+    case ABSTRACTION: {
+      const childBaseX = baseX + draw.circleRadius + draw.widthMargin
+      return root.expr.children
+        ? fillCoords(root.expr.children[0], newTree, draw, childBaseX, baseY)
+        : newTree
+    }
+    case APPLICATION: {
+      const leftBaseX = baseX + draw.circleRadius + draw.widthMargin
+      const leftUpdate = fillCoords(root.expr.left, newTree, draw, leftBaseX, baseY)
+      const rightBaseX = leftBaseX + leftUpdate[root.expr.left].coord.w + draw.widthMargin
+      return fillCoords(root.expr.children[1], leftUpdate, draw, rightBaseX, baseY)
+    }
     default:
-      return []
+      return newTree
   }
 }
 
-function elementWidth(children: string[], tree: Tree, draw: DrawState): number {
-  return (
-    _.reduce(children, (widthSum, childID) => tree[childID].coord.w + draw.widthMargin + widthSum, 0) + draw.widthMargin
-  )
+function addDimensions(rootID: NodeID, tree: Tree, draw: DrawState): Tree {
+  const root = tree[rootID]
+  const children = root.expr.children
+  const updated = _.reduce(children, (tree, childID) => addDimensions(childID, tree, draw), tree)
+  return {
+    ...updated,
+    [rootID]: {
+      ...root,
+      coord: {
+        ...defaultCoord(),
+        w: elementWidth(root, updated, draw),
+        h: elementsHeight(root, updated, draw)
+      }
+    }
+  }
 }
 
-function elementsHeight(children: string[], tree: Tree, draw: DrawState): number {
-  return (_.max(_.map(children, childID => tree[childID].coord.h)) || 0) + draw.heightMargin * 2
+function elementWidth(node: TreeNode, tree: Tree, draw: DrawState): number {
+  const sumChildren = () =>
+    _.reduce(
+      node.expr.children,
+      (widthSum, childID) => tree[childID].coord.w + draw.widthMargin + widthSum,
+      0
+    )
+
+  switch (node.expr.type) {
+    case VARIABLE:
+      return draw.circleRadius * 2
+    case ABSTRACTION:
+      return sumChildren() + draw.circleRadius * 2 + draw.widthMargin
+    case APPLICATION:
+      return sumChildren() + draw.circleRadius
+    default:
+      return 0
+  }
+}
+
+function elementsHeight(node: TreeNode, tree: Tree, draw: DrawState): number {
+  const maxChildren = () =>
+    _.max(_.map(node.expr.children, childID => tree[childID].coord.h)) || draw.heightMargin * 2
+
+  switch (node.expr.type) {
+    case VARIABLE:
+      return draw.circleRadius * 2
+    case ABSTRACTION:
+      return maxChildren() + draw.circleRadius
+    case APPLICATION:
+      return maxChildren() + draw.circleRadius
+    default:
+      return 0
+  }
 }
