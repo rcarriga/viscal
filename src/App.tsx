@@ -8,7 +8,7 @@ import "./App.css"
 import styled from "styled-components"
 import { Motion, spring } from "react-motion"
 import { Var, Abs, Appl } from "./exprs"
-import { DrawProps } from "./draw"
+import { DrawState } from "./state/draw/types"
 import {
   testTree,
   TreeNode,
@@ -20,6 +20,14 @@ import {
 } from "./Tree"
 
 const App: React.FC = () => {
+  const drawProps = {
+    circleRadius: 20,
+    heightMargin: 20,
+    widthMargin: 20,
+    strokeWidth: 2,
+    startX: 50,
+    startY: 100
+  }
   return (
     <div className="App">
       <header className="App-header">
@@ -27,29 +35,22 @@ const App: React.FC = () => {
         <h3 className="App-subtitle">Graphical Lambda Calculus Evaluator</h3>
       </header>
       <div className="App-content">
-        <Drawboard circleRadius={30} heightMargin={20} widthMargin={20} strokeWidth={2} />
+        <Drawboard {...drawProps} />
       </div>
     </div>
   )
 }
 
-const Drawboard = (drawProps: DrawProps) => {
+const Drawboard = (drawProps: DrawState) => {
   return <svg className="viewport" children={createExprs(drawProps)}></svg>
 }
 
-const createExprs = (drawProps: DrawProps) => {
-  const x = constructCoords(testTree, {
-    circleRadius: 30,
-    heightMargin: 20,
-    widthMargin: 30,
-    strokeWidth: 2
-  })
-  console.log(x)
+const createExprs = (drawProps: DrawState) => {
+  const x = constructCoords(testTree, drawProps)
   return _.map(x.nodes, (node, nodeID) => createExpr(nodeID, node, drawProps))
 }
 
-const createExpr = (nodeID: string, node: TreeNode, drawProps: DrawProps) => {
-  console.log(node)
+const createExpr = (nodeID: string, node: TreeNode, drawProps: DrawState) => {
   switch (node.expr.type) {
     case VARIABLE:
       return (
