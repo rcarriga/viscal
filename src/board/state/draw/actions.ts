@@ -5,13 +5,28 @@ export const SET_STROKE_WIDTH = "CHANGE_STROKE_WIDTH"
 export const SET_START_X = "CHANGE_START_X"
 export const SET_START_Y = "CHANGE_START_Y"
 
-export interface DrawState {
-  circleRadius: number
-  heightMargin: number
-  widthMargin: number
-  strokeWidth: number
-  startX: number
-  startY: number
+export function setRadius(value: number): DrawAction {
+  return { type: SET_RADIUS, value: value }
+}
+
+export function setHeightMargin(value: number): DrawAction {
+  return { type: SET_HEIGHT_MARGIN, value: value }
+}
+
+export function setWidthMargin(value: number): DrawAction {
+  return { type: SET_WIDTH_MARGIN, value: value }
+}
+
+export function setStrokeWidth(value: number): DrawAction {
+  return { type: SET_STROKE_WIDTH, value: value }
+}
+
+export function setStartX(value: number): DrawAction {
+  return { type: SET_START_X, value: value }
+}
+
+export function setStartY(value: number): DrawAction {
+  return { type: SET_START_Y, value: value }
 }
 
 interface SetRadiusAction {

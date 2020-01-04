@@ -1,9 +1,10 @@
 import _ from "lodash"
 import { combineReducers } from "redux"
-import { BoardState, Coords, BoardAction } from "./types"
-import { TreeState, Tree, TreeNode, NodeID, VARIABLE, ABSTRACTION, APPLICATION } from "./tree/types"
+import { BoardState, CoordState } from "./types"
+import { BoardAction } from "./actions"
+import { TreeState, Tree, TreeNode, NodeID, VARIABLE, ABSTRACTION, APPLICATION } from "./tree"
 import { initialTreeState, tree } from "./tree/reducers"
-import { DrawState } from "./draw/types"
+import { DrawState } from "./draw"
 import { initialDrawState, draw } from "./draw/reducers"
 
 const initialState = {
@@ -25,18 +26,18 @@ export function board(state = initialState, action: BoardAction): BoardState {
   }
 }
 
-function constructCoords(root: NodeID, tree: Tree, draw: DrawState): Coords {
+function constructCoords(root: NodeID, tree: Tree, draw: DrawState): CoordState {
   return fillCoords(root, addDimensions(root, {}, tree, draw), tree, draw)
 }
 
 function fillCoords(
   rootID: NodeID,
-  coords: Coords,
+  coords: CoordState,
   tree: Tree,
   draw: DrawState,
   baseX = draw.startX,
   baseY = draw.startY
-): Coords {
+): CoordState {
   const root = tree[rootID]
   const newCoords = { ...coords, [rootID]: { ...coords[rootID], x: baseX, y: baseY } }
   switch (root.expr.type) {
@@ -59,7 +60,12 @@ function fillCoords(
   }
 }
 
-function addDimensions(rootID: NodeID, coords: Coords, tree: Tree, draw: DrawState): Coords {
+function addDimensions(
+  rootID: NodeID,
+  coords: CoordState,
+  tree: Tree,
+  draw: DrawState
+): CoordState {
   const root = tree[rootID]
   const children = root.expr.children
   const updated = _.reduce(
@@ -78,7 +84,7 @@ function addDimensions(rootID: NodeID, coords: Coords, tree: Tree, draw: DrawSta
   }
 }
 
-function elementWidth(node: TreeNode, coords: Coords, draw: DrawState): number {
+function elementWidth(node: TreeNode, coords: CoordState, draw: DrawState): number {
   const sumChildren = () =>
     _.reduce(
       node.expr.children,
@@ -98,7 +104,7 @@ function elementWidth(node: TreeNode, coords: Coords, draw: DrawState): number {
   }
 }
 
-function elementHeight(node: TreeNode, coords: Coords, draw: DrawState): number {
+function elementHeight(node: TreeNode, coords: CoordState, draw: DrawState): number {
   const maxChildren = () =>
     _.max(_.map(node.expr.children, childID => coords[childID].h)) || draw.heightMargin * 2
 

@@ -1,16 +1,11 @@
+import { TreeState, TreeNode, NodeID, VARIABLE, ABSTRACTION, APPLICATION } from "./types"
 import {
-  TreeState,
   TreeAction,
-  TreeNode,
-  NodeID,
   NORMAL_ORDER_REDUCTION,
   ADD_VARIABLE,
   ADD_ABSTRACTION,
-  ADD_APPLICATION,
-  VARIABLE,
-  ABSTRACTION,
-  APPLICATION
-} from "./types"
+  ADD_APPLICATION
+} from "./actions"
 
 export const initialTreeState: TreeState = { nodes: {} }
 

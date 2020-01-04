@@ -1,5 +1,5 @@
+import { DrawState } from "./types"
 import {
-  DrawState,
   DrawAction,
   SET_RADIUS,
   SET_STROKE_WIDTH,
@@ -7,7 +7,7 @@ import {
   SET_WIDTH_MARGIN,
   SET_START_X,
   SET_START_Y
-} from "./types"
+} from "./actions"
 
 export const initialDrawState: DrawState = {
   circleRadius: 30,

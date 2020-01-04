@@ -1,5 +1,5 @@
 import { combineReducers } from "redux"
-import { board } from "./board/reducers"
+import { board } from "../board/state/reducers"
 
 export default combineReducers({
   board

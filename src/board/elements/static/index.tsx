@@ -20,7 +20,7 @@ interface AbsProps extends ExprProps {
 
 interface AppProps extends AbsProps {}
 
-const Var = (props: VarProps) => {
+export const Var = (props: VarProps) => {
   return (
     <ellipse
       id={props.id}
@@ -32,7 +32,7 @@ const Var = (props: VarProps) => {
   )
 }
 
-const Abs = (props: AbsProps) => {
+export const Abs = (props: AbsProps) => {
   const boxWidth = props.width - props.radius
   const circleTopPoint = props.y - props.radius
   const inputX = props.x + boxWidth + props.radius
@@ -49,13 +49,13 @@ const Abs = (props: AbsProps) => {
         strokeLinecap="round"
         strokeWidth={props.strokeWidth}
         d={`M${props.x + props.radius},${circleTopPoint + props.radius * 2}
-          l0,${props.height / 2 - props.radius} 
-          l${boxWidth},0 
+          l0,${props.height / 2 - props.radius}
+          l${boxWidth},0
           l0,${-props.height / 2 + props.radius}
           ${inPath}
-          ${inStart} 
+          ${inStart}
           l0,${-props.height / 2 + props.radius}
-          l${-boxWidth},0 
+          l${-boxWidth},0
           l0,${props.height / 2 - props.radius}`}
         fillOpacity="0"
       />
@@ -63,7 +63,7 @@ const Abs = (props: AbsProps) => {
   )
 }
 
-const Appl = (props: AppProps) => {
+export const Appl = (props: AppProps) => {
   const circleTopPoint = props.y - props.radius
   const outPath = `M${props.x + props.radius},${circleTopPoint} a1,1 0 0,0 0,${props.radius * 2}`
 
@@ -76,17 +76,13 @@ const Appl = (props: AppProps) => {
         strokeLinecap="round"
         strokeWidth={props.strokeWidth}
         d={`M${props.x + props.radius},${circleTopPoint + props.radius * 2}
-          l0,${props.height / 2 - props.radius} 
-          l${props.width},0 
+          l0,${props.height / 2 - props.radius}
+          l${props.width},0
           l0,${-props.height}
-          l${-props.width},0 
+          l${-props.width},0
           l0,${props.height / 2 - props.radius}`}
         fillOpacity="0"
       />
     </g>
   )
 }
-
-export { Var }
-export { Abs }
-export { Appl }
