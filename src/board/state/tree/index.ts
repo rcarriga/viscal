@@ -1,2 +1,2 @@
 export * from "./types"
-export { normalOrderReduce, addVariable, addAbstraction, addApplication } from "./actions"
+export { normalOrderReduce, setRoot, addVariable, addAbstraction, addApplication } from "./actions"

@@ -1,12 +1,6 @@
-/* eslint-disable react/no-children-prop */
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react"
 import { Provider } from "react-redux"
-import _ from "lodash"
 import "./App.css"
-import styled from "styled-components"
-import { Motion, spring } from "react-motion"
 import { Board } from "./board"
 import { store } from "./state"
 

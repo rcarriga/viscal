@@ -1,8 +1,7 @@
 import _ from "lodash"
-import { combineReducers } from "redux"
 import { BoardState, CoordState } from "./types"
 import { BoardAction } from "./actions"
-import { TreeState, Tree, TreeNode, NodeID, VARIABLE, ABSTRACTION, APPLICATION } from "./tree"
+import { Tree, TreeNode, NodeID, VARIABLE, ABSTRACTION, APPLICATION } from "./tree"
 import { initialTreeState, tree } from "./tree/reducers"
 import { DrawState } from "./draw"
 import { initialDrawState, draw } from "./draw/reducers"
@@ -14,15 +13,12 @@ const initialState = {
 }
 
 export function board(state = initialState, action: BoardAction): BoardState {
-  const updated: { tree: TreeState; draw: DrawState } = combineReducers({ draw, tree })(
-    state,
-    action
-  )
+  const newTree = tree(state.tree, action)
+  const newDraw = draw(state.draw, action)
   return {
-    ...updated,
-    coords: updated.tree.root
-      ? constructCoords(updated.tree.root, updated.tree.nodes, updated.draw)
-      : {}
+    tree: newTree,
+    draw: newDraw,
+    coords: newTree.root ? constructCoords(newTree.root, newTree.nodes, newDraw) : {}
   }
 }
 

@@ -1,6 +1,7 @@
 import { TreeState, TreeNode, NodeID, VARIABLE, ABSTRACTION, APPLICATION } from "./types"
+import { BoardAction } from "../actions"
 import {
-  TreeAction,
+  SET_ROOT,
   NORMAL_ORDER_REDUCTION,
   ADD_VARIABLE,
   ADD_ABSTRACTION,
@@ -9,8 +10,10 @@ import {
 
 export const initialTreeState: TreeState = { nodes: {} }
 
-export function tree(state = initialTreeState, action: TreeAction): TreeState {
+export function tree(state = initialTreeState, action: BoardAction): TreeState {
   switch (action.type) {
+    case SET_ROOT:
+      return { ...state, root: action.expressionID }
     case ADD_VARIABLE:
       return addNode(state, action.expressionID, {
         parentID: action.parentID,
@@ -47,6 +50,7 @@ function addNode(state: TreeState, nodeID: NodeID, expr: TreeNode): TreeState {
   return {
     ...state,
     nodes: {
+      ...state.nodes,
       [nodeID]: expr
     }
   }

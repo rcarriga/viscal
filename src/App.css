@@ -34,9 +34,12 @@
   justify-content: center;
 }
 
+.board {
+}
+
 .viewport {
   background: #dddddd;
-  height: 80vmin;
+  height: 50vmin;
   width: 90%;
   border: solid 5px black;
   margin: 10px;

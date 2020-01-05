@@ -38,6 +38,7 @@ module.exports = {
     "immutable/no-mutation": 2,
     "no-var": "error",
     "no-undef": "error",
-    "no-param-reassign": "error"
+    "no-param-reassign": "error",
+    "default-case": "error"
   }
 }

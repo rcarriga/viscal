@@ -1,6 +1,6 @@
 import { NodeID } from "./types"
 export const NORMAL_ORDER_REDUCTION = "NORMAL_ORDER_REDUCTION"
-export const SET_TREE = "SET_TREE"
+export const SET_ROOT = "SET_ROOT"
 export const ADD_VARIABLE = "ADD_VARIABLE"
 export const ADD_ABSTRACTION = "ADD_ABSTRACTION"
 export const ADD_APPLICATION = "ADD_APPLICATION"
@@ -8,6 +8,11 @@ export const ADD_APPLICATION = "ADD_APPLICATION"
 interface NormalOrderReductionAction {
   type: typeof NORMAL_ORDER_REDUCTION
   expressionID: string
+}
+
+interface SetRoot {
+  type: typeof SET_ROOT
+  expressionID: NodeID
 }
 
 interface AddExpression {
@@ -35,10 +40,19 @@ interface AddApplication extends AddExpression {
   parentID?: NodeID
 }
 
-export type TreeAction = NormalOrderReductionAction | AddVariable | AddAbstraction | AddApplication
+export type TreeAction =
+  | NormalOrderReductionAction
+  | SetRoot
+  | AddVariable
+  | AddAbstraction
+  | AddApplication
 
-export function normalOrderReduce(expressionID: string): TreeAction {
+export function normalOrderReduce(expressionID: NodeID): TreeAction {
   return { type: NORMAL_ORDER_REDUCTION, expressionID: expressionID }
+}
+
+export function setRoot(expressionID: NodeID): TreeAction {
+  return { type: SET_ROOT, expressionID: expressionID }
 }
 
 export function addVariable(
