@@ -1,4 +1,4 @@
-import { DrawState } from "./types"
+import { ControlState } from "./types"
 import { BoardAction } from "../actions"
 import {
   SET_RADIUS,
@@ -9,7 +9,7 @@ import {
   SET_START_Y
 } from "./actions"
 
-export const initialDrawState: DrawState = {
+export const initialControlState: ControlState = {
   circleRadius: 30,
   heightMargin: 20,
   widthMargin: 20,
@@ -18,7 +18,7 @@ export const initialDrawState: DrawState = {
   startY: 100
 }
 
-export function draw(state = initialDrawState, action: BoardAction): DrawState {
+export function control(state = initialControlState, action: BoardAction): ControlState {
   switch (action.type) {
     case SET_RADIUS:
       return { ...state, circleRadius: action.value }

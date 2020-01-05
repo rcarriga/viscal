@@ -37,7 +37,13 @@ const drawExpr = (nodeID: string, board: BoardState) => {
   switch (board.tree.nodes[nodeID].expr.type) {
     case VARIABLE:
       return (
-        <Var key={nodeID} id={nodeID} x={coords.x} y={coords.y} radius={board.draw.circleRadius} />
+        <Var
+          key={nodeID}
+          id={nodeID}
+          x={coords.x}
+          y={coords.y}
+          radius={board.control.circleRadius}
+        />
       )
     case ABSTRACTION:
       return (
@@ -47,11 +53,11 @@ const drawExpr = (nodeID: string, board: BoardState) => {
           x={coords.x}
           y={coords.y}
           width={coords.w}
-          radius={board.draw.circleRadius}
+          radius={board.control.circleRadius}
           height={coords.h}
-          heightMargin={board.draw.heightMargin}
-          widthMargin={board.draw.widthMargin}
-          strokeWidth={board.draw.strokeWidth}
+          heightMargin={board.control.heightMargin}
+          widthMargin={board.control.widthMargin}
+          strokeWidth={board.control.strokeWidth}
         />
       )
     case APPLICATION:
@@ -61,12 +67,12 @@ const drawExpr = (nodeID: string, board: BoardState) => {
           id={nodeID}
           x={coords.x}
           y={coords.y}
-          radius={board.draw.circleRadius}
+          radius={board.control.circleRadius}
           width={coords.w}
           height={coords.h}
-          heightMargin={board.draw.heightMargin}
-          widthMargin={board.draw.widthMargin}
-          strokeWidth={board.draw.strokeWidth}
+          heightMargin={board.control.heightMargin}
+          widthMargin={board.control.widthMargin}
+          strokeWidth={board.control.strokeWidth}
         />
       )
     default:

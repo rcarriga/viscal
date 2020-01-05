@@ -1,4 +1,4 @@
-export interface DrawState {
+export interface ControlState {
   circleRadius: number
   heightMargin: number
   widthMargin: number

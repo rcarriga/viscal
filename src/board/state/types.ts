@@ -1,5 +1,5 @@
 import { TreeState } from "./tree/types"
-import { DrawState } from "./draw/types"
+import { ControlState } from "./control/types"
 
 export interface Coord {
   readonly x: number
@@ -13,5 +13,5 @@ export type CoordState = { [nodeID: string]: Coord }
 export interface BoardState {
   coords: CoordState
   tree: TreeState
-  draw: DrawState
+  control: ControlState
 }

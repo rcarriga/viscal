@@ -1,3 +1,3 @@
 export * from "./tree"
-export * from "./draw"
+export * from "./control"
 export * from "./types"

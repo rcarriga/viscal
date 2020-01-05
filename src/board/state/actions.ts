@@ -1,4 +1,4 @@
 import { TreeAction } from "./tree/actions"
-import { DrawAction } from "./draw/actions"
+import { ControlAction } from "./control/actions"
 
-export type BoardAction = TreeAction | DrawAction
+export type BoardAction = TreeAction | ControlAction
