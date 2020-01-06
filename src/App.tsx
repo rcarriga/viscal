@@ -3,7 +3,7 @@ import { Provider } from "react-redux"
 import "./App.css"
 import { Board } from "./board"
 import { store } from "./state"
-import { BoardControls } from "./board/controls"
+import { BoardControl } from "./board/control"
 
 const App: React.FC = () => {
   return (
@@ -14,7 +14,8 @@ const App: React.FC = () => {
           <h3 className="App-subtitle">Graphical Lambda Calculus Evaluator</h3>
         </header>
         <div className="App-content">
-          <BoardControls></BoardControls>
+          <Board></Board>
+          <BoardControl></BoardControl>
         </div>
       </div>
     </Provider>

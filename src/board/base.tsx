@@ -4,10 +4,10 @@ import { connect } from "react-redux"
 
 const mapState = (state: AppState) => ({ state: state.board })
 const mapDispatch = {
-  setRoot: setRoot,
-  addVar: addVariable,
   addAbs: addAbstraction,
-  addApp: addApplication
+  addApp: addApplication,
+  addVar: addVariable,
+  setRoot: setRoot
 }
 
 export type BoardProps = ReturnType<typeof mapState> & typeof mapDispatch

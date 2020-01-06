@@ -7,18 +7,18 @@ import { ControlState } from "./control"
 import { initialControlState, control } from "./control/reducers"
 
 const initialState = {
-  tree: initialTreeState,
   control: initialControlState,
-  coords: {}
+  coords: {},
+  tree: initialTreeState
 }
 
 export function board(state = initialState, action: BoardAction): BoardState {
   const newTree = tree(state.tree, action)
   const newcontrol = control(state.control, action)
   return {
-    tree: newTree,
     control: newcontrol,
-    coords: newTree.root ? constructCoords(newTree.root, newTree.nodes, newcontrol) : {}
+    coords: newTree.root ? constructCoords(newTree.root, newTree.nodes, newcontrol) : {},
+    tree: newTree
   }
 }
 
@@ -72,10 +72,10 @@ function addDimensions(
   return {
     ...updated,
     [rootID]: {
-      x: 0,
-      y: 0,
+      h: elementHeight(root, updated, control),
       w: elementWidth(root, updated, control),
-      h: elementHeight(root, updated, control)
+      x: 0,
+      y: 0
     }
   }
 }

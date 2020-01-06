@@ -1,35 +1,31 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React from "react"
+import React, { useEffect } from "react"
 import _ from "lodash"
 import { BoardProps } from "./base"
-import {
-  addVariable,
-  addAbstraction,
-  addApplication,
-  setRoot,
-  BoardState,
-  VARIABLE,
-  ABSTRACTION,
-  APPLICATION
-} from "./state"
+import { BoardState, VARIABLE, ABSTRACTION, APPLICATION } from "./state"
 import { Var, Abs, Appl } from "./elements"
 
 export const BoardContent = (props: BoardProps) => {
+  useEffect(() => {
+    if (!props.state.tree.root) {
+      props.addVar("var1", 0, "a", "abs1")
+      props.addVar("var2", 0, "a", "abs1")
+      props.addAbs("abs1", "a", "var2", "app1")
+      props.addApp("app1", "abs1", "var1")
+      props.setRoot("app1")
+    }
+  })
   return (
-    <svg
-      onClick={() => {
-        props.addVar("var1", 0, "a", "abs1")
-        props.addVar("var2", 0, "a", "abs1")
-        props.addAbs("abs1", "a", "var2")
-        props.addApp("app1", "abs1", "var1")
-        props.setRoot("app1")
-      }}
-      className="viewport"
-    >
-      {_.map(_.keys(props.state.coords), nodeID => drawExpr(nodeID, props.state))}
-    </svg>
+    <div>
+      <svg className="viewport">{drawExprs(props.state)}</svg>
+    </div>
   )
+}
+
+const drawExprs = (props: BoardState) => {
+  const exprs = _.map(_.keys(props.coords), nodeID => drawExpr(nodeID, props))
+  return _.reverse(exprs ? _.sortBy(exprs, expr => (expr ? expr.props.w : 0)) : [])
 }
 
 const drawExpr = (nodeID: string, board: BoardState) => {

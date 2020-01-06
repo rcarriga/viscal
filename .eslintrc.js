@@ -39,6 +39,7 @@ module.exports = {
     "no-var": "error",
     "no-undef": "error",
     "no-param-reassign": "error",
-    "default-case": "error"
+    "default-case": "error",
+    "sort-keys": ["error", "asc", {natural: true}]
   }
 }

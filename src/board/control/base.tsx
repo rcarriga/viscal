@@ -12,14 +12,16 @@ import {
 
 const mapState = (state: AppState) => ({ state: state.board.control })
 const mapDispatch = {
-  setRoot,
-  setRadius,
-  setStrokeWidth,
-  setWidthMargin,
   setHeightMargin,
+  setRadius,
+  setRoot,
   setStartX,
-  setStartY
+  setStartY,
+  setStrokeWidth,
+  setWidthMargin
 }
+
+export type ControlProps = ReturnType<typeof mapState> & typeof mapDispatch
 export const connectState = connect(mapState, mapDispatch)
 
 export interface ControlsTheme {
