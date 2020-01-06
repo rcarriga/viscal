@@ -4,6 +4,7 @@ export const SET_WIDTH_MARGIN = "CHANGE_WIDTH_MARGIN"
 export const SET_STROKE_WIDTH = "CHANGE_STROKE_WIDTH"
 export const SET_START_X = "CHANGE_START_X"
 export const SET_START_Y = "CHANGE_START_Y"
+export const SET_EXPRESSION = "SET_EXPRESSION"
 
 export function setRadius(value: number): ControlAction {
   return { type: SET_RADIUS, value: value }
@@ -27,6 +28,10 @@ export function setStartX(value: number): ControlAction {
 
 export function setStartY(value: number): ControlAction {
   return { type: SET_START_Y, value: value }
+}
+
+export function setExpression(value: string): ControlAction {
+  return { type: SET_EXPRESSION, value: value }
 }
 
 interface SetRadiusAction {
@@ -59,6 +64,11 @@ interface SetStartY {
   value: number
 }
 
+interface SetExpression {
+  type: typeof SET_EXPRESSION
+  value: string
+}
+
 export type ControlAction =
   | SetRadiusAction
   | SetHeightMarginAction
@@ -66,3 +76,4 @@ export type ControlAction =
   | SetStrokeWidthAction
   | SetStartX
   | SetStartY
+  | SetExpression

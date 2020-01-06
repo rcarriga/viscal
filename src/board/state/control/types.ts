@@ -5,4 +5,5 @@ export interface ControlState {
   strokeWidth: number
   startX: number
   startY: number
+  expression: string
 }

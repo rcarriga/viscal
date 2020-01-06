@@ -5,6 +5,7 @@ import _ from "lodash"
 import { BoardProps } from "./base"
 import { BoardState, VARIABLE, ABSTRACTION, APPLICATION } from "./state"
 import { Var, Abs, Appl } from "./elements"
+import { coordsSelector, Coord } from "./coords"
 
 export const BoardContent = (props: BoardProps) => {
   useEffect(() => {
@@ -24,33 +25,27 @@ export const BoardContent = (props: BoardProps) => {
 }
 
 const drawExprs = (props: BoardState) => {
-  const exprs = _.map(_.keys(props.coords), nodeID => drawExpr(nodeID, props))
-  return _.reverse(exprs ? _.sortBy(exprs, expr => (expr ? expr.props.w : 0)) : [])
+  const coords = coordsSelector(props)
+  const exprs = _.map(coords, (coord, nodeID) => drawExpr(nodeID, coord, props))
+  return _.sortBy(exprs, expr => (expr ? -expr.props.w : 0))
 }
 
-const drawExpr = (nodeID: string, board: BoardState) => {
-  const coords = board.coords[nodeID]
+const drawExpr = (nodeID: string, coord: Coord, board: BoardState) => {
   switch (board.tree.nodes[nodeID].expr.type) {
     case VARIABLE:
       return (
-        <Var
-          key={nodeID}
-          id={nodeID}
-          x={coords.x}
-          y={coords.y}
-          radius={board.control.circleRadius}
-        />
+        <Var key={nodeID} id={nodeID} x={coord.x} y={coord.y} radius={board.control.circleRadius} />
       )
     case ABSTRACTION:
       return (
         <Abs
           key={nodeID}
           id={nodeID}
-          x={coords.x}
-          y={coords.y}
-          width={coords.w}
+          x={coord.x}
+          y={coord.y}
+          width={coord.w}
           radius={board.control.circleRadius}
-          height={coords.h}
+          height={coord.h}
           heightMargin={board.control.heightMargin}
           widthMargin={board.control.widthMargin}
           strokeWidth={board.control.strokeWidth}
@@ -61,11 +56,11 @@ const drawExpr = (nodeID: string, board: BoardState) => {
         <Appl
           key={nodeID}
           id={nodeID}
-          x={coords.x}
-          y={coords.y}
+          x={coord.x}
+          y={coord.y}
           radius={board.control.circleRadius}
-          width={coords.w}
-          height={coords.h}
+          width={coord.w}
+          height={coord.h}
           heightMargin={board.control.heightMargin}
           widthMargin={board.control.widthMargin}
           strokeWidth={board.control.strokeWidth}
