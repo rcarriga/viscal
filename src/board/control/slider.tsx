@@ -10,17 +10,27 @@ interface SliderControlProps {
   value: number
 }
 
-interface SliderProps extends SliderControlProps {
-  theme: ControlsTheme
-}
-
 export const SliderControl = (props: SliderControlProps) => {
   return (
     <SliderPanel>
-      <p>{props.title}</p>
+      <SliderTitle>{props.title}</SliderTitle>
       <Slider {...props}></Slider>
     </SliderPanel>
   )
+}
+
+interface SliderTitleProps {
+  text: string
+  fontSize: number
+}
+
+const SliderTitle = styled.p.attrs(props => props)`
+  font-size: 10pt;
+  margin-bottom: 1%;
+`
+
+interface SliderProps extends SliderControlProps {
+  theme: ControlsTheme
 }
 
 const SliderPanel = styled.div.attrs(props => props)`
@@ -44,7 +54,7 @@ export const Slider = styled.input.attrs((props: SliderProps) => {
   opacity: 0.7;
   outline: none;
   transition: opacity 0.2s;
-  width: 90%;
+  width: 70%;
 
   &:hover {
     opacity: 0.8;

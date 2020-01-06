@@ -2,6 +2,7 @@ import React from "react"
 import styled, { ThemeProvider } from "styled-components"
 
 import { SliderControl } from "./slider"
+import { ExpressionControl } from "./expression"
 import { connectState, ControlProps } from "./base"
 
 export const BoardControl = connectState((props: ControlProps) => {
@@ -13,6 +14,11 @@ export const BoardControl = connectState((props: ControlProps) => {
   return (
     <ThemeProvider theme={theme}>
       <ControlPanel>
+        <ExpressionControl
+          value=""
+          onChange={console.log}
+          placeHolder="Write a lambda expression here."
+        />
         <SliderControl
           title="Circle Radius"
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
