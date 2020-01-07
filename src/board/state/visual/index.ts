@@ -1,2 +1,9 @@
 export * from "./types"
-export { setHighlighted, setColor, setSelected, clearSelected, clearHighlighted } from "./actions"
+export {
+  newColor,
+  setHighlighted,
+  setColor,
+  setSelected,
+  clearSelected,
+  clearHighlighted
+} from "./actions"

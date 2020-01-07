@@ -1,16 +1,44 @@
 import React from "react"
-import { ExprProps } from "./base"
+import { RawExprProps, ExprProps } from "./base"
+import { useSelected, useCoords, useColors, useControls } from "../../state"
 
-interface ApplProps extends ExprProps {
+interface ApplProps extends ExprProps {}
+
+export const Appl = (props: ApplProps) => {
+  const coord = useCoords(coords => coords[props.id]),
+    control = useControls(controls => controls),
+    isSelected = useSelected(selected => props.id === selected),
+    strokeColor = isSelected ? "red" : "grey"
+
+  return (
+    <RawAppl
+      id={props.id}
+      x={coord.x}
+      y={coord.y}
+      width={coord.w}
+      radius={control.circleRadius}
+      height={coord.h}
+      heightMargin={control.heightMargin}
+      widthMargin={control.widthMargin}
+      strokeWidth={control.strokeWidth}
+      strokeColor={strokeColor}
+    />
+  )
+}
+
+interface RawApplProps extends RawExprProps {
+  radius: number
   height: number
   width: number
   widthMargin: number
   heightMargin: number
   strokeWidth: number
+  strokeColor: string
 }
-export const Appl = (props: ApplProps) => {
-  const circleTopPoint = props.y - props.radius
-  const outPath = `M${props.x + props.radius},${circleTopPoint} a1,1 0 0,0 0,${props.radius * 2}`
+
+const RawAppl = (props: RawApplProps) => {
+  const circleTopPoint = props.y - props.radius,
+    outPath = `M${props.x + props.radius},${circleTopPoint} a1,1 0 0,0 0,${props.radius * 2}`
 
   return (
     <g id={props.id}>

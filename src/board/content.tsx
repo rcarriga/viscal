@@ -22,54 +22,18 @@ export const BoardContent = (props: BoardProps) => {
 }
 
 const drawExprs = (props: BoardState) => {
-  const coords = coordsSelector(props)
-  const exprs = _.map(coords, (coord, nodeID) => drawExpr(nodeID, coord, props))
-  return _.sortBy(exprs, expr => (expr ? -expr.props.w : 0))
-}
-
-const drawExpr = (nodeID: string, coord: Coord, board: BoardState) => {
-  switch (board.tree.nodes[nodeID].expr.type) {
-    case VARIABLE:
-      return (
-        <Var
-          color="pink"
-          key={nodeID}
-          id={nodeID}
-          x={coord.x}
-          y={coord.y}
-          radius={board.control.circleRadius}
-        />
-      )
-    case ABSTRACTION:
-      return (
-        <Abs
-          key={nodeID}
-          id={nodeID}
-          x={coord.x}
-          y={coord.y}
-          width={coord.w}
-          radius={board.control.circleRadius}
-          height={coord.h}
-          heightMargin={board.control.heightMargin}
-          widthMargin={board.control.widthMargin}
-          strokeWidth={board.control.strokeWidth}
-        />
-      )
-    case APPLICATION:
-      return (
-        <Appl
-          key={nodeID}
-          id={nodeID}
-          x={coord.x}
-          y={coord.y}
-          radius={board.control.circleRadius}
-          width={coord.w}
-          height={coord.h}
-          heightMargin={board.control.heightMargin}
-          widthMargin={board.control.widthMargin}
-          strokeWidth={board.control.strokeWidth}
-        />
-      )
-    default:
+    const exprs = _.map(_.keys(props.tree.nodes), nodeID => drawExpr(nodeID, props))
+    return _.sortBy(exprs, expr => (expr ? -expr.props.w : 0))
+  },
+  drawExpr = (nodeID: string, board: BoardState) => {
+    const node = board.tree.nodes[nodeID].expr
+    switch (node.type) {
+      case VARIABLE:
+        return <Var key={nodeID} id={nodeID} variableName={node.name} />
+      case ABSTRACTION:
+        return <Abs key={nodeID} id={nodeID} variableName={node.variableName} />
+      case APPLICATION:
+        return <Appl key={nodeID} id={nodeID} />
+      default:
+    }
   }
-}

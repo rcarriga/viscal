@@ -1,12 +1,21 @@
-import { VisualState } from "./types"
-import { SET_COLOR, SET_SELECTED, SET_HIGHLIGHTED, VisualAction } from "./actions"
+import randomcolor from "randomcolor"
+import { VisualState, VarColors, VarName } from "./types"
+import { NEW_COLOR, SET_COLOR, SET_SELECTED, SET_HIGHLIGHTED, VisualAction } from "./actions"
 
 export const initialVisualState = {
-  colors: {}
+  colors: {},
+  theme: {
+    selectedStroke: "green"
+  }
 }
 
 export const visual = (state = initialVisualState, action: VisualAction): VisualState => {
   switch (action.type) {
+    case NEW_COLOR:
+      return {
+        ...state,
+        colors: addColor(action.variableName, state.colors)
+      }
     case SET_COLOR:
       return {
         ...state,
@@ -27,5 +36,12 @@ export const visual = (state = initialVisualState, action: VisualAction): Visual
       }
     default:
       return state
+  }
+}
+
+const addColor = (varName: VarName, colors: VarColors): VarColors => {
+  return {
+    ...colors,
+    [varName]: randomcolor({ luminosity: "bright" })
   }
 }
