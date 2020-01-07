@@ -1,11 +1,8 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect } from "react"
 import _ from "lodash"
 import { BoardProps } from "./base"
-import { BoardState, VARIABLE, ABSTRACTION, APPLICATION } from "./state"
+import { BoardState, VARIABLE, ABSTRACTION, APPLICATION, coordsSelector, Coord } from "./state"
 import { Var, Abs, Appl } from "./elements"
-import { coordsSelector, Coord } from "./coords"
 
 export const BoardContent = (props: BoardProps) => {
   useEffect(() => {
@@ -34,7 +31,14 @@ const drawExpr = (nodeID: string, coord: Coord, board: BoardState) => {
   switch (board.tree.nodes[nodeID].expr.type) {
     case VARIABLE:
       return (
-        <Var key={nodeID} id={nodeID} x={coord.x} y={coord.y} radius={board.control.circleRadius} />
+        <Var
+          color="pink"
+          key={nodeID}
+          id={nodeID}
+          x={coord.x}
+          y={coord.y}
+          radius={board.control.circleRadius}
+        />
       )
     case ABSTRACTION:
       return (

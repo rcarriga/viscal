@@ -40,6 +40,5 @@ module.exports = {
     "no-undef": "error",
     "no-param-reassign": "error",
     "default-case": "error",
-    "sort-keys": ["error", "asc", {natural: true}]
   }
 }

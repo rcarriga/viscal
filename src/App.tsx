@@ -3,7 +3,6 @@ import { Provider } from "react-redux"
 import "./App.css"
 import { Board } from "./board"
 import { store } from "./state"
-import { BoardControl } from "./board/control"
 
 const App: React.FC = () => {
   return (
@@ -15,7 +14,6 @@ const App: React.FC = () => {
         </header>
         <div className="App-content">
           <Board></Board>
-          <BoardControl></BoardControl>
         </div>
       </div>
     </Provider>

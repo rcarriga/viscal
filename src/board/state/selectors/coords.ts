@@ -9,7 +9,7 @@ import {
   VARIABLE,
   ABSTRACTION,
   APPLICATION
-} from "./state"
+} from ".."
 import { createSelector } from "reselect"
 
 export type Coords = { [nodeID: string]: Coord }
