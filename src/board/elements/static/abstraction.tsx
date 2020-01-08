@@ -1,17 +1,17 @@
 import React from "react"
+import { useSelected, useCoords, useColor, useControl } from "../../state"
 import { ExprProps, RawExprProps } from "./base"
-import { useSelected, useCoords, useColors, useControls } from "../../state"
 
 interface AbsProps extends ExprProps {
   variableName: string
 }
 
 export const Abs = (props: AbsProps) => {
-  const color = useColors(colors => colors[props.id] || "black"),
-    coord = useCoords(coords => coords[props.id]),
-    control = useControls(controls => controls),
-    isSelected = useSelected(selected => props.id === selected),
-    strokeColor = isSelected ? "red" : "grey"
+  const color = useColor(props.id)
+  const coord = useCoords()[props.id]
+  const control = useControl()
+  const isSelected = useSelected(selected => props.id === selected)
+  const strokeColor = isSelected ? "red" : "grey"
 
   return (
     <RawAbs
@@ -42,16 +42,17 @@ interface RawAbsProps extends RawExprProps {
 }
 
 const RawAbs = (props: RawAbsProps) => {
-  const boxWidth = props.width - props.radius,
-    circleTopPoint = props.y - props.radius,
-    inputX = props.x + boxWidth + props.radius,
-    inStart = `M${inputX},${circleTopPoint}`,
-    inPath = `${inStart} a1,1 0 0,0 0,${props.radius * 2}`,
-    outPath = `M${props.x + props.radius},${circleTopPoint} a1,1 0 0,0 0,${props.radius * 2}`
+  const boxWidth = props.width - props.radius
+  const circleTopPoint = props.y - props.radius
+  const inputX = props.x + boxWidth + props.radius
+  const inStart = `M${inputX},${circleTopPoint}`
+  const inPath = `${inStart} a1,1 0 0,0 0,${props.radius * 2}`
+  const outPath = `M${props.x + props.radius},${circleTopPoint} a1,1 0 0,0 0,${props.radius * 2}`
 
   return (
     <g id={props.id}>
       <path className={props.className} strokeOpacity={0} d={outPath} />
+      <path fill={props.variableColor} d={`${inStart} ${inPath} l0,${-props.radius * 2}`} />
       <path
         onClick={console.log}
         pointerEvents="painted"

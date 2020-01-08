@@ -1,4 +1,4 @@
-import { NodeID } from "./types"
+import { NodeID, VarIndex } from "./types"
 export const NORMAL_ORDER_REDUCTION = "NORMAL_ORDER_REDUCTION"
 export const SET_ROOT = "SET_ROOT"
 export const ADD_VARIABLE = "ADD_VARIABLE"
@@ -7,7 +7,7 @@ export const ADD_APPLICATION = "ADD_APPLICATION"
 
 interface NormalOrderReductionAction {
   type: typeof NORMAL_ORDER_REDUCTION
-  expressionID: string
+  expressionID: NodeID
 }
 
 interface SetRoot {
@@ -21,7 +21,7 @@ interface AddExpression {
 
 interface AddVariable extends AddExpression {
   type: typeof ADD_VARIABLE
-  index: number
+  index: VarIndex
   name: string
   parentID?: NodeID
 }
@@ -57,7 +57,7 @@ export function setRoot(expressionID: NodeID): TreeAction {
 
 export function addVariable(
   exprID: NodeID,
-  index: number,
+  index: VarIndex,
   name: string,
   parentID?: NodeID
 ): TreeAction {
@@ -73,7 +73,7 @@ export function addVariable(
 export function addAbstraction(
   exprID: NodeID,
   varName: string,
-  child?: string,
+  child?: NodeID,
   parentID?: NodeID
 ): TreeAction {
   return {
@@ -87,8 +87,8 @@ export function addAbstraction(
 
 export function addApplication(
   exprID: NodeID,
-  left: string,
-  right: string,
+  left: NodeID,
+  right: NodeID,
   parentID?: NodeID
 ): TreeAction {
   return {

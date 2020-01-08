@@ -1,14 +1,14 @@
 import _ from "lodash"
 import {
-  ControlState,
-  BoardState,
-  Tree,
-  TreeState,
-  TreeNode,
-  NodeID,
-  VARIABLE,
   ABSTRACTION,
-  APPLICATION
+  APPLICATION,
+  BoardState,
+  ControlState,
+  NodeID,
+  Tree,
+  TreeNode,
+  TreeState,
+  VARIABLE
 } from ".."
 import { createSelector } from "reselect"
 
@@ -45,20 +45,20 @@ function fillCoords(
 ): Coords {
   const root = tree[rootID]
   const newCoords = { ...coords, [rootID]: { ...coords[rootID], x: baseX, y: baseY } }
-  switch (root.expr.type) {
+  switch (root.type) {
     case VARIABLE:
       return newCoords
     case ABSTRACTION: {
       const childBaseX = baseX + control.circleRadius + control.widthMargin
-      return root.expr.children
-        ? fillCoords(root.expr.children[0], newCoords, tree, control, childBaseX, baseY)
+      return root.children
+        ? fillCoords(root.children[0], newCoords, tree, control, childBaseX, baseY)
         : newCoords
     }
     case APPLICATION: {
       const leftBaseX = baseX + control.circleRadius + control.widthMargin
-      const leftUpdate = fillCoords(root.expr.left, newCoords, tree, control, leftBaseX, baseY)
-      const rightBaseX = leftBaseX + leftUpdate[root.expr.left].w + control.widthMargin
-      return fillCoords(root.expr.children[1], leftUpdate, tree, control, rightBaseX, baseY)
+      const leftUpdate = fillCoords(root.left, newCoords, tree, control, leftBaseX, baseY)
+      const rightBaseX = leftBaseX + leftUpdate[root.left].w + control.widthMargin
+      return fillCoords(root.children[1], leftUpdate, tree, control, rightBaseX, baseY)
     }
     default:
       return newCoords
@@ -67,7 +67,7 @@ function fillCoords(
 
 function addDimensions(rootID: NodeID, coords: Coords, tree: Tree, control: ControlState): Coords {
   const root = tree[rootID]
-  const children = root.expr.children
+  const children = root.children
   const updated = _.reduce(
     children,
     (coords, childID) => addDimensions(childID, coords, tree, control),
@@ -87,12 +87,12 @@ function addDimensions(rootID: NodeID, coords: Coords, tree: Tree, control: Cont
 function elementWidth(node: TreeNode, coords: Coords, control: ControlState): number {
   const sumChildren = () =>
     _.reduce(
-      node.expr.children,
+      node.children,
       (widthSum, childID) => coords[childID].w + control.widthMargin + widthSum,
       0
     )
 
-  switch (node.expr.type) {
+  switch (node.type) {
     case VARIABLE:
       return control.circleRadius * 2
     case ABSTRACTION:
@@ -106,9 +106,9 @@ function elementWidth(node: TreeNode, coords: Coords, control: ControlState): nu
 
 function elementHeight(node: TreeNode, coords: Coords, control: ControlState): number {
   const maxChildren = () =>
-    _.max(_.map(node.expr.children, childID => coords[childID].h)) || control.heightMargin * 2
+    _.max(_.map(node.children, childID => coords[childID].h)) || control.heightMargin * 2
 
-  switch (node.expr.type) {
+  switch (node.type) {
     case VARIABLE:
       return control.circleRadius * 2
     case ABSTRACTION:

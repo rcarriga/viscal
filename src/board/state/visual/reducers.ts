@@ -1,5 +1,5 @@
 import randomcolor from "randomcolor"
-import { VisualState, VarColors, VarName } from "./types"
+import { VisualState, VarColors, VarID } from "./types"
 import { NEW_COLOR, SET_COLOR, SET_SELECTED, SET_HIGHLIGHTED, VisualAction } from "./actions"
 
 export const initialVisualState = {
@@ -39,7 +39,7 @@ export const visual = (state = initialVisualState, action: VisualAction): Visual
   }
 }
 
-const addColor = (varName: VarName, colors: VarColors): VarColors => {
+const addColor = (varName: VarID, colors: VarColors): VarColors => {
   return {
     ...colors,
     [varName]: randomcolor({ luminosity: "bright" })

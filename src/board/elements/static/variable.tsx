@@ -1,18 +1,18 @@
 import React from "react"
-import { useSelected, useCoords, useColors, useControls } from "../../state"
 import styled from "styled-components"
+import { VarName, useSelected, useCoords, useColor, useControl } from "../../state"
 import { RawExprProps, ExprProps } from "./base"
 
 interface VarProps extends ExprProps {
-  variableName: string
+  variableName: VarName
 }
 
 export const Var = (props: VarProps) => {
-  const color = useColors(colors => colors[props.id] || "black"),
-    radius = useControls(controls => controls.circleRadius),
-    coord = useCoords(coords => coords[props.id]),
-    isSelected = useSelected(selected => props.id === selected),
-    selectedColor = "grey"
+  const color = useColor(props.id)
+  const radius = useControl().circleRadius
+  const coord = useCoords()[props.id]
+  const isSelected = useSelected(selected => props.id === selected)
+  const selectedColor = "grey"
 
   return (
     <RawVar

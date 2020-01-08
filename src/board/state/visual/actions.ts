@@ -1,4 +1,4 @@
-import { VarName, Color } from "./types"
+import { VarID, Color } from "./types"
 
 export const NEW_COLOR = "NEW_COLOR"
 export const SET_COLOR = "SET_COLOR"
@@ -7,12 +7,12 @@ export const SET_HIGHLIGHTED = "SET_HIGHLIGHTED"
 
 interface NewColor {
   type: typeof NEW_COLOR
-  variableName: VarName
+  variableName: VarID
 }
 
 interface SetColor {
   type: typeof SET_COLOR
-  variableName: VarName
+  variableName: VarID
   color: Color
 }
 
@@ -23,14 +23,14 @@ interface SetSelected {
 
 interface SetHighlighted {
   type: typeof SET_HIGHLIGHTED
-  variableName?: VarName
+  variableName?: VarID
 }
 
-export const newColor = (variableName: VarName): VisualAction => ({
+export const newColor = (variableName: VarID): VisualAction => ({
   type: NEW_COLOR,
   variableName
 })
-export const setColor = (variableName: VarName, color: Color): VisualAction => ({
+export const setColor = (variableName: VarID, color: Color): VisualAction => ({
   type: SET_COLOR,
   variableName,
   color

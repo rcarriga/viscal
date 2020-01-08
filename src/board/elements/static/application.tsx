@@ -1,14 +1,14 @@
 import React from "react"
-import { RawExprProps, ExprProps } from "./base"
-import { useSelected, useCoords, useColors, useControls } from "../../state"
+import { useControl, useCoords, useSelected } from "../../state"
+import { ExprProps, RawExprProps } from "./base"
 
 interface ApplProps extends ExprProps {}
 
 export const Appl = (props: ApplProps) => {
-  const coord = useCoords(coords => coords[props.id]),
-    control = useControls(controls => controls),
-    isSelected = useSelected(selected => props.id === selected),
-    strokeColor = isSelected ? "red" : "grey"
+  const coord = useCoords()[props.id]
+  const control = useControl()
+  const isSelected = useSelected(selected => props.id === selected)
+  const strokeColor = isSelected ? "red" : "grey"
 
   return (
     <RawAppl
@@ -37,8 +37,8 @@ interface RawApplProps extends RawExprProps {
 }
 
 const RawAppl = (props: RawApplProps) => {
-  const circleTopPoint = props.y - props.radius,
-    outPath = `M${props.x + props.radius},${circleTopPoint} a1,1 0 0,0 0,${props.radius * 2}`
+  const circleTopPoint = props.y - props.radius
+  const outPath = `M${props.x + props.radius},${circleTopPoint} a1,1 0 0,0 0,${props.radius * 2}`
 
   return (
     <g id={props.id}>

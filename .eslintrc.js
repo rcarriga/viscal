@@ -4,6 +4,10 @@ module.exports = {
     es6: true
   },
   extends: [
+    "plugin:import/typescript",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "react-app",
     "plugin:react/recommended",
     "standard",
     "prettier/@typescript-eslint",
@@ -24,9 +28,11 @@ module.exports = {
   plugins: [
     "react",
     "@typescript-eslint",
-    "immutable"
+    "immutable",
+    "import"
   ],
   rules: {
+    "import/order": ["error", {"alphabetize": {"order": "asc"}}],
     "max-len": ["error", {"code": 100}],
     "@typescript-eslint/no-unused-vars": ["error"],
     "quotes": ["error", "double"],
@@ -40,6 +46,6 @@ module.exports = {
     "no-undef": "error",
     "no-param-reassign": "error",
     "default-case": "error",
-    "one-var": ["error", {"const": "consecutive"}]
+    "one-var": ["error", "never"],
   }
 }

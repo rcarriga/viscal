@@ -1,16 +1,16 @@
 import { NodeID } from "../tree"
 
-export type VarName = string
+export type VarID = string
 export type Color = string
-export type VarColors = { [varName in VarName]: Color }
+export type VarColors = { [varName in VarID]: Color }
 
 export interface Theme {
   selectedStroke: Color
 }
 
 export interface VisualState {
-  colors: { [varName in VarName]: Color }
+  colors: { [varName in VarID]: Color }
   selected?: NodeID
-  highlighted?: VarName
+  highlighted?: VarID
   theme: Theme
 }

@@ -3,20 +3,23 @@ export const ABSTRACTION = "ABSTRACTION"
 export const APPLICATION = "APPLICATION"
 
 export type NodeID = string
+export type VarName = string
+export type VarIndex = number
 
 interface BaseExpression {
-  readonly children: string[]
+  readonly children: NodeID[]
+  readonly parentID?: NodeID
 }
 
 interface Variable extends BaseExpression {
   readonly type: typeof VARIABLE
-  readonly index: number
-  readonly name: string
+  readonly index: VarIndex
+  readonly name: VarName
 }
 
 interface Abstraction extends BaseExpression {
   readonly type: typeof ABSTRACTION
-  readonly variableName: string
+  readonly variableName: VarName
 }
 
 interface Application extends BaseExpression {
@@ -25,12 +28,7 @@ interface Application extends BaseExpression {
   readonly right: NodeID
 }
 
-export type Expression = Variable | Abstraction | Application
-
-export interface TreeNode {
-  readonly expr: Expression
-  readonly parentID?: NodeID
-}
+export type TreeNode = Variable | Abstraction | Application
 
 export type Tree = { [nodeId: string]: TreeNode }
 
