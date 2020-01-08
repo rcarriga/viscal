@@ -34,6 +34,10 @@ export const useCoords = () => {
   return typedSelector(state => coordsSelector(state.board))
 }
 
+export const useTheme = () => {
+  return typedSelector(state => state.board.visual.theme)
+}
+
 export const useControl = () => {
   return typedSelector(state => state.board.control)
 }

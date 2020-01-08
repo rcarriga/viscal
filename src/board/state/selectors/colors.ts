@@ -1,8 +1,9 @@
 import _ from "lodash"
 import randomcolor from "randomcolor"
 import { createSelector } from "reselect"
-import { ABSTRACTION, BoardState, NodeID, TreeNode, TreeState, VarColors } from ".."
+import { ABSTRACTION, BoardState, NodeID, TreeNode, TreeState, Color } from ".."
 
+export type VarColors = { [bindingID in NodeID]: Color }
 export const colorsSelector = createSelector((state: BoardState) => state.tree, constructColors)
 
 function constructColors(tree: TreeState): VarColors {

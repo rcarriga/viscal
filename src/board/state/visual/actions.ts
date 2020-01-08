@@ -1,20 +1,7 @@
-import { VarID, Color } from "./types"
+import { NodeID } from "../tree"
 
-export const NEW_COLOR = "NEW_COLOR"
-export const SET_COLOR = "SET_COLOR"
 export const SET_SELECTED = "SET_SELECTED"
 export const SET_HIGHLIGHTED = "SET_HIGHLIGHTED"
-
-interface NewColor {
-  type: typeof NEW_COLOR
-  variableName: VarID
-}
-
-interface SetColor {
-  type: typeof SET_COLOR
-  variableName: VarID
-  color: Color
-}
 
 interface SetSelected {
   type: typeof SET_SELECTED
@@ -23,18 +10,8 @@ interface SetSelected {
 
 interface SetHighlighted {
   type: typeof SET_HIGHLIGHTED
-  variableName?: VarID
+  variableName?: NodeID
 }
-
-export const newColor = (variableName: VarID): VisualAction => ({
-  type: NEW_COLOR,
-  variableName
-})
-export const setColor = (variableName: VarID, color: Color): VisualAction => ({
-  type: SET_COLOR,
-  variableName,
-  color
-})
 
 export const setSelected = (nodeID: string): VisualAction => ({
   type: SET_SELECTED,
@@ -56,4 +33,4 @@ export const clearSelected = (): VisualAction => ({
   nodeID: undefined
 })
 
-export type VisualAction = NewColor | SetColor | SetSelected | SetHighlighted
+export type VisualAction = SetSelected | SetHighlighted

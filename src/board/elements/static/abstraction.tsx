@@ -1,5 +1,14 @@
 import React from "react"
-import { useSelected, useCoords, useColor, useControl } from "../../state"
+import { useDispatch } from "react-redux"
+import {
+  clearSelected,
+  setSelected,
+  useSelected,
+  useCoords,
+  useColor,
+  useControl,
+  useTheme
+} from "../../state"
 import { ExprProps, RawExprProps } from "./base"
 
 interface AbsProps extends ExprProps {
@@ -11,7 +20,8 @@ export const Abs = (props: AbsProps) => {
   const coord = useCoords()[props.id]
   const control = useControl()
   const isSelected = useSelected(selected => props.id === selected)
-  const strokeColor = isSelected ? "red" : "grey"
+  const theme = useTheme()
+  const strokeColor = isSelected ? theme.selectedStroke : theme.stroke
 
   return (
     <RawAbs
@@ -42,6 +52,7 @@ interface RawAbsProps extends RawExprProps {
 }
 
 const RawAbs = (props: RawAbsProps) => {
+  const dispatch = useDispatch()
   const boxWidth = props.width - props.radius
   const circleTopPoint = props.y - props.radius
   const inputX = props.x + boxWidth + props.radius
@@ -51,10 +62,23 @@ const RawAbs = (props: RawAbsProps) => {
 
   return (
     <g id={props.id}>
-      <path className={props.className} strokeOpacity={0} d={outPath} />
-      <path fill={props.variableColor} d={`${inStart} ${inPath} l0,${-props.radius * 2}`} />
+      <path
+        onMouseOver={() => dispatch(setSelected(props.id))}
+        onMouseLeave={() => dispatch(setSelected(""))}
+        className={props.className}
+        strokeOpacity={0}
+        d={outPath}
+      />
+      <path
+        onMouseOver={() => dispatch(setSelected(props.id))}
+        onMouseLeave={() => dispatch(clearSelected())}
+        fill={props.variableColor}
+        d={`${inStart} ${inPath} l0,${-props.radius * 2}`}
+      />
       <path
         onClick={console.log}
+        onMouseOver={() => dispatch(setSelected(props.id))}
+        onMouseLeave={() => dispatch(setSelected(""))}
         pointerEvents="painted"
         className={props.className}
         stroke={props.strokeColor}
@@ -64,8 +88,7 @@ const RawAbs = (props: RawAbsProps) => {
           l0,${props.height / 2 - props.radius}
           l${boxWidth},0
           l0,${-props.height / 2 + props.radius}
-          ${inPath}
-          ${inStart}
+          a1,1 0 1,1 0,${-props.radius * 2}
           l0,${-props.height / 2 + props.radius}
           l${-boxWidth},0
           l0,${props.height}`}
