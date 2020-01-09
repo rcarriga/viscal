@@ -1,16 +1,6 @@
 import _ from "lodash"
-import {
-  ABSTRACTION,
-  APPLICATION,
-  BoardState,
-  ControlState,
-  NodeID,
-  Tree,
-  TreeNode,
-  TreeState,
-  VARIABLE
-} from ".."
 import { createSelector } from "reselect"
+import { VisualState, BoardState, NodeID, Tree, TreeNode, TreeState } from ".."
 
 export type Coords = { [nodeID: string]: Coord }
 
@@ -23,15 +13,15 @@ export interface Coord {
 
 export const coordsSelector = createSelector(
   (state: BoardState) => state.tree,
-  (state: BoardState) => state.control,
+  (state: BoardState) => state.visual,
   constructCoords
 )
 
-function constructCoords(tree: TreeState, control: ControlState): Coords {
+function constructCoords(tree: TreeState, visual: VisualState): Coords {
   const root = tree.root
   if (root) {
-    const withDimensions = addDimensions(root, {}, tree.nodes, control)
-    return fillCoords(root, withDimensions, tree.nodes, control)
+    const withDimensions = addDimensions(root, {}, tree.nodes, visual)
+    return fillCoords(root, withDimensions, tree.nodes, visual)
   } else return {}
 }
 
@@ -39,33 +29,33 @@ function fillCoords(
   rootID: NodeID,
   coords: Coords,
   tree: Tree,
-  control: ControlState,
-  baseX = control.startX,
-  baseY = control.startY
+  visual: VisualState,
+  baseX = visual.treeLayout.startX,
+  baseY = visual.treeLayout.startY
 ): Coords {
   const root = tree[rootID]
   const newCoords = { ...coords, [rootID]: { ...coords[rootID], x: baseX, y: baseY } }
   switch (root.type) {
-    case VARIABLE:
+    case "VARIABLE":
       return newCoords
-    case ABSTRACTION: {
-      const childBaseX = baseX + control.circleRadius + control.widthMargin
+    case "ABSTRACTION": {
+      const childBaseX = baseX + visual.dimensions.circleRadius + visual.dimensions.widthMargin
       return root.children
-        ? fillCoords(root.children[0], newCoords, tree, control, childBaseX, baseY)
+        ? fillCoords(root.children[0], newCoords, tree, visual, childBaseX, baseY)
         : newCoords
     }
-    case APPLICATION: {
-      const leftBaseX = baseX + control.circleRadius + control.widthMargin
-      const leftUpdate = fillCoords(root.left, newCoords, tree, control, leftBaseX, baseY)
-      const rightBaseX = leftBaseX + leftUpdate[root.left].w + control.widthMargin
-      return fillCoords(root.children[1], leftUpdate, tree, control, rightBaseX, baseY)
+    case "APPLICATION": {
+      const leftBaseX = baseX + visual.dimensions.circleRadius + visual.dimensions.widthMargin
+      const leftUpdate = fillCoords(root.left, newCoords, tree, visual, leftBaseX, baseY)
+      const rightBaseX = leftBaseX + leftUpdate[root.left].w + visual.dimensions.widthMargin
+      return fillCoords(root.children[1], leftUpdate, tree, visual, rightBaseX, baseY)
     }
     default:
       return newCoords
   }
 }
 
-function addDimensions(rootID: NodeID, coords: Coords, tree: Tree, control: ControlState): Coords {
+function addDimensions(rootID: NodeID, coords: Coords, tree: Tree, control: VisualState): Coords {
   const root = tree[rootID]
   const children = root.children
   const updated = _.reduce(
@@ -84,37 +74,37 @@ function addDimensions(rootID: NodeID, coords: Coords, tree: Tree, control: Cont
   }
 }
 
-function elementWidth(node: TreeNode, coords: Coords, control: ControlState): number {
+function elementWidth(node: TreeNode, coords: Coords, visual: VisualState): number {
   const sumChildren = () =>
     _.reduce(
       node.children,
-      (widthSum, childID) => coords[childID].w + control.widthMargin + widthSum,
+      (widthSum, childID) => coords[childID].w + visual.dimensions.widthMargin + widthSum,
       0
     )
 
   switch (node.type) {
-    case VARIABLE:
-      return control.circleRadius * 2
-    case ABSTRACTION:
-      return sumChildren() + control.circleRadius * 2 + control.widthMargin
-    case APPLICATION:
-      return sumChildren() + control.circleRadius
+    case "VARIABLE":
+      return visual.dimensions.circleRadius * 2
+    case "ABSTRACTION":
+      return sumChildren() + visual.dimensions.circleRadius * 2 + visual.dimensions.widthMargin
+    case "APPLICATION":
+      return sumChildren() + visual.dimensions.circleRadius
     default:
       return 0
   }
 }
 
-function elementHeight(node: TreeNode, coords: Coords, control: ControlState): number {
+function elementHeight(node: TreeNode, coords: Coords, visual: VisualState): number {
   const maxChildren = () =>
-    _.max(_.map(node.children, childID => coords[childID].h)) || control.heightMargin * 2
+    _.max(_.map(node.children, childID => coords[childID].h)) || visual.dimensions.heightMargin * 2
 
   switch (node.type) {
-    case VARIABLE:
-      return control.circleRadius * 2
-    case ABSTRACTION:
-      return maxChildren() + control.circleRadius
-    case APPLICATION:
-      return maxChildren() + control.circleRadius
+    case "VARIABLE":
+      return visual.dimensions.circleRadius * 2
+    case "ABSTRACTION":
+      return maxChildren() + visual.dimensions.circleRadius
+    case "APPLICATION":
+      return maxChildren() + visual.dimensions.circleRadius
     default:
       return 0
   }

@@ -1,52 +1,60 @@
 import { NodeID } from "../tree"
-import { MouseEventHandler } from "./types"
-
-export const SET_SELECTED = "SET_SELECTED"
-export const SET_HIGHLIGHTED = "SET_HIGHLIGHTED"
-export const SET_EVENT = "SET_EVENT"
+import { MouseEventHandler, NodeEvent, NodeDimension, TreeLayout } from "./types"
 
 interface SetSelected {
-  type: typeof SET_SELECTED
+  type: "SET_SELECTED"
   nodeID?: string
 }
 
 interface SetHighlighted {
-  type: typeof SET_HIGHLIGHTED
+  type: "SET_HIGHLIGHTED"
   variableName?: NodeID
 }
 
+interface SetDimension {
+  type: "SET_NODE_DIMENSION"
+  dimension: NodeDimension
+  value: number
+}
+
 interface SetEvent {
-  type: typeof SET_EVENT
-  eventName: "onClick" | "onMouseOver" | "onMouseLeave"
+  type: "SET_EVENT"
+  event: NodeEvent
   handler?: MouseEventHandler
 }
 
+interface SetLayout {
+  type: "SET_TREE_LAYOUT"
+  parameter: TreeLayout
+  value: number
+}
+
 export const setSelected = (nodeID?: string): VisualAction => ({
-  type: SET_SELECTED,
+  type: "SET_SELECTED",
   nodeID
 })
 
 export const setHighlighted = (variableName?: string): VisualAction => ({
-  type: SET_HIGHLIGHTED,
+  type: "SET_HIGHLIGHTED",
   variableName
 })
 
-export const setOnClick = (handler?: MouseEventHandler): VisualAction => ({
-  type: SET_EVENT,
-  eventName: "onClick",
-  handler: handler
+export const setEvent = (event: NodeEvent, handler?: MouseEventHandler): VisualAction => ({
+  type: "SET_EVENT",
+  event,
+  handler
 })
 
-export const setOnMouseOver = (handler?: MouseEventHandler): VisualAction => ({
-  type: SET_EVENT,
-  eventName: "onMouseOver",
-  handler: handler
+export const setDimension = (dimension: NodeDimension, value: number): VisualAction => ({
+  type: "SET_NODE_DIMENSION",
+  dimension,
+  value
 })
 
-export const setOnMouseLeave = (handler?: MouseEventHandler): VisualAction => ({
-  type: SET_EVENT,
-  eventName: "onMouseLeave",
-  handler: handler
+export const setLayout = (parameter: TreeLayout, value: number): VisualAction => ({
+  type: "SET_TREE_LAYOUT",
+  parameter,
+  value
 })
 
-export type VisualAction = SetSelected | SetHighlighted | SetEvent
+export type VisualAction = SetSelected | SetHighlighted | SetEvent | SetDimension | SetLayout

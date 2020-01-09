@@ -1,17 +1,12 @@
 import { NodeID, VarIndex } from "./types"
-export const NORMAL_ORDER_REDUCTION = "NORMAL_ORDER_REDUCTION"
-export const SET_ROOT = "SET_ROOT"
-export const ADD_VARIABLE = "ADD_VARIABLE"
-export const ADD_ABSTRACTION = "ADD_ABSTRACTION"
-export const ADD_APPLICATION = "ADD_APPLICATION"
 
 interface NormalOrderReductionAction {
-  type: typeof NORMAL_ORDER_REDUCTION
+  type: "NORMAL_ORDER_REDUCTION"
   expressionID: NodeID
 }
 
 interface SetRoot {
-  type: typeof SET_ROOT
+  type: "SET_ROOT"
   expressionID: NodeID
 }
 
@@ -20,21 +15,21 @@ interface AddExpression {
 }
 
 interface AddVariable extends AddExpression {
-  type: typeof ADD_VARIABLE
+  type: "ADD_VARIABLE"
   index: VarIndex
   name: string
   parentID?: NodeID
 }
 
 interface AddAbstraction extends AddExpression {
-  type: typeof ADD_ABSTRACTION
+  type: "ADD_ABSTRACTION"
   variableName: string
   child?: NodeID
   parentID?: NodeID
 }
 
 interface AddApplication extends AddExpression {
-  type: typeof ADD_APPLICATION
+  type: "ADD_APPLICATION"
   left: NodeID
   right: NodeID
   parentID?: NodeID
@@ -48,11 +43,11 @@ export type TreeAction =
   | AddApplication
 
 export function normalOrderReduce(expressionID: NodeID): TreeAction {
-  return { type: NORMAL_ORDER_REDUCTION, expressionID: expressionID }
+  return { type: "NORMAL_ORDER_REDUCTION", expressionID: expressionID }
 }
 
 export function setRoot(expressionID: NodeID): TreeAction {
-  return { type: SET_ROOT, expressionID: expressionID }
+  return { type: "SET_ROOT", expressionID: expressionID }
 }
 
 export function addVariable(
@@ -62,7 +57,7 @@ export function addVariable(
   parentID?: NodeID
 ): TreeAction {
   return {
-    type: ADD_VARIABLE,
+    type: "ADD_VARIABLE",
     expressionID: exprID,
     parentID: parentID,
     index: index,
@@ -77,7 +72,7 @@ export function addAbstraction(
   parentID?: NodeID
 ): TreeAction {
   return {
-    type: ADD_ABSTRACTION,
+    type: "ADD_ABSTRACTION",
     expressionID: exprID,
     parentID: parentID,
     variableName: varName,
@@ -94,7 +89,7 @@ export function addApplication(
   return {
     parentID: parentID,
     expressionID: exprID,
-    type: ADD_APPLICATION,
+    type: "ADD_APPLICATION",
     left: left,
     right: right
   }

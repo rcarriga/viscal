@@ -1,7 +1,3 @@
-export const VARIABLE = "VARIABLE"
-export const ABSTRACTION = "ABSTRACTION"
-export const APPLICATION = "APPLICATION"
-
 export type NodeID = string
 export type VarName = string
 export type VarIndex = number
@@ -12,18 +8,18 @@ interface BaseExpression {
 }
 
 interface Variable extends BaseExpression {
-  readonly type: typeof VARIABLE
+  readonly type: "VARIABLE"
   readonly index: VarIndex
   readonly name: VarName
 }
 
 interface Abstraction extends BaseExpression {
-  readonly type: typeof ABSTRACTION
+  readonly type: "ABSTRACTION"
   readonly variableName: VarName
 }
 
 interface Application extends BaseExpression {
-  readonly type: typeof APPLICATION
+  readonly type: "APPLICATION"
   readonly left: NodeID
   readonly right: NodeID
 }

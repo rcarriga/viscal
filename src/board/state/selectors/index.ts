@@ -1,47 +1,58 @@
-import { useSelector, TypedUseSelectorHook } from "react-redux"
-import { colorsSelector, coordsSelector, NodeID } from "../"
+import { useSelector } from "react-redux"
+import { colorsSelector, coordsSelector, NodeID, VarIndex } from "../"
 import { AppState } from "../../../state"
-import { VARIABLE, ABSTRACTION } from "../tree/"
 import { getVariableBinder } from "../tree/util"
 
 export * from "./coords"
 export * from "./colors"
 
-export const typedSelector: TypedUseSelectorHook<AppState> = useSelector
+export const useBoard = () => useSelector((state: AppState) => state.board)
 
 export const useColor = (nodeID: NodeID) => {
-  return typedSelector(state => {
-    const node = state.board.tree.nodes[nodeID]
-    const colors = colorsSelector(state.board)
-    switch (node.type) {
-      case VARIABLE: {
-        const binderID = getVariableBinder(nodeID, node.index, state.board.tree)
-        return binderID ? colors[binderID] : "black"
-      }
-      case ABSTRACTION:
-        return colors[nodeID]
-      default:
-        return "transparent"
+  const board = useBoard()
+  const node = board.tree.nodes[nodeID]
+  const colors = colorsSelector(board)
+  switch (node.type) {
+    case "VARIABLE": {
+      const binderID = getVariableBinder(nodeID, node.index, board.tree)
+      return binderID ? colors[binderID] : "black"
     }
-  })
+    case "ABSTRACTION":
+      return colors[nodeID]
+    default:
+      return "transparent"
+  }
 }
 
-export const useSelected: TypedUseSelectorHook<string | undefined> = callback => {
-  return typedSelector(state => callback(state.board.visual.selected))
+export const useSelected = () => {
+  return useBoard().visual.selected
 }
 
+export const useHighligthed = (nodeID: NodeID, index: VarIndex) => {
+  const board = useBoard()
+  const binder = getVariableBinder(nodeID, index, board.tree)
+  return binder ? binder === board.visual.highlighted : false
+}
 export const useCoords = () => {
-  return typedSelector(state => coordsSelector(state.board))
+  return coordsSelector(useBoard())
+}
+
+export const useTree = () => {
+  return useBoard().tree
 }
 
 export const useTheme = () => {
-  return typedSelector(state => state.board.visual.theme)
-}
-
-export const useControl = () => {
-  return typedSelector(state => state.board.control)
+  return useBoard().visual.theme
 }
 
 export const useEvents = () => {
-  return typedSelector(state => state.board.visual.events)
+  return useBoard().visual.events
+}
+
+export const useDimensions = () => {
+  return useBoard().visual.dimensions
+}
+
+export const useLayout = () => {
+  return useBoard().visual.treeLayout
 }
