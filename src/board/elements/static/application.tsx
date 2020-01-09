@@ -1,14 +1,15 @@
 import React from "react"
-import { useControl, useCoords, useSelected, useEvents } from "../../state"
+import { useDimensions, useCoords, useSelected, useTheme, useEvents } from "../../state"
 import { ExprProps, RawExprProps } from "./base"
 
 interface ApplProps extends ExprProps {}
 
 export const Appl = (props: ApplProps) => {
   const coord = useCoords()[props.id]
-  const control = useControl()
-  const isSelected = useSelected(selected => props.id === selected)
-  const strokeColor = isSelected ? "red" : "grey"
+  const dimensions = useDimensions()
+  const isSelected = props.id === useSelected()
+  const theme = useTheme()
+  const strokeColor = isSelected ? theme.selectedStroke : theme.stroke
 
   return (
     <RawAppl
@@ -17,11 +18,11 @@ export const Appl = (props: ApplProps) => {
       x={coord.x}
       y={coord.y}
       width={coord.w}
-      radius={control.circleRadius}
+      radius={dimensions.circleRadius}
       height={coord.h}
-      heightMargin={control.heightMargin}
-      widthMargin={control.widthMargin}
-      strokeWidth={control.strokeWidth}
+      heightMargin={dimensions.heightMargin}
+      widthMargin={dimensions.widthMargin}
+      strokeWidth={dimensions.strokeWidth}
       strokeColor={strokeColor}
     />
   )
@@ -45,16 +46,18 @@ const RawAppl = (props: RawApplProps) => {
     <g id={props.id}>
       <path
         data-nodeid={props.id}
-        {...props.events}
+        onClick={props.events.click}
+        onMouseOver={props.events.select}
         className={props.className}
         strokeOpacity={0}
         d={outPath}
       />
       <path
         data-nodeid={props.id}
-        {...props.events}
+        onClick={props.events.click}
+        onMouseOver={props.events.select}
         className={props.className}
-        stroke="grey"
+        stroke={props.strokeColor}
         strokeLinecap="round"
         strokeWidth={props.strokeWidth}
         d={`M${props.x + props.radius},${circleTopPoint + props.radius * 2}

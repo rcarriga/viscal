@@ -2,7 +2,7 @@ import _ from "lodash"
 import React, { useEffect } from "react"
 import { BoardProps } from "./base"
 import { Var, Abs, Appl } from "./elements"
-import { BoardState, VARIABLE, ABSTRACTION, APPLICATION } from "./state"
+import { BoardState } from "./state"
 
 export const BoardContent = (props: BoardProps) => {
   useEffect(() => {
@@ -12,10 +12,14 @@ export const BoardContent = (props: BoardProps) => {
       props.addVar("var1", -1, "a", "abs1")
       props.addVar("var2", 0, "a", "abs1")
       props.setRoot("app1")
-      props.setOnClick(console.log)
-      props.setOnMouseOver(e =>
+      props.setEvent("click", console.log)
+      props.setEvent("select", e =>
         props.setSelected(e.currentTarget.getAttribute("data-nodeid") || undefined)
       )
+      props.setEvent("highlight", e =>
+        props.setHighlighted(e.currentTarget.getAttribute("data-nodeid") || undefined)
+      )
+      props.setEvent("clearhighlight", () => props.setHighlighted())
     }
   })
   return (
@@ -32,11 +36,11 @@ const drawExprs = (props: BoardState) => {
 const drawExpr = (nodeID: string, board: BoardState) => {
   const node = board.tree.nodes[nodeID]
   switch (node.type) {
-    case VARIABLE:
-      return <Var key={nodeID} id={nodeID} variableName={node.name} />
-    case ABSTRACTION:
+    case "VARIABLE":
+      return <Var key={nodeID} id={nodeID} index={node.index} variableName={node.name} />
+    case "ABSTRACTION":
       return <Abs key={nodeID} id={nodeID} variableName={node.variableName} />
-    case APPLICATION:
+    case "APPLICATION":
       return <Appl key={nodeID} id={nodeID} />
     default:
   }

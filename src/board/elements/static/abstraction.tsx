@@ -1,5 +1,13 @@
 import React from "react"
-import { useEvents, useSelected, useCoords, useColor, useControl, useTheme } from "../../state"
+import {
+  useEvents,
+  useSelected,
+  useCoords,
+  useColor,
+  useDimensions,
+  useTheme,
+  useHighligthed
+} from "../../state"
 import { ExprProps, RawExprProps } from "./base"
 
 interface AbsProps extends ExprProps {
@@ -9,10 +17,13 @@ interface AbsProps extends ExprProps {
 export const Abs = (props: AbsProps) => {
   const color = useColor(props.id)
   const coord = useCoords()[props.id]
-  const control = useControl()
-  const isSelected = useSelected(selected => props.id === selected)
+  const dimensions = useDimensions()
+  const isSelected = props.id === useSelected()
+  const isHighlighted = useHighligthed(props.id, 0)
   const theme = useTheme()
   const strokeColor = isSelected ? theme.selectedStroke : theme.stroke
+  const varStrokeColor = theme.highlightedStroke
+  const varStrokeOpacity = isHighlighted ? 1 : 0
 
   return (
     <RawAbs
@@ -21,19 +32,23 @@ export const Abs = (props: AbsProps) => {
       x={coord.x}
       y={coord.y}
       width={coord.w}
-      radius={control.circleRadius}
+      radius={dimensions.circleRadius}
       height={coord.h}
-      heightMargin={control.heightMargin}
-      widthMargin={control.widthMargin}
-      strokeWidth={control.strokeWidth}
+      heightMargin={dimensions.heightMargin}
+      widthMargin={dimensions.widthMargin}
+      strokeWidth={dimensions.strokeWidth}
       strokeColor={strokeColor}
-      variableColor={color}
+      varColor={color}
+      varStroke={varStrokeColor}
+      varStrokeOpacity={varStrokeOpacity}
     />
   )
 }
 
 interface RawAbsProps extends RawExprProps {
-  variableColor: string
+  varColor: string
+  varStroke: string
+  varStrokeOpacity: number
   radius: number
   height: number
   width: number
@@ -54,20 +69,26 @@ const RawAbs = (props: RawAbsProps) => {
   return (
     <g id={props.id}>
       <path
-        {...props.events}
+        onClick={props.events.click}
+        onMouseOver={props.events.select}
         data-nodeid={props.id}
         className={props.className}
         strokeOpacity={0}
         d={outPath}
       />
       <path
-        {...props.events}
+        onMouseOver={props.events.highlight}
+        onMouseLeave={props.events.clearhighlight}
         data-nodeid={props.id}
-        fill={props.variableColor}
+        fill={props.varColor}
+        strokeOpacity={props.varStrokeOpacity}
+        stroke={props.varStroke}
+        strokeWidth={props.strokeWidth}
         d={`${inStart} ${inPath} l0,${-props.radius * 2}`}
       />
       <path
-        {...props.events}
+        onClick={props.events.click}
+        onMouseOver={props.events.select}
         data-nodeid={props.id}
         pointerEvents="painted"
         className={props.className}

@@ -1,9 +1,9 @@
 import React from "react"
 import styled, { ThemeProvider } from "styled-components"
 
-import { SliderControl } from "./slider"
-import { ExpressionControl } from "./expression"
 import { connectState, ControlProps } from "./base"
+import { ExpressionControl } from "./expression"
+import { SliderControl } from "./slider"
 
 export const BoardControl = connectState((props: ControlProps) => {
   const theme = {
@@ -22,20 +22,20 @@ export const BoardControl = connectState((props: ControlProps) => {
         <SliderControl
           title="Circle Radius"
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            props.setRadius(Number(e.currentTarget.value))
+            props.setDimension("circleRadius", Number(e.currentTarget.value))
           }
           min={15}
           max={50}
-          value={props.state.circleRadius}
+          value={props.state.dimensions.circleRadius}
         ></SliderControl>
         <SliderControl
           title="Margins"
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            props.setWidthMargin(Number(e.currentTarget.value))
+            props.setDimension("widthMargin", Number(e.currentTarget.value))
           }
           min={15}
           max={50}
-          value={props.state.widthMargin}
+          value={props.state.dimensions.widthMargin}
         ></SliderControl>
       </ControlPanel>
     </ThemeProvider>

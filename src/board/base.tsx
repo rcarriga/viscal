@@ -5,11 +5,9 @@ import {
   addAbstraction,
   addApplication,
   setRoot,
-  setOnClick,
-  setOnMouseOver,
-  setOnMouseLeave,
   setSelected,
-  setHighlighted
+  setHighlighted,
+  setEvent
 } from "./state"
 
 const mapState = (state: AppState) => ({ state: state.board })
@@ -18,9 +16,7 @@ const mapDispatch = {
   addApp: addApplication,
   addVar: addVariable,
   setRoot,
-  setOnClick,
-  setOnMouseOver,
-  setOnMouseLeave,
+  setEvent,
   setHighlighted,
   setSelected
 }
