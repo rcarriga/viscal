@@ -1,4 +1,4 @@
-import { SET_SELECTED, SET_HIGHLIGHTED, VisualAction } from "./actions"
+import { SET_SELECTED, SET_HIGHLIGHTED, SET_EVENT, VisualAction } from "./actions"
 import { VisualState } from "./types"
 
 export const initialVisualState = {
@@ -6,7 +6,8 @@ export const initialVisualState = {
   theme: {
     selectedStroke: "#3E3D32",
     stroke: "grey"
-  }
+  },
+  events: {}
 }
 
 export const visual = (state = initialVisualState, action: VisualAction): VisualState => {
@@ -20,6 +21,14 @@ export const visual = (state = initialVisualState, action: VisualAction): Visual
       return {
         ...state,
         highlighted: action.variableName
+      }
+    case SET_EVENT:
+      return {
+        ...state,
+        events: {
+          ...state.events,
+          [action.eventName]: action.handler
+        }
       }
     default:
       return state

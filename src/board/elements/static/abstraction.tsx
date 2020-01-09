@@ -1,14 +1,5 @@
 import React from "react"
-import { useDispatch } from "react-redux"
-import {
-  clearSelected,
-  setSelected,
-  useSelected,
-  useCoords,
-  useColor,
-  useControl,
-  useTheme
-} from "../../state"
+import { useEvents, useSelected, useCoords, useColor, useControl, useTheme } from "../../state"
 import { ExprProps, RawExprProps } from "./base"
 
 interface AbsProps extends ExprProps {
@@ -25,6 +16,7 @@ export const Abs = (props: AbsProps) => {
 
   return (
     <RawAbs
+      events={useEvents()}
       id={props.id}
       x={coord.x}
       y={coord.y}
@@ -52,7 +44,6 @@ interface RawAbsProps extends RawExprProps {
 }
 
 const RawAbs = (props: RawAbsProps) => {
-  const dispatch = useDispatch()
   const boxWidth = props.width - props.radius
   const circleTopPoint = props.y - props.radius
   const inputX = props.x + boxWidth + props.radius
@@ -63,22 +54,21 @@ const RawAbs = (props: RawAbsProps) => {
   return (
     <g id={props.id}>
       <path
-        onMouseOver={() => dispatch(setSelected(props.id))}
-        onMouseLeave={() => dispatch(setSelected(""))}
+        {...props.events}
+        data-nodeid={props.id}
         className={props.className}
         strokeOpacity={0}
         d={outPath}
       />
       <path
-        onMouseOver={() => dispatch(setSelected(props.id))}
-        onMouseLeave={() => dispatch(clearSelected())}
+        {...props.events}
+        data-nodeid={props.id}
         fill={props.variableColor}
         d={`${inStart} ${inPath} l0,${-props.radius * 2}`}
       />
       <path
-        onClick={console.log}
-        onMouseOver={() => dispatch(setSelected(props.id))}
-        onMouseLeave={() => dispatch(setSelected(""))}
+        {...props.events}
+        data-nodeid={props.id}
         pointerEvents="painted"
         className={props.className}
         stroke={props.strokeColor}

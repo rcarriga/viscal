@@ -1,6 +1,14 @@
 import React from "react"
 import styled from "styled-components"
-import { VarName, useSelected, useCoords, useColor, useControl } from "../../state"
+import {
+  useTheme,
+  VarName,
+  useSelected,
+  useCoords,
+  useColor,
+  useControl,
+  useEvents
+} from "../../state"
 import { RawExprProps, ExprProps } from "./base"
 
 interface VarProps extends ExprProps {
@@ -12,15 +20,15 @@ export const Var = (props: VarProps) => {
   const radius = useControl().circleRadius
   const coord = useCoords()[props.id]
   const isSelected = useSelected(selected => props.id === selected)
-  const selectedColor = "grey"
 
   return (
     <RawVar
+      events={useEvents()}
       id={props.id}
       color={color}
-      isSelected={isSelected}
+      stroke={useTheme().selectedStroke}
+      strokeOpacity={isSelected ? "1" : "0"}
       radius={radius}
-      selectedColor={selectedColor}
       x={coord.x}
       y={coord.y}
     />
@@ -30,13 +38,14 @@ export const Var = (props: VarProps) => {
 interface RawVarProps extends RawExprProps {
   radius: number
   color: string
-  selectedColor: string
-  isSelected: boolean
+  stroke: string
+  strokeOpacity: string
 }
 
 const RawVar = styled.ellipse.attrs((props: RawVarProps) => ({
   id: props.id,
-  onClick: console.log,
+  "data-nodeid": props.id,
+  ...props.events,
   cx: props.x + props.radius,
   cy: props.y,
   rx: props.radius
@@ -44,7 +53,8 @@ const RawVar = styled.ellipse.attrs((props: RawVarProps) => ({
   fill: ${props => props.color};
 
   &:hover {
-    stroke-opacity: ${(props: RawVarProps) => (props.isSelected ? 1 : 0)}
-    stroke: ${(props: RawVarProps) => props.selectedColor};
+    stroke-opacity: ${(props: RawVarProps) => props.strokeOpacity}
+    stroke-width: 4;
+    stroke: ${(props: RawVarProps) => props.stroke};
   }
 `

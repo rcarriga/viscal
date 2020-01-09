@@ -1,5 +1,5 @@
 import React from "react"
-import { useControl, useCoords, useSelected } from "../../state"
+import { useControl, useCoords, useSelected, useEvents } from "../../state"
 import { ExprProps, RawExprProps } from "./base"
 
 interface ApplProps extends ExprProps {}
@@ -12,6 +12,7 @@ export const Appl = (props: ApplProps) => {
 
   return (
     <RawAppl
+      events={useEvents()}
       id={props.id}
       x={coord.x}
       y={coord.y}
@@ -42,8 +43,16 @@ const RawAppl = (props: RawApplProps) => {
 
   return (
     <g id={props.id}>
-      <path className={props.className} strokeOpacity={0} d={outPath} />
       <path
+        data-nodeid={props.id}
+        {...props.events}
+        className={props.className}
+        strokeOpacity={0}
+        d={outPath}
+      />
+      <path
+        data-nodeid={props.id}
+        {...props.events}
         className={props.className}
         stroke="grey"
         strokeLinecap="round"

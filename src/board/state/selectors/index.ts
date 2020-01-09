@@ -41,3 +41,7 @@ export const useTheme = () => {
 export const useControl = () => {
   return typedSelector(state => state.board.control)
 }
+
+export const useEvents = () => {
+  return typedSelector(state => state.board.visual.events)
+}

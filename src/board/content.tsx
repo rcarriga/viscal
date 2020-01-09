@@ -12,6 +12,10 @@ export const BoardContent = (props: BoardProps) => {
       props.addVar("var1", -1, "a", "abs1")
       props.addVar("var2", 0, "a", "abs1")
       props.setRoot("app1")
+      props.setOnClick(console.log)
+      props.setOnMouseOver(e =>
+        props.setSelected(e.currentTarget.getAttribute("data-nodeid") || undefined)
+      )
     }
   })
   return (
