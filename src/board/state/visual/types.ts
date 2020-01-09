@@ -10,7 +10,7 @@ export type NodeDimension = "circleRadius" | "heightMargin" | "widthMargin" | "s
 
 export type Dimensions = { [dimension in NodeDimension]: number }
 
-export type NodeEvent = "select" | "highlight" | "click" | "clearhighlight"
+export type NodeEvent = "select" | "highlight" | "click" | "clearhighlight" | "clearSelect"
 
 export type NodeEvents = { [event in NodeEvent]?: MouseEventHandler }
 
@@ -18,7 +18,7 @@ export type TreeLayout = "startX" | "startY"
 
 export type Layout = { [layout in TreeLayout]: number }
 
-type NodeElement = SVGPathElement & React.HTMLAttributes<{ "data-nodeid": string }>
+type NodeElement = SVGPathElement
 export type MouseEventHandler = (event: React.MouseEvent<NodeElement, MouseEvent>) => void
 
 export interface VisualState {

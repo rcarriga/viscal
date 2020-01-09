@@ -6,9 +6,9 @@ export const initialTreeState: TreeState = { nodes: {} }
 export const tree = (state = initialTreeState, action: BoardAction): TreeState => {
   switch (action.type) {
     case "SET_ROOT":
-      return { ...state, root: action.expressionID }
+      return { ...state, root: action.nodeID }
     case "ADD_VARIABLE":
-      return addNode(state, action.expressionID, {
+      return addNode(state, action.nodeID, {
         parentID: action.parentID,
         type: "VARIABLE",
         index: action.index,
@@ -16,14 +16,14 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
         children: []
       })
     case "ADD_ABSTRACTION":
-      return addNode(state, action.expressionID, {
+      return addNode(state, action.nodeID, {
         parentID: action.parentID,
         type: "ABSTRACTION",
         variableName: action.variableName,
         children: action.child ? [action.child] : []
       })
     case "ADD_APPLICATION":
-      return addNode(state, action.expressionID, {
+      return addNode(state, action.nodeID, {
         parentID: action.parentID,
         type: "APPLICATION",
         left: action.left,

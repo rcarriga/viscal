@@ -2,16 +2,16 @@ import { NodeID, VarIndex } from "./types"
 
 interface NormalOrderReductionAction {
   type: "NORMAL_ORDER_REDUCTION"
-  expressionID: NodeID
+  nodeID: NodeID
 }
 
 interface SetRoot {
   type: "SET_ROOT"
-  expressionID: NodeID
+  nodeID: NodeID
 }
 
 interface AddExpression {
-  expressionID: NodeID
+  nodeID: NodeID
 }
 
 interface AddVariable extends AddExpression {
@@ -42,55 +42,55 @@ export type TreeAction =
   | AddAbstraction
   | AddApplication
 
-export function normalOrderReduce(expressionID: NodeID): TreeAction {
-  return { type: "NORMAL_ORDER_REDUCTION", expressionID: expressionID }
+export const normalOrderReduce = (nodeID: NodeID): TreeAction => {
+  return { type: "NORMAL_ORDER_REDUCTION", nodeID }
 }
 
-export function setRoot(expressionID: NodeID): TreeAction {
-  return { type: "SET_ROOT", expressionID: expressionID }
+export const setRoot = (nodeID: NodeID): TreeAction => {
+  return { type: "SET_ROOT", nodeID: nodeID }
 }
 
-export function addVariable(
-  exprID: NodeID,
+export const addVariable = (
+  nodeID: NodeID,
   index: VarIndex,
   name: string,
   parentID?: NodeID
-): TreeAction {
+): TreeAction => {
   return {
     type: "ADD_VARIABLE",
-    expressionID: exprID,
-    parentID: parentID,
-    index: index,
-    name: name
+    nodeID,
+    parentID,
+    index,
+    name
   }
 }
 
-export function addAbstraction(
-  exprID: NodeID,
-  varName: string,
+export const addAbstraction = (
+  nodeID: NodeID,
+  variableName: string,
   child?: NodeID,
   parentID?: NodeID
-): TreeAction {
+): TreeAction => {
   return {
     type: "ADD_ABSTRACTION",
-    expressionID: exprID,
-    parentID: parentID,
-    variableName: varName,
-    child: child
+    nodeID,
+    parentID,
+    variableName,
+    child
   }
 }
 
-export function addApplication(
-  exprID: NodeID,
+export const addApplication = (
+  nodeID: NodeID,
   left: NodeID,
   right: NodeID,
   parentID?: NodeID
-): TreeAction {
+): TreeAction => {
   return {
-    parentID: parentID,
-    expressionID: exprID,
     type: "ADD_APPLICATION",
-    left: left,
-    right: right
+    parentID,
+    nodeID,
+    left,
+    right
   }
 }

@@ -1,6 +1,6 @@
 import React from "react"
-import { ControlsTheme } from "./base"
 import styled from "styled-components"
+import { ControlsTheme } from "./base"
 
 interface SliderControlProps {
   title: string
@@ -26,7 +26,6 @@ interface SliderTitleProps {
 
 const SliderTitle = styled.p.attrs(props => props)`
   font-size: 10pt;
-  margin-bottom: 1%;
 `
 
 interface SliderProps extends SliderControlProps {
@@ -54,7 +53,7 @@ export const Slider = styled.input.attrs((props: SliderProps) => {
   opacity: 0.7;
   outline: none;
   transition: opacity 0.2s;
-  width: 70%;
+  width: 90%;
 
   &:hover {
     opacity: 0.8;

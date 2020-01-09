@@ -1,5 +1,5 @@
 import React from "react"
-import { useDimensions, useCoords, useSelected, useTheme, useEvents } from "../../state"
+import { useDimensions, useCoords, useSelected, useTheme, useEvents } from "../../../state"
 import { ExprProps, RawExprProps } from "./base"
 
 interface ApplProps extends ExprProps {}
@@ -7,35 +7,33 @@ interface ApplProps extends ExprProps {}
 export const Appl = (props: ApplProps) => {
   const coord = useCoords()[props.id]
   const dimensions = useDimensions()
-  const isSelected = props.id === useSelected()
   const theme = useTheme()
-  const strokeColor = isSelected ? theme.selectedStroke : theme.stroke
 
   return (
     <RawAppl
       events={useEvents()}
-      id={props.id}
-      x={coord.x}
-      y={coord.y}
-      width={coord.w}
-      radius={dimensions.circleRadius}
       height={coord.h}
       heightMargin={dimensions.heightMargin}
-      widthMargin={dimensions.widthMargin}
+      id={props.id}
+      radius={dimensions.circleRadius}
+      strokeColor={props.id === useSelected() ? theme.selectedStroke : theme.stroke}
       strokeWidth={dimensions.strokeWidth}
-      strokeColor={strokeColor}
+      width={coord.w}
+      widthMargin={dimensions.widthMargin}
+      x={coord.x}
+      y={coord.y}
     />
   )
 }
 
 interface RawApplProps extends RawExprProps {
-  radius: number
   height: number
+  heightMargin: number
+  radius: number
+  strokeColor: string
+  strokeWidth: number
   width: number
   widthMargin: number
-  heightMargin: number
-  strokeWidth: number
-  strokeColor: string
 }
 
 const RawAppl = (props: RawApplProps) => {
@@ -45,28 +43,28 @@ const RawAppl = (props: RawApplProps) => {
   return (
     <g id={props.id}>
       <path
+        className={props.className}
+        d={outPath}
         data-nodeid={props.id}
         onClick={props.events.click}
         onMouseOver={props.events.select}
-        className={props.className}
         strokeOpacity={0}
-        d={outPath}
       />
       <path
-        data-nodeid={props.id}
-        onClick={props.events.click}
-        onMouseOver={props.events.select}
         className={props.className}
-        stroke={props.strokeColor}
-        strokeLinecap="round"
-        strokeWidth={props.strokeWidth}
         d={`M${props.x + props.radius},${circleTopPoint + props.radius * 2}
           l0,${props.height / 2 - props.radius}
           l${props.width},0
           l0,${-props.height}
           l${-props.width},0
           l0,${props.height}`}
+        data-nodeid={props.id}
         fillOpacity="0"
+        onClick={props.events.click}
+        onMouseOver={props.events.select}
+        stroke={props.strokeColor}
+        strokeLinecap="round"
+        strokeWidth={props.strokeWidth}
       />
     </g>
   )

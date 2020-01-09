@@ -1,13 +1,13 @@
 import React from "react"
 import {
-  useEvents,
-  useSelected,
-  useCoords,
   useColor,
+  useCoords,
   useDimensions,
-  useTheme,
-  useHighligthed
-} from "../../state"
+  useEvents,
+  useHighligthed,
+  useSelected,
+  useTheme
+} from "../../../state"
 import { ExprProps, RawExprProps } from "./base"
 
 interface AbsProps extends ExprProps {
@@ -15,47 +15,42 @@ interface AbsProps extends ExprProps {
 }
 
 export const Abs = (props: AbsProps) => {
-  const color = useColor(props.id)
   const coord = useCoords()[props.id]
   const dimensions = useDimensions()
-  const isSelected = props.id === useSelected()
-  const isHighlighted = useHighligthed(props.id, 0)
   const theme = useTheme()
-  const strokeColor = isSelected ? theme.selectedStroke : theme.stroke
-  const varStrokeColor = theme.highlightedStroke
-  const varStrokeOpacity = isHighlighted ? 1 : 0
+  const strokeColor = props.id === useSelected() ? theme.selectedStroke : theme.stroke
 
   return (
     <RawAbs
       events={useEvents()}
-      id={props.id}
-      x={coord.x}
-      y={coord.y}
-      width={coord.w}
-      radius={dimensions.circleRadius}
       height={coord.h}
       heightMargin={dimensions.heightMargin}
-      widthMargin={dimensions.widthMargin}
-      strokeWidth={dimensions.strokeWidth}
+      id={props.id}
+      radius={dimensions.circleRadius}
       strokeColor={strokeColor}
-      varColor={color}
-      varStroke={varStrokeColor}
-      varStrokeOpacity={varStrokeOpacity}
+      strokeWidth={dimensions.strokeWidth}
+      varColor={useColor(props.id)}
+      varStroke={theme.highlightedStroke}
+      varStrokeOpacity={useHighligthed(props.id, 0) ? 1 : 0}
+      width={coord.w}
+      widthMargin={dimensions.widthMargin}
+      x={coord.x}
+      y={coord.y}
     />
   )
 }
 
 interface RawAbsProps extends RawExprProps {
+  height: number
+  heightMargin: number
+  radius: number
+  strokeColor: string
+  strokeWidth: number
   varColor: string
   varStroke: string
   varStrokeOpacity: number
-  radius: number
-  height: number
   width: number
   widthMargin: number
-  heightMargin: number
-  strokeWidth: number
-  strokeColor: string
 }
 
 const RawAbs = (props: RawAbsProps) => {
@@ -69,32 +64,25 @@ const RawAbs = (props: RawAbsProps) => {
   return (
     <g id={props.id}>
       <path
+        className={props.className}
+        d={outPath}
+        data-nodeid={props.id}
         onClick={props.events.click}
         onMouseOver={props.events.select}
-        data-nodeid={props.id}
-        className={props.className}
         strokeOpacity={0}
-        d={outPath}
       />
       <path
-        onMouseOver={props.events.highlight}
-        onMouseLeave={props.events.clearhighlight}
+        d={`${inStart} ${inPath} l0,${-props.radius * 2}`}
         data-nodeid={props.id}
         fill={props.varColor}
-        strokeOpacity={props.varStrokeOpacity}
+        onMouseLeave={props.events.clearhighlight}
+        onMouseOver={props.events.highlight}
         stroke={props.varStroke}
+        strokeOpacity={props.varStrokeOpacity}
         strokeWidth={props.strokeWidth}
-        d={`${inStart} ${inPath} l0,${-props.radius * 2}`}
       />
       <path
-        onClick={props.events.click}
-        onMouseOver={props.events.select}
-        data-nodeid={props.id}
-        pointerEvents="painted"
         className={props.className}
-        stroke={props.strokeColor}
-        strokeLinecap="round"
-        strokeWidth={props.strokeWidth}
         d={`M${props.x + props.radius},${circleTopPoint + props.radius * 2}
           l0,${props.height / 2 - props.radius}
           l${boxWidth},0
@@ -103,7 +91,14 @@ const RawAbs = (props: RawAbsProps) => {
           l0,${-props.height / 2 + props.radius}
           l${-boxWidth},0
           l0,${props.height}`}
+        data-nodeid={props.id}
         fill="transparent"
+        onClick={props.events.click}
+        onMouseOver={props.events.select}
+        pointerEvents="painted"
+        stroke={props.strokeColor}
+        strokeLinecap="round"
+        strokeWidth={props.strokeWidth}
       />
     </g>
   )
