@@ -8,7 +8,8 @@ import {
   useEvents,
   useHighligthed,
   useSelected,
-  useTheme
+  useTheme,
+  useLayout
 } from "../../../state"
 import { RawExprProps, ExprProps } from "./base"
 
@@ -45,20 +46,23 @@ interface RawVarProps extends RawExprProps {
   strokeWidth: number
 }
 
-const RawVar = (props: RawVarProps) => (
-  <path
-    cx={props.x + props.radius}
-    cy={props.y}
-    d={`M${props.x},${props.y} a${props.radius},${props.radius} 0 1,0 ${props.radius * 2},0
+const RawVar = (props: RawVarProps) => {
+  const { startX, startY } = useLayout()
+  return (
+    <path
+      d={`M${startX + props.x},${startY + props.y} a${props.radius},${
+        props.radius
+      } 0 1,0 ${props.radius * 2},0
     a${props.radius},${props.radius} 0 1,0 -${props.radius * 2},0`}
-    data-nodeid={props.id}
-    id={props.id}
-    onClick={props.events.click}
-    onMouseOver={props.events.select}
-    rx={props.radius}
-    fill={props.color}
-    strokeOpacity={props.strokeOpacity}
-    strokeWidth={props.strokeWidth}
-    stroke={props.strokeColor}
-  />
-)
+      data-nodeid={props.id}
+      id={props.id}
+      onClick={props.events.click}
+      onMouseOver={props.events.select}
+      rx={props.radius}
+      fill={props.color}
+      strokeOpacity={props.strokeOpacity}
+      strokeWidth={props.strokeWidth}
+      stroke={props.strokeColor}
+    />
+  )
+}

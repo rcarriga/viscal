@@ -1,5 +1,12 @@
 import React from "react"
-import { useDimensions, useCoords, useSelected, useTheme, useEvents } from "../../../state"
+import {
+  useDimensions,
+  useCoords,
+  useSelected,
+  useTheme,
+  useEvents,
+  useLayout
+} from "../../../state"
 import { ExprProps, RawExprProps } from "./base"
 
 interface ApplProps extends ExprProps {}
@@ -37,8 +44,11 @@ interface RawApplProps extends RawExprProps {
 }
 
 const RawAppl = (props: RawApplProps) => {
-  const circleTopPoint = props.y - props.radius
-  const outPath = `M${props.x + props.radius},${circleTopPoint} a1,1 0 0,0 0,${props.radius * 2}`
+  const baseX = useLayout().startX + props.x
+  const baseY = useLayout().startY + props.y
+  const boxWidth = props.width - props.radius
+  const circleTopPoint = baseY - props.radius
+  const outPath = `M${baseX + props.radius},${circleTopPoint} a1,1 0 0,0 0,${props.radius * 2}`
 
   return (
     <g id={props.id}>
@@ -48,20 +58,23 @@ const RawAppl = (props: RawApplProps) => {
         data-nodeid={props.id}
         onClick={props.events.click}
         onMouseOver={props.events.select}
+        onMouseLeave={props.events.clearSelect}
         strokeOpacity={0}
       />
       <path
         className={props.className}
-        d={`M${props.x + props.radius},${circleTopPoint + props.radius * 2}
+        d={`M${baseX + props.radius},${circleTopPoint + props.radius * 2}
           l0,${props.height / 2 - props.radius}
-          l${props.width},0
+          l${boxWidth},0
           l0,${-props.height}
-          l${-props.width},0
+          l${-boxWidth},0
           l0,${props.height}`}
         data-nodeid={props.id}
+        pointerEvents="painted"
         fillOpacity="0"
         onClick={props.events.click}
         onMouseOver={props.events.select}
+        onMouseLeave={props.events.clearSelect}
         stroke={props.strokeColor}
         strokeLinecap="round"
         strokeWidth={props.strokeWidth}

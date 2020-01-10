@@ -7,6 +7,10 @@ interface BaseExpression {
   readonly parentID?: NodeID
 }
 
+interface NullExpression extends BaseExpression {
+  readonly type: "NULL"
+}
+
 interface Variable extends BaseExpression {
   readonly type: "VARIABLE"
   readonly index: VarIndex
@@ -24,7 +28,7 @@ interface Application extends BaseExpression {
   readonly right: NodeID
 }
 
-export type TreeNode = Variable | Abstraction | Application
+export type TreeNode = NullExpression | Variable | Abstraction | Application
 
 export type Tree = { [nodeId: string]: TreeNode }
 

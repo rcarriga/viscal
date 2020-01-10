@@ -6,7 +6,8 @@ import {
   useEvents,
   useHighligthed,
   useSelected,
-  useTheme
+  useTheme,
+  useLayout
 } from "../../../state"
 import { ExprProps, RawExprProps } from "./base"
 
@@ -54,12 +55,14 @@ interface RawAbsProps extends RawExprProps {
 }
 
 const RawAbs = (props: RawAbsProps) => {
+  const baseX = useLayout().startX + props.x
+  const baseY = useLayout().startY + props.y
   const boxWidth = props.width - props.radius
-  const circleTopPoint = props.y - props.radius
-  const inputX = props.x + boxWidth + props.radius
+  const circleTopPoint = baseY - props.radius
+  const inputX = baseX + boxWidth + props.radius
   const inStart = `M${inputX},${circleTopPoint}`
   const inPath = `${inStart} a1,1 0 0,0 0,${props.radius * 2}`
-  const outPath = `M${props.x + props.radius},${circleTopPoint} a1,1 0 0,0 0,${props.radius * 2}`
+  const outPath = `M${baseX + props.radius},${circleTopPoint} a1,1 0 0,0 0,${props.radius * 2}`
 
   return (
     <g id={props.id}>
@@ -83,7 +86,7 @@ const RawAbs = (props: RawAbsProps) => {
       />
       <path
         className={props.className}
-        d={`M${props.x + props.radius},${circleTopPoint + props.radius * 2}
+        d={`M${baseX + props.radius},${circleTopPoint + props.radius * 2}
           l0,${props.height / 2 - props.radius}
           l${boxWidth},0
           l0,${-props.height / 2 + props.radius}
