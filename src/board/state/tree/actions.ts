@@ -18,21 +18,18 @@ interface AddVariable extends AddExpression {
   type: "ADD_VARIABLE"
   index: VarIndex
   name: string
-  parentID?: NodeID
 }
 
 interface AddAbstraction extends AddExpression {
   type: "ADD_ABSTRACTION"
   variableName: string
   child?: NodeID
-  parentID?: NodeID
 }
 
 interface AddApplication extends AddExpression {
   type: "ADD_APPLICATION"
   left: NodeID
   right: NodeID
-  parentID?: NodeID
 }
 
 export type TreeAction =
@@ -50,16 +47,10 @@ export const setRoot = (nodeID: NodeID): TreeAction => {
   return { type: "SET_ROOT", nodeID: nodeID }
 }
 
-export const addVariable = (
-  nodeID: NodeID,
-  index: VarIndex,
-  name: string,
-  parentID?: NodeID
-): TreeAction => {
+export const addVariable = (nodeID: NodeID, index: VarIndex, name: string): TreeAction => {
   return {
     type: "ADD_VARIABLE",
     nodeID,
-    parentID,
     index,
     name
   }
@@ -68,27 +59,19 @@ export const addVariable = (
 export const addAbstraction = (
   nodeID: NodeID,
   variableName: string,
-  child?: NodeID,
-  parentID?: NodeID
+  child?: NodeID
 ): TreeAction => {
   return {
     type: "ADD_ABSTRACTION",
     nodeID,
-    parentID,
     variableName,
     child
   }
 }
 
-export const addApplication = (
-  nodeID: NodeID,
-  left: NodeID,
-  right: NodeID,
-  parentID?: NodeID
-): TreeAction => {
+export const addApplication = (nodeID: NodeID, left: NodeID, right: NodeID): TreeAction => {
   return {
     type: "ADD_APPLICATION",
-    parentID,
     nodeID,
     left,
     right

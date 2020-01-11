@@ -4,7 +4,6 @@ export type VarIndex = number
 
 interface BaseExpression {
   readonly children: NodeID[]
-  readonly parentID?: NodeID
 }
 
 interface NullExpression extends BaseExpression {

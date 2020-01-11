@@ -1,5 +1,6 @@
 import _ from "lodash"
 import { createSelector } from "reselect"
+import { getNode } from "./util"
 import { Dimensions, BoardState, NodeID, Tree, TreeNode, TreeState } from ".."
 
 export type Coords = { [nodeID: string]: Coord }
@@ -15,9 +16,7 @@ const constructCoords = (tree: TreeState, dimensions: Dimensions): Coords => {
   const root = tree.root
   if (root) {
     const withDimensions = addDimensions(root, tree.nodes, dimensions)
-    const coords = fillCoords(root, withDimensions, tree.nodes, dimensions)
-    console.log(coords)
-    return coords
+    return fillCoords(root, withDimensions, tree.nodes, dimensions)
   } else return {}
 }
 
@@ -30,10 +29,6 @@ export const coordsSelector = createSelector(
   (state: BoardState) => state.visual.dimensions,
   constructCoords
 )
-
-const getNode = (nodeID: NodeID, tree: Tree): TreeNode => {
-  return tree[nodeID] || { type: "NULL" }
-}
 
 /**
  * Fill a coords object with the x and y values for each node,
@@ -55,28 +50,18 @@ const fillCoords = (
   dimensions: Dimensions,
   baseX: number = 0,
   baseY: number = 0
-): Coords => {
-  const root = getNode(rootID, tree)
-  const newCoords = { ...coords, [rootID]: { ...coords[rootID], x: baseX, y: baseY } }
-  switch (root.type) {
-    case "VARIABLE":
-      return newCoords
-    case "ABSTRACTION": {
-      const childBaseX = baseX + dimensions.circleRadius + dimensions.widthMargin
-      return root.children
-        ? fillCoords(root.children[0], newCoords, tree, dimensions, childBaseX, baseY)
-        : newCoords
+): Coords =>
+  _.reduce(
+    getChildren(getNode(rootID, tree), tree),
+    (current, nodeID) => ({
+      baseX: current.baseX + current.coords[nodeID].w + dimensions.widthMargin,
+      coords: fillCoords(nodeID, current.coords, tree, dimensions, current.baseX, baseY)
+    }),
+    {
+      baseX: baseX + dimensions.circleRadius + dimensions.widthMargin,
+      coords: { ...coords, [rootID]: { ...coords[rootID], x: baseX, y: baseY } }
     }
-    case "APPLICATION": {
-      const leftBaseX = baseX + dimensions.circleRadius + dimensions.widthMargin
-      const leftUpdate = fillCoords(root.left, newCoords, tree, dimensions, leftBaseX, baseY)
-      const rightBaseX = leftBaseX + leftUpdate[root.left].w + dimensions.widthMargin
-      return fillCoords(root.children[1], leftUpdate, tree, dimensions, rightBaseX, baseY)
-    }
-    default:
-      return newCoords
-  }
-}
+  ).coords
 
 /**
  * Calculate the width and height dimensions for all nodes in the given tree from the root down.
@@ -95,7 +80,7 @@ const addDimensions = (
   coords: Coords = {}
 ): Coords => {
   const root = getNode(rootID, tree)
-  const children = root.children
+  const children = getChildren(root, tree)
   const updated = _.reduce(
     children,
     (coords, childID) => addDimensions(childID, tree, dimensions, coords),
@@ -104,8 +89,8 @@ const addDimensions = (
   return {
     ...updated,
     [rootID]: {
-      h: elementHeight(root, updated, dimensions),
-      w: elementWidth(root, updated, dimensions),
+      h: elementHeight(root, updated, dimensions, tree),
+      w: elementWidth(root, updated, dimensions, tree),
       x: 0,
       y: 0
     }
@@ -121,12 +106,18 @@ const addDimensions = (
  * @param {Dimensions} dimensions - Dimensions object from state
  * @return {number} Width of node in pixels
  */
-const elementWidth = (node: TreeNode, coords: Coords, dimensions: Dimensions): number => {
+const elementWidth = (
+  node: TreeNode,
+  coords: Coords,
+  dimensions: Dimensions,
+  tree: Tree
+): number => {
   const sumChildren = () =>
-    _.reduce(
-      node.children,
-      (widthSum, childID) => coords[childID].w + dimensions.widthMargin + widthSum,
-      0
+    _.sumBy(
+      _.map(getChildren(node, tree), childID =>
+        tree[childID] ? coords[childID].w : -dimensions.widthMargin
+      ),
+      w => w + dimensions.widthMargin
     )
 
   switch (node.type) {
@@ -150,18 +141,32 @@ const elementWidth = (node: TreeNode, coords: Coords, dimensions: Dimensions): n
  * @param {Dimensions} dimensions - Dimensions object from state
  * @return {number} Height in pixels
  */
-const elementHeight = (node: TreeNode, coords: Coords, dimensions: Dimensions): number => {
+const elementHeight = (
+  node: TreeNode,
+  coords: Coords,
+  dimensions: Dimensions,
+  tree: Tree
+): number => {
   const maxChildren = () =>
-    _.max(_.map(node.children, childID => coords[childID].h)) || dimensions.heightMargin * 2
+    _.max(_.map(getChildren(node, tree), childID => coords[childID].h)) ||
+    dimensions.circleRadius * 2
 
   switch (node.type) {
     case "VARIABLE":
       return dimensions.circleRadius * 2
     case "ABSTRACTION":
-      return maxChildren() + dimensions.circleRadius
+      return maxChildren() + dimensions.heightMargin * 2
     case "APPLICATION":
-      return maxChildren() + dimensions.circleRadius
+      return maxChildren() + dimensions.heightMargin * 2
     default:
       return 0
   }
+}
+
+const getChildren = (node: TreeNode, tree: Tree): NodeID[] => {
+  const left = node.children ? getNode(node.children[0], tree) : undefined
+  if (left && left.type === "APPLICATION") {
+    return _.concat(getChildren(left, tree), _.slice(node.children, 1))
+  }
+  return node.children
 }

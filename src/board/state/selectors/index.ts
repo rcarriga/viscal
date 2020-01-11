@@ -1,12 +1,11 @@
 import { useSelector } from "react-redux"
-import { colorsSelector, coordsSelector, NodeID, VarIndex } from "../"
-import { AppState } from "../../../state"
-import { getVariableBinder } from "../tree/util"
+import { BoardState, colorsSelector, coordsSelector, NodeID, VarIndex } from "../"
+import { getVariableBinder } from "./util"
 
 export * from "./coords"
 export * from "./colors"
 
-export const useBoard = () => useSelector((state: AppState) => state.board)
+export const useBoard = () => useSelector((state: BoardState) => state)
 
 export const useColor = (nodeID: NodeID) => {
   const board = useBoard()

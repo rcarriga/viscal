@@ -1,6 +1,6 @@
 import React from "react"
 import styled from "styled-components"
-import { ControlsTheme } from "./base"
+import { Theme, useTheme } from "../state"
 
 interface SliderControlProps {
   title: string
@@ -11,10 +11,11 @@ interface SliderControlProps {
 }
 
 export const SliderControl = (props: SliderControlProps) => {
+  const theme = useTheme()
   return (
     <SliderPanel>
       <SliderTitle>{props.title}</SliderTitle>
-      <Slider {...props}></Slider>
+      <Slider {...props} visTheme={theme}></Slider>
     </SliderPanel>
   )
 }
@@ -29,7 +30,7 @@ const SliderTitle = styled.p.attrs(props => props)`
 `
 
 interface SliderProps extends SliderControlProps {
-  theme: ControlsTheme
+  visTheme: Theme
 }
 
 const SliderPanel = styled.div.attrs(props => props)`
@@ -48,7 +49,7 @@ export const Slider = styled.input.attrs((props: SliderProps) => {
   -webkit-appearance: none;
   -webkit-transition: 0.2s;
   appearance: none;
-  background: ${props => props.theme.bg};
+  background: ${(props: SliderProps) => props.visTheme.secondary};
   height: 10px;
   opacity: 0.7;
   outline: none;
@@ -62,14 +63,14 @@ export const Slider = styled.input.attrs((props: SliderProps) => {
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    background: ${props => props.theme.fg};
+    background: ${(props: SliderProps) => props.visTheme.primary};
     cursor: pointer;
     height: 15px;
     width: 25px;
   }
 
   &::-moz-range-thumb {
-    background: ${props => props.theme.fg};
+    background: ${(props: SliderProps) => props.visTheme.primary};
     cursor: pointer;
     height: 15px;
     width: 25px;

@@ -1,25 +1,5 @@
 import { VisualAction } from "./actions"
-import { VisualState } from "./types"
-
-export const initialVisualState: VisualState = {
-  expression: "",
-  theme: {
-    highlightedStroke: "#A9FF68",
-    selectedStroke: "#3E3D32",
-    stroke: "grey"
-  },
-  events: {},
-  dimensions: {
-    circleRadius: 30,
-    heightMargin: 20,
-    strokeWidth: 4,
-    widthMargin: 20
-  },
-  treeLayout: {
-    startX: 50,
-    startY: 100
-  }
-}
+import { VisualState, initialVisualState } from "./types"
 
 export const visual = (state = initialVisualState, action: VisualAction): VisualState => {
   switch (action.type) {
