@@ -3,7 +3,7 @@ export type VarName = string
 export type VarIndex = number
 
 interface BaseExpression {
-  readonly children: NodeID[]
+  readonly children: (tree: Tree) => NodeID[]
 }
 
 interface NullExpression extends BaseExpression {
@@ -14,10 +14,12 @@ interface Variable extends BaseExpression {
   readonly type: "VARIABLE"
   readonly index: VarIndex
   readonly name: VarName
+  readonly binder: (tree: TreeState) => NodeID | undefined
 }
 
 interface Abstraction extends BaseExpression {
   readonly type: "ABSTRACTION"
+  readonly child?: NodeID
   readonly variableName: VarName
 }
 

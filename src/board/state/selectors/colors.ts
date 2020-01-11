@@ -15,7 +15,8 @@ const constructColors = (tree: TreeState): VarColors => {
 }
 
 const createColor = (nodeID: NodeID, node: TreeNode): VarColors => {
-  if (node.type === "ABSTRACTION") return { [nodeID]: randomcolor({ seed: nodeID }) }
+  if (node.type === "ABSTRACTION")
+    return { [nodeID]: randomcolor({ seed: nodeID, luminosity: "bright" }) }
   else return {}
 }
 

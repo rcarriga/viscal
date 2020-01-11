@@ -78,7 +78,7 @@ const drawExprs = (props: BoardState, coords: Coords) =>
         if (coords[nodeID])
           switch (node.type) {
             case "VARIABLE":
-              return <Var key={nodeID} id={nodeID} index={node.index} variableName={node.name} />
+              return <Var key={nodeID} id={nodeID} variableName={node.name} />
             case "ABSTRACTION":
               return <Abs key={nodeID} id={nodeID} variableName={node.variableName} />
             case "APPLICATION":
@@ -117,7 +117,5 @@ const testEffects = (props: BoardProps) => {
     props.setEvent("highlight", e =>
       props.setHighlighted(e.currentTarget.getAttribute("data-nodeid") || undefined)
     )
-    props.setEvent("clearhighlight", () => props.setHighlighted())
-    props.setEvent("clearSelect", () => props.setSelected())
   }
 }

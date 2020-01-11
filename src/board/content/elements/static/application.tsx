@@ -2,7 +2,7 @@ import React from "react"
 import {
   useDimensions,
   useCoords,
-  useSelected,
+  useHighligthed,
   useTheme,
   useEvents,
   useLayout
@@ -23,7 +23,7 @@ export const Appl = (props: ApplProps) => {
       heightMargin={dimensions.heightMargin}
       id={props.id}
       radius={dimensions.circleRadius}
-      strokeColor={props.id === useSelected() ? theme.selectedStroke : theme.stroke}
+      strokeColor={useHighligthed(props.id) ? theme.highlightedStroke : theme.stroke}
       strokeWidth={dimensions.strokeWidth}
       width={coord.w}
       widthMargin={dimensions.widthMargin}
@@ -73,8 +73,8 @@ const RawAppl = (props: RawApplProps) => {
         pointerEvents="painted"
         fillOpacity="0"
         onClick={props.events.click}
-        onMouseOver={props.events.select}
-        onMouseLeave={props.events.clearSelect}
+        onMouseOver={props.events.highlight}
+        onMouseLeave={props.events.clearhighlight}
         stroke={props.strokeColor}
         strokeLinecap="round"
         strokeWidth={props.strokeWidth}

@@ -1,6 +1,5 @@
 import React from "react"
 import {
-  VarIndex,
   VarName,
   useColor,
   useCoords,
@@ -14,13 +13,12 @@ import {
 import { RawExprProps, ExprProps } from "./base"
 
 interface VarProps extends ExprProps {
-  index: VarIndex
   variableName: VarName
 }
 
 export const Var = (props: VarProps) => {
   const coord = useCoords()[props.id]
-  const isHighlighted = useHighligthed(props.id, props.index)
+  const isHighlighted = useHighligthed(props.id)
   const theme = useTheme()
 
   return (
@@ -57,7 +55,7 @@ const RawVar = (props: RawVarProps) => {
       data-nodeid={props.id}
       id={props.id}
       onClick={props.events.click}
-      onMouseOver={props.events.select}
+      onMouseOver={props.events.highlight}
       rx={props.radius}
       fill={props.color}
       strokeOpacity={props.strokeOpacity}

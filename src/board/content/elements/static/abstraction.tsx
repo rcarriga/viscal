@@ -19,7 +19,7 @@ export const Abs = (props: AbsProps) => {
   const coord = useCoords()[props.id]
   const dimensions = useDimensions()
   const theme = useTheme()
-  const strokeColor = props.id === useSelected() ? theme.selectedStroke : theme.stroke
+  const strokeColor = useHighligthed(props.id) ? theme.highlightedStroke : theme.stroke
 
   return (
     <RawAbs
@@ -32,7 +32,7 @@ export const Abs = (props: AbsProps) => {
       strokeWidth={dimensions.strokeWidth}
       varColor={useColor(props.id)}
       varStroke={theme.highlightedStroke}
-      varStrokeOpacity={useHighligthed(props.id, 0) ? 1 : 0}
+      varStrokeOpacity={useHighligthed(props.id) ? 1 : 0}
       width={coord.w}
       widthMargin={dimensions.widthMargin}
       x={coord.x}
@@ -71,14 +71,13 @@ const RawAbs = (props: RawAbsProps) => {
         d={outPath}
         data-nodeid={props.id}
         onClick={props.events.click}
-        onMouseOver={props.events.select}
+        onMouseOver={props.events.highlight}
         strokeOpacity={0}
       />
       <path
         d={`${inStart} ${inPath} l0,${-props.radius * 2}`}
         data-nodeid={props.id}
         fill={props.varColor}
-        onMouseLeave={props.events.clearhighlight}
         onMouseOver={props.events.highlight}
         stroke={props.varStroke}
         strokeOpacity={props.varStrokeOpacity}
@@ -97,7 +96,7 @@ const RawAbs = (props: RawAbsProps) => {
         data-nodeid={props.id}
         fill="transparent"
         onClick={props.events.click}
-        onMouseOver={props.events.select}
+        onMouseOver={props.events.highlight}
         pointerEvents="painted"
         stroke={props.strokeColor}
         strokeLinecap="round"

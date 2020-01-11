@@ -1,6 +1,5 @@
 import { useSelector } from "react-redux"
-import { BoardState, colorsSelector, coordsSelector, NodeID, VarIndex } from "../"
-import { getVariableBinder } from "./util"
+import { BoardState, colorsSelector, coordsSelector, NodeID } from "../"
 
 export * from "./coords"
 export * from "./colors"
@@ -13,7 +12,7 @@ export const useColor = (nodeID: NodeID) => {
   const colors = colorsSelector(board)
   switch (node.type) {
     case "VARIABLE": {
-      const binderID = getVariableBinder(nodeID, node.index, board.tree)
+      const binderID = node.binder(board.tree)
       return binderID ? colors[binderID] : "black"
     }
     case "ABSTRACTION":
@@ -27,10 +26,14 @@ export const useSelected = () => {
   return useBoard().visual.selected
 }
 
-export const useHighligthed = (nodeID: NodeID, index: VarIndex) => {
+export const useHighligthed = (nodeID: NodeID) => {
   const board = useBoard()
-  const binder = getVariableBinder(nodeID, index, board.tree)
-  return binder ? binder === board.visual.highlighted : false
+  const node = board.tree.nodes[nodeID]
+  if (!node) return false
+  if (node.type === "VARIABLE") {
+    if (node.binder(board.tree) === board.visual.highlighted) return true
+  }
+  return board.visual.highlighted === nodeID
 }
 export const useCoords = () => {
   return coordsSelector(useBoard())
