@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.8.3",
+    "@material-ui/icons": "^4.5.1",
     "@types/randomcolor": "^0.5.3",
     "babel": "^6.23.0",
     "babel-cli": "^6.26.0",
