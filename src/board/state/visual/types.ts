@@ -32,7 +32,7 @@ const defaultEvents = {
   select: undefined,
   highlight: undefined,
   click: undefined,
-  clearhighlight: undefined,
+  clearHighlight: undefined,
   clearSelect: undefined,
   test: undefined
 }
@@ -42,7 +42,7 @@ export type NodeEvents = { [event in keyof typeof defaultEvents]?: MouseEventHan
 export type NodeEvent = keyof NodeEvents
 
 const defaultTreeLayout = {
-  startX: 50,
+  startX: 400,
   startY: 200
 }
 

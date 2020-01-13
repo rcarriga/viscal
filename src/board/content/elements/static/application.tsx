@@ -57,8 +57,8 @@ const RawAppl = (props: RawApplProps) => {
         d={outPath}
         data-nodeid={props.id}
         onClick={props.events.click}
-        onMouseOver={props.events.select}
-        onMouseLeave={props.events.clearSelect}
+        onMouseOver={props.events.highlight}
+        onMouseLeave={props.events.clearHighlight}
         strokeOpacity={0}
       />
       <path
@@ -73,8 +73,6 @@ const RawAppl = (props: RawApplProps) => {
         pointerEvents="painted"
         fillOpacity="0"
         onClick={props.events.click}
-        onMouseOver={props.events.highlight}
-        onMouseLeave={props.events.clearhighlight}
         stroke={props.strokeColor}
         strokeLinecap="round"
         strokeWidth={props.strokeWidth}

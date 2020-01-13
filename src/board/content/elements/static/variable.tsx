@@ -48,14 +48,14 @@ const RawVar = (props: RawVarProps) => {
   const { startX, startY } = useLayout()
   return (
     <path
-      d={`M${startX + props.x},${startY + props.y} a${props.radius},${
-        props.radius
-      } 0 1,0 ${props.radius * 2},0
-    a${props.radius},${props.radius} 0 1,0 -${props.radius * 2},0`}
+      d={`M${startX + props.x},${startY + props.y}
+      a${props.radius},${props.radius} 0 1,0 ${props.radius * 2},0
+      a${props.radius},${props.radius} 0 1,0 -${props.radius * 2},0`}
       data-nodeid={props.id}
       id={props.id}
       onClick={props.events.click}
       onMouseOver={props.events.highlight}
+      onMouseLeave={props.events.clearHighlight}
       rx={props.radius}
       fill={props.color}
       strokeOpacity={props.strokeOpacity}

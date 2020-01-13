@@ -1,3 +1,4 @@
+import _ from "lodash"
 import { useSelector } from "react-redux"
 import { BoardState, colorsSelector, coordsSelector, NodeID } from "../"
 
@@ -31,7 +32,8 @@ export const useHighligthed = (nodeID: NodeID) => {
   const node = board.tree.nodes[nodeID]
   if (!node) return false
   if (node.type === "VARIABLE") {
-    if (node.binder(board.tree) === board.visual.highlighted) return true
+    const binder = node.binder(board.tree)
+    if (!_.isNil(binder) && binder === board.visual.highlighted) return true
   }
   return board.visual.highlighted === nodeID
 }

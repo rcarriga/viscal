@@ -1,4 +1,4 @@
-import { ThemeProvider, useTheme } from "@material-ui/core"
+import { ThemeProvider, useTheme, CssBaseline } from "@material-ui/core"
 import React from "react"
 import { Provider } from "react-redux"
 import styled from "styled-components"
@@ -9,10 +9,12 @@ import store from "./state"
 export const Board = () => (
   <Provider store={store}>
     <ThemeProvider theme={useTheme()}>
-      <BoardContainer>
-        <BoardControl />
-        <BoardContent />
-      </BoardContainer>
+      <CssBaseline>
+        <BoardContainer>
+          <BoardControl />
+          <BoardContent />
+        </BoardContainer>
+      </CssBaseline>
     </ThemeProvider>
   </Provider>
 )
