@@ -1,9 +1,16 @@
 import _ from "lodash"
 import { BoardAction } from "../actions"
 import { parentsSelector } from "./selectors"
-import { VarIndex, TreeState, TreeNode, NodeID, Tree } from "./types"
-
-export const initialTreeState: TreeState = { nodes: {} }
+import {
+  VarIndex,
+  TreeState,
+  TreeNode,
+  NodeID,
+  Tree,
+  initialTreeState,
+  Reduction,
+  ReductionStage
+} from "./types"
 
 export const tree = (state = initialTreeState, action: BoardAction): TreeState => {
   switch (action.type) {
@@ -31,8 +38,21 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
         right: action.right,
         children: tree => getChildren(action.nodeID, tree)
       })
-    case "NORMAL_ORDER_REDUCTION":
-      console.log("TREE REDUCTION NOT IMPLEMENTED :(")
+    case "QUEUE_REDUCTION":
+      return {
+        ...state,
+        reductions: [...state.reductions, { stage: "CONSUME", applicationID: action.applicationID }]
+      }
+    case "NEXT_REDUCTION_STAGE":
+      if (state.reductions) {
+        const current = state.reductions[0]
+        const nextStage = getNextStage(current)
+        const updated = nextStage ? [{ ...current, stage: nextStage }] : []
+        return {
+          ...state,
+          reductions: [...updated, ..._.tail(state.reductions)]
+        }
+      }
       return state
     default:
       return state
@@ -46,6 +66,16 @@ const addNode = (state: TreeState, nodeID: NodeID, expr: TreeNode): TreeState =>
       ...state.nodes,
       [nodeID]: expr
     }
+  }
+}
+
+const getNextStage = (reduction: Reduction): ReductionStage | undefined => {
+  switch (reduction.stage) {
+    case "CONSUME":
+      return "UNBIND"
+    case "UNBIND":
+      return "SUBSTITUTE"
+    default:
   }
 }
 

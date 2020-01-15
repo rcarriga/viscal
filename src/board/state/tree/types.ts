@@ -33,7 +33,17 @@ export type TreeNode = NullExpression | Variable | Abstraction | Application
 
 export type Tree = { [nodeId: string]: TreeNode }
 
+export type ReductionStage = "CONSUME" | "UNBIND" | "SUBSTITUTE"
+
+export interface Reduction {
+  stage: ReductionStage
+  applicationID: NodeID
+}
+
 export interface TreeState {
   readonly root?: NodeID
   readonly nodes: Tree
+  readonly reductions: Reduction[]
 }
+
+export const initialTreeState: TreeState = { nodes: {}, reductions: [] }
