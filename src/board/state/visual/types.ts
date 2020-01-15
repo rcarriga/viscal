@@ -10,7 +10,7 @@ const defaultTheme = {
   text: "black",
   highlightedStroke: "#3E3D32",
   selectedStroke: "#3E3D32",
-  stroke: "grey"
+  stroke: "#8B8B8B"
 }
 
 export type Theme = typeof defaultTheme
