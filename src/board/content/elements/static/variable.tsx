@@ -1,13 +1,11 @@
+import { motion } from "framer-motion"
 import React from "react"
 import {
   VarName,
-  useColor,
+  useVarStyle,
   useCoords,
   useDimensions,
   useEvents,
-  useHighligthed,
-  useSelected,
-  useTheme,
   useLayout
 } from "../../../state"
 import { RawExprProps, ExprProps } from "./base"
@@ -18,20 +16,18 @@ interface VarProps extends ExprProps {
 
 export const Var = (props: VarProps) => {
   const coord = useCoords()[props.id]
-  const isHighlighted = useHighligthed(props.id)
-  const theme = useTheme()
+  const style = useVarStyle(props.id)
+  const { startX, startY } = useLayout()
 
   return (
     <RawVar
-      color={useColor(props.id)}
+      color={style.fill}
       events={useEvents()}
       id={props.id}
       radius={useDimensions().circleRadius}
-      strokeColor={isHighlighted ? theme.highlightedStroke : theme.selectedStroke}
-      strokeOpacity={Number(props.id === useSelected() || isHighlighted)}
-      strokeWidth={useDimensions().strokeWidth}
-      x={coord.x}
-      y={coord.y}
+      {...style.stroke}
+      x={startX + coord.x}
+      y={startY + coord.y}
     />
   )
 }
@@ -39,28 +35,32 @@ export const Var = (props: VarProps) => {
 interface RawVarProps extends RawExprProps {
   color: string
   radius: number
-  strokeColor: string
+  stroke: string
   strokeOpacity: number
   strokeWidth: number
 }
 
 const RawVar = (props: RawVarProps) => {
-  const { startX, startY } = useLayout()
-  return (
-    <path
-      d={`M${startX + props.x},${startY + props.y}
+  const path = `M${props.x},${props.y}
       a${props.radius},${props.radius} 0 1,0 ${props.radius * 2},0
-      a${props.radius},${props.radius} 0 1,0 -${props.radius * 2},0`}
+      a${props.radius},${props.radius} 0 1,0 -${props.radius * 2},0`
+  return (
+    <motion.path
       data-nodeid={props.id}
       id={props.id}
       onClick={props.events.click}
       onMouseOver={props.events.highlight}
       onMouseLeave={props.events.clearHighlight}
-      rx={props.radius}
-      fill={props.color}
-      strokeOpacity={props.strokeOpacity}
-      strokeWidth={props.strokeWidth}
-      stroke={props.strokeColor}
+      initial={false}
+      animate={{
+        d: path,
+        pathLength: 1,
+        fill: props.color,
+        strokeOpacity: props.strokeOpacity,
+        strokeWidth: props.strokeWidth,
+        stroke: props.stroke
+      }}
+      onTransitionEnd={console.log}
     />
   )
 }

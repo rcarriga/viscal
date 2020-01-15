@@ -1,4 +1,3 @@
-import _ from "lodash"
 import React, { useEffect, useState } from "react"
 import { connect } from "react-redux"
 import styled from "styled-components"
@@ -14,10 +13,10 @@ import {
   setLayout,
   useLayout,
   useCoords,
-  Coords
+  queueReduction,
+  nextReductionStage
 } from "../state"
-
-import { Var, Abs, Appl } from "./elements"
+import { TreeGraph } from "./elements"
 
 const mapState = (state: BoardState) => ({ state })
 const mapDispatch = {
@@ -28,7 +27,9 @@ const mapDispatch = {
   setEvent,
   setHighlighted,
   setSelected,
-  setLayout
+  setLayout,
+  queueReduction,
+  nextReductionStage
 }
 
 export type BoardProps = ReturnType<typeof mapState> & typeof mapDispatch & { className?: string }
@@ -77,10 +78,12 @@ export const BoardContent = connect(
         id="board-content"
         pointerEvents="all"
         onMouseDown={e => {
+          props.queueReduction("app2")
           setCoord({ x: e.clientX - origin.x, y: e.clientY - origin.y })
           setDragging(true)
         }}
         onMouseUp={e => {
+          props.nextReductionStage()
           setDragging(false)
           setOrigin({ x: e.clientX - coord.x, y: e.clientY - coord.y })
         }}
@@ -92,7 +95,7 @@ export const BoardContent = connect(
         }}
         className={props.className}
       >
-        {drawExprs(props.state, useCoords())}
+        <TreeGraph board={props.state} coords={useCoords()} />
       </svg>
     </div>
   )
@@ -104,23 +107,3 @@ export const BoardContent = connect(
   flex-grow: 3;
   padding: 0px;
 `)
-
-const drawExprs = (props: BoardState, coords: Coords) =>
-  _.sortBy(
-    _.omitBy(
-      _.map(props.tree.nodes, (node, nodeID) => {
-        if (coords[nodeID])
-          switch (node.type) {
-            case "VARIABLE":
-              return <Var key={nodeID} id={nodeID} variableName={node.name} />
-            case "ABSTRACTION":
-              return <Abs key={nodeID} id={nodeID} variableName={node.variableName} />
-            case "APPLICATION":
-              return <Appl key={nodeID} id={nodeID} />
-            default:
-          }
-      }),
-      _.isNil
-    ),
-    expr => coords[expr.props.id].x
-  )

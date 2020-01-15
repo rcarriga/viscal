@@ -1,20 +1,22 @@
+import { motion } from "framer-motion"
 import React from "react"
 import {
   useDimensions,
   useCoords,
-  useHighligthed,
-  useTheme,
+  useApplStyle,
   useEvents,
-  useLayout
+  useLayout,
+  ApplStyle
 } from "../../../state"
 import { ExprProps, RawExprProps } from "./base"
 
 interface ApplProps extends ExprProps {}
 
 export const Appl = (props: ApplProps) => {
+  const { startX, startY } = useLayout()
   const coord = useCoords()[props.id]
   const dimensions = useDimensions()
-  const theme = useTheme()
+  const style = useApplStyle(props.id)
 
   return (
     <RawAppl
@@ -23,12 +25,11 @@ export const Appl = (props: ApplProps) => {
       heightMargin={dimensions.heightMargin}
       id={props.id}
       radius={dimensions.circleRadius}
-      strokeColor={useHighligthed(props.id) ? theme.highlightedStroke : theme.stroke}
-      strokeWidth={dimensions.strokeWidth}
+      style={style}
       width={coord.w}
       widthMargin={dimensions.widthMargin}
-      x={coord.x}
-      y={coord.y}
+      x={startX + coord.x}
+      y={startY + coord.y}
     />
   )
 }
@@ -37,45 +38,48 @@ interface RawApplProps extends RawExprProps {
   height: number
   heightMargin: number
   radius: number
-  strokeColor: string
-  strokeWidth: number
   width: number
   widthMargin: number
+  style: ApplStyle
 }
 
 const RawAppl = (props: RawApplProps) => {
-  const baseX = useLayout().startX + props.x
-  const baseY = useLayout().startY + props.y
   const boxWidth = props.width - props.radius
-  const circleTopPoint = baseY - props.radius
-  const outPath = `M${baseX + props.radius},${circleTopPoint} a1,1 0 0,0 0,${props.radius * 2}`
-
-  return (
-    <g id={props.id}>
-      <path
-        className={props.className}
-        d={outPath}
-        data-nodeid={props.id}
-        onClick={props.events.click}
-        onMouseOver={props.events.highlight}
-        onMouseLeave={props.events.clearHighlight}
-        strokeOpacity={0}
-      />
-      <path
-        className={props.className}
-        d={`M${baseX + props.radius},${circleTopPoint + props.radius * 2}
+  const circleTopPoint = props.y - props.radius
+  const outPath = `M${props.x + props.radius},${circleTopPoint} a1,1 0 0,0 0,${props.radius * 2}`
+  const boxPath = `M${props.x + props.radius},${circleTopPoint + props.radius * 2}
           l0,${props.height / 2 - props.radius}
           l${boxWidth},0
           l0,${-props.height}
           l${-boxWidth},0
-          l0,${props.height}`}
+          l0,${props.height}`
+
+  return (
+    <g id={props.id}>
+      <motion.path
+        className={props.className}
+        animate={{
+          d: outPath,
+          fill: props.style.output.fill,
+          ...props.style.output.stroke
+        }}
+        initial={false}
+        data-nodeid={props.id}
+        onClick={props.events.click}
+        onMouseOver={props.events.highlight}
+        onMouseLeave={props.events.clearHighlight}
+      />
+      <motion.path
+        className={props.className}
+        initial={false}
+        animate={{
+          d: boxPath,
+          fill: props.style.fill,
+          ...props.style.stroke
+        }}
         data-nodeid={props.id}
         pointerEvents="painted"
-        fillOpacity="0"
         onClick={props.events.click}
-        stroke={props.strokeColor}
-        strokeLinecap="round"
-        strokeWidth={props.strokeWidth}
       />
     </g>
   )
