@@ -6,8 +6,9 @@ import {
   useCoords,
   useDimensions,
   useEvents,
-  useLayout
-} from "../../../state"
+  useLayout,
+  VarStyle
+} from "../../state"
 import { RawExprProps, ExprProps } from "./base"
 
 interface VarProps extends ExprProps {
@@ -21,11 +22,10 @@ export const Var = (props: VarProps) => {
 
   return (
     <RawVar
-      color={style.fill}
       events={useEvents()}
       id={props.id}
       radius={useDimensions().circleRadius}
-      {...style.stroke}
+      style={style}
       x={startX + coord.x}
       y={startY + coord.y}
     />
@@ -33,11 +33,8 @@ export const Var = (props: VarProps) => {
 }
 
 interface RawVarProps extends RawExprProps {
-  color: string
   radius: number
-  stroke: string
-  strokeOpacity: number
-  strokeWidth: number
+  style: VarStyle
 }
 
 const RawVar = (props: RawVarProps) => {
@@ -55,10 +52,8 @@ const RawVar = (props: RawVarProps) => {
       animate={{
         d: path,
         pathLength: 1,
-        fill: props.color,
-        strokeOpacity: props.strokeOpacity,
-        strokeWidth: props.strokeWidth,
-        stroke: props.stroke
+        fill: props.style.fill,
+        ...props.style.stroke
       }}
       onTransitionEnd={console.log}
     />

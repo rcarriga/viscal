@@ -9,24 +9,38 @@ export const useVarStyle = (nodeID: NodeID): VarStyle => {
   const colors = useColors()
   const node = state.tree.nodes[nodeID]
   const binder = node && node.type === "VARIABLE" ? node.binder(state.tree) || nodeID : nodeID
+  const isHighlighted =
+    state.highlighted && (state.highlighted === nodeID || state.highlighted === binder)
+  const isSelected = state.selected && state.selected === nodeID
   return {
     type: "VAR_STYLE",
     fill: colors[binder] || "black",
-    opacity: 1,
-    stroke: constructStroke(
-      nodeID,
-      Number(nodeID === state.selected || nodeID === state.highlighted),
-      state
-    )
+    stroke: {
+      stroke: isSelected
+        ? state.theme.selectedStroke
+        : isHighlighted
+        ? state.theme.highlightedStroke
+        : state.theme.varStroke,
+      strokeWidth: state.dimensions.strokeWidth
+    }
   }
 }
 
 export const useAbsStyle = (nodeID: NodeID): AbsStyle => {
   const state = useStylesState()
+  const isHighlighted = state.highlighted === nodeID
+  const isSelected = state.selected && state.selected === nodeID
   return {
     type: "ABS_STYLE",
     fill: "transparent",
-    stroke: constructStroke(nodeID, 1, state),
+    stroke: {
+      stroke: isSelected
+        ? state.theme.selectedStroke
+        : isHighlighted
+        ? state.theme.highlightedStroke
+        : state.theme.stroke,
+      strokeWidth: state.dimensions.strokeWidth
+    },
     input: useVarStyle(nodeID),
     output: useVarStyle("")
   }
@@ -34,10 +48,19 @@ export const useAbsStyle = (nodeID: NodeID): AbsStyle => {
 
 export const useApplStyle = (nodeID: NodeID): ApplStyle => {
   const state = useStylesState()
+  const isHighlighted = state.highlighted === nodeID
+  const isSelected = state.selected === nodeID
   return {
     type: "APPL_STYLE",
     fill: "transparent",
-    stroke: constructStroke(nodeID, 1, state),
+    stroke: {
+      stroke: isSelected
+        ? state.theme.selectedStroke
+        : isHighlighted
+        ? state.theme.highlightedStroke
+        : state.theme.stroke,
+      strokeWidth: state.dimensions.strokeWidth
+    },
     output: useVarStyle("")
   }
 }
@@ -46,14 +69,12 @@ type VarColors = { [bindingID in NodeID]: Color }
 
 interface StrokeStyle {
   stroke: string
-  strokeOpacity: number
   strokeWidth: number
 }
 
 export interface VarStyle {
   type: "VAR_STYLE"
   fill: string
-  opacity: number
   stroke: StrokeStyle
 }
 
@@ -121,15 +142,3 @@ const createColor = (nodeID: NodeID, node: TreeNode, tree: TreeState): Color => 
       return "transparent"
   }
 }
-
-const constructStroke = (nodeID: NodeID, opacity: number, state: StylesState): StrokeStyle => ({
-  stroke:
-    state.highlighted === nodeID
-      ? state.theme.highlightedStroke
-      : state.selected === nodeID
-      ? state.theme.selectedStroke
-      : state.theme.stroke,
-  strokeWidth: state.dimensions.strokeWidth,
-  strokeOpacity: opacity
-})
-

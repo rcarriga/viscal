@@ -1,4 +1,4 @@
-import { coordsSelector, NodeID } from "../"
+import { coordsSelector } from "../"
 
 import { useBoard } from "./base"
 

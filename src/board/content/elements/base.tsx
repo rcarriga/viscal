@@ -1,4 +1,4 @@
-import { NodeEvents } from "../../../state"
+import { NodeEvents } from "../../state"
 
 export interface ExprProps {
   id: string

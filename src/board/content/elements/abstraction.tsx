@@ -1,13 +1,6 @@
 import { motion } from "framer-motion"
 import React from "react"
-import {
-  useAbsStyle,
-  useCoords,
-  useDimensions,
-  useEvents,
-  useLayout,
-  AbsStyle
-} from "../../../state"
+import { useAbsStyle, useCoords, useDimensions, useEvents, useLayout, AbsStyle } from "../../state"
 import { ExprProps, RawExprProps } from "./base"
 
 interface AbsProps extends ExprProps {

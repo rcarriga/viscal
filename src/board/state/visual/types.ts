@@ -3,14 +3,15 @@ import { NodeID } from "../tree"
 export type Color = string
 
 const defaultTheme = {
-  primary: "#a9ff68",
-  secondary: "#8B8B8B",
-  foreground: "black",
-  background: "#f8f8f8",
-  text: "black",
-  highlightedStroke: "#3E3D32",
-  selectedStroke: "#3E3D32",
-  stroke: "#8B8B8B"
+  primary: "rgba(169,255,104, 1)",
+  secondary: "rgba(248, 248, 248,1)",
+  foreground: "rgba(0,0,0,1)",
+  background: "rgba(248, 248, 248,1)",
+  text: "rgba(0,0,0,1)",
+  highlightedStroke: "rgba(62, 61, 50, 1)",
+  selectedStroke: "rgba(62, 61, 50, 1)",
+  stroke: "rgba(139, 139, 139, 1)",
+  varStroke: "rgba(0,0,0,0)"
 }
 
 export type Theme = typeof defaultTheme

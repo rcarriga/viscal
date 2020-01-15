@@ -1,7 +1,9 @@
 import _ from "lodash"
 import React from "react"
 import { Coords, BoardState } from "../../state"
-import { Var, Abs, Appl } from "./static"
+import { Abs } from "./abstraction"
+import { Appl } from "./application"
+import { Var } from "./variable"
 
 interface TreeGraphProps {
   coords: Coords
