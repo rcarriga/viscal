@@ -2,9 +2,9 @@ import _ from "lodash"
 import { createSelector } from "reselect"
 import { Dimensions, BoardState, NodeID, Tree, TreeNode, TreeState, Reduction } from ".."
 
-export type Coords = { [nodeID: string]: Coord }
+export type Coords = { [nodeID: string]: NodeCoord }
 
-export interface Coord {
+export interface NodeCoord {
   readonly x: number
   readonly y: number
   readonly h: number
@@ -70,7 +70,7 @@ const calculateOffsets = (tree: Tree, dimensions: Dimensions, reduction: Reducti
   return {}
 }
 
-const addOffset = (coord: Coord, offset?: Coord): Coord =>
+const addOffset = (coord: NodeCoord, offset?: NodeCoord): NodeCoord =>
   offset
     ? {
         x: coord.x + offset.x,

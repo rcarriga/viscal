@@ -93,6 +93,8 @@ export interface ApplStyle {
   output: VarStyle
 }
 
+export type NodeStyle = VarStyle | AbsStyle | ApplStyle
+
 type StylesState = {
   tree: TreeState
   theme: Theme

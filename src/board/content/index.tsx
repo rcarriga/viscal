@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react"
+import { motion } from "framer-motion"
+import React, { useEffect } from "react"
 import { connect } from "react-redux"
 import styled from "styled-components"
 import {
@@ -11,8 +12,7 @@ import {
   setHighlighted,
   setEvent,
   setLayout,
-  useLayout,
-  useCoords,
+  useCoord,
   queueReduction,
   nextReductionStage
 } from "../state"
@@ -38,9 +38,6 @@ export const BoardContent = connect(
   mapState,
   mapDispatch
 )(styled((props: BoardProps) => {
-  const [dragging, setDragging] = useState(false)
-  const [origin, setOrigin] = useState({ x: useLayout().startX, y: useLayout().startY })
-  const [coord, setCoord] = useState({ x: 0, y: 0 })
   useEffect(() => {
     if (!props.state.tree.root) {
       props.addApp("app2", "app1", "abs2")
@@ -74,29 +71,18 @@ export const BoardContent = connect(
   })
   return (
     <div>
-      <svg
+      <motion.svg
         id="board-content"
         pointerEvents="all"
-        onMouseDown={e => {
-          props.queueReduction("app2")
-          setCoord({ x: e.clientX - origin.x, y: e.clientY - origin.y })
-          setDragging(true)
-        }}
-        onMouseUp={e => {
-          props.nextReductionStage()
-          setDragging(false)
-          setOrigin({ x: e.clientX - coord.x, y: e.clientY - coord.y })
-        }}
-        onMouseMove={e => {
-          if (dragging) {
-            props.setLayout("startX", e.clientX - coord.x)
-            props.setLayout("startY", e.clientY - coord.y)
-          }
+        drag
+        onDrag={(e, info) => {
+          props.setLayout("startX", props.state.visual.treeLayout.startX + info.delta.x)
+          props.setLayout("startY", props.state.visual.treeLayout.startY + info.delta.y)
         }}
         className={props.className}
       >
-        <TreeGraph board={props.state} coords={useCoords()} />
-      </svg>
+        <TreeGraph board={props.state} />
+      </motion.svg>
     </div>
   )
 })`

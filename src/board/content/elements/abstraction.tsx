@@ -1,6 +1,6 @@
 import { motion } from "framer-motion"
 import React from "react"
-import { useAbsStyle, useCoords, useDimensions, useEvents, useLayout, AbsStyle } from "../../state"
+import { useAbsStyle, useCoord, useDimensions, useEvents, AbsStyle } from "../../state"
 import { ExprProps, RawExprProps } from "./base"
 
 interface AbsProps extends ExprProps {
@@ -8,25 +8,27 @@ interface AbsProps extends ExprProps {
 }
 
 export const Abs = (props: AbsProps) => {
-  const { startX, startY } = useLayout()
-  const coord = useCoords()[props.id]
+  const coord = useCoord(props.id)
   const dimensions = useDimensions()
   const style = useAbsStyle(props.id)
+  const events = useEvents()
 
-  return (
-    <RawAbs
-      events={useEvents()}
-      height={coord.h}
-      heightMargin={dimensions.heightMargin}
-      id={props.id}
-      radius={dimensions.circleRadius}
-      style={style}
-      width={coord.w}
-      widthMargin={dimensions.widthMargin}
-      x={startX + coord.x}
-      y={startY + coord.y}
-    />
-  )
+  if (coord)
+    return (
+      <RawAbs
+        events={events}
+        height={coord.h}
+        heightMargin={dimensions.heightMargin}
+        id={props.id}
+        radius={dimensions.circleRadius}
+        style={style}
+        width={coord.w}
+        widthMargin={dimensions.widthMargin}
+        x={coord.x}
+        y={coord.y}
+      />
+    )
+  return null
 }
 
 interface RawAbsProps extends RawExprProps {

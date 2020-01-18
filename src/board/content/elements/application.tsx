@@ -1,37 +1,32 @@
 import { motion } from "framer-motion"
 import React from "react"
-import {
-  useDimensions,
-  useCoords,
-  useApplStyle,
-  useEvents,
-  useLayout,
-  ApplStyle
-} from "../../state"
+import { useDimensions, useCoord, useApplStyle, useEvents, ApplStyle } from "../../state"
 import { ExprProps, RawExprProps } from "./base"
 
 interface ApplProps extends ExprProps {}
 
 export const Appl = (props: ApplProps) => {
-  const { startX, startY } = useLayout()
-  const coord = useCoords()[props.id]
+  const coord = useCoord(props.id)
   const dimensions = useDimensions()
   const style = useApplStyle(props.id)
+  const events = useEvents()
 
-  return (
-    <RawAppl
-      events={useEvents()}
-      height={coord.h}
-      heightMargin={dimensions.heightMargin}
-      id={props.id}
-      radius={dimensions.circleRadius}
-      style={style}
-      width={coord.w}
-      widthMargin={dimensions.widthMargin}
-      x={startX + coord.x}
-      y={startY + coord.y}
-    />
-  )
+  if (coord)
+    return (
+      <RawAppl
+        events={events}
+        height={coord.h}
+        heightMargin={dimensions.heightMargin}
+        id={props.id}
+        radius={dimensions.circleRadius}
+        style={style}
+        width={coord.w}
+        widthMargin={dimensions.widthMargin}
+        x={coord.x}
+        y={coord.y}
+      />
+    )
+  return null
 }
 
 interface RawApplProps extends RawExprProps {

@@ -1,16 +1,15 @@
-import { coordsSelector } from "../"
+import { coordsSelector, NodeCoord } from "../"
 
+import { NodeID } from "../tree"
 import { useBoard } from "./base"
 
 export * from "./coords"
 export * from "./styles"
 
-export const useCoords = () => {
-  return coordsSelector(useBoard())
-}
-
-export const useTree = () => {
-  return useBoard().tree
+export const useCoord: (nodeID: NodeID) => NodeCoord | undefined = (nodeID: NodeID) => {
+  const layout = useBoard().visual.treeLayout
+  const coord = coordsSelector(useBoard())[nodeID]
+  if (coord) return { ...coord, x: coord.x + layout.startX, y: coord.y + layout.startY }
 }
 
 export const useEvents = () => {
@@ -19,8 +18,4 @@ export const useEvents = () => {
 
 export const useDimensions = () => {
   return useBoard().visual.dimensions
-}
-
-export const useLayout = () => {
-  return useBoard().visual.treeLayout
 }

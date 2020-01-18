@@ -1,14 +1,6 @@
 import { motion } from "framer-motion"
 import React from "react"
-import {
-  VarName,
-  useVarStyle,
-  useCoords,
-  useDimensions,
-  useEvents,
-  useLayout,
-  VarStyle
-} from "../../state"
+import { VarName, useVarStyle, useCoord, useEvents, VarStyle } from "../../state"
 import { RawExprProps, ExprProps } from "./base"
 
 interface VarProps extends ExprProps {
@@ -16,20 +8,21 @@ interface VarProps extends ExprProps {
 }
 
 export const Var = (props: VarProps) => {
-  const coord = useCoords()[props.id]
+  const coord = useCoord(props.id)
   const style = useVarStyle(props.id)
-  const { startX, startY } = useLayout()
-
-  return (
-    <RawVar
-      events={useEvents()}
-      id={props.id}
-      radius={useDimensions().circleRadius}
-      style={style}
-      x={startX + coord.x}
-      y={startY + coord.y}
-    />
-  )
+  const events = useEvents()
+  if (coord)
+    return (
+      <RawVar
+        events={events}
+        id={props.id}
+        radius={coord.w / 2}
+        style={style}
+        x={coord.x}
+        y={coord.y}
+      />
+    )
+  return null
 }
 
 interface RawVarProps extends RawExprProps {
@@ -55,7 +48,6 @@ const RawVar = (props: RawVarProps) => {
         fill: props.style.fill,
         ...props.style.stroke
       }}
-      onTransitionEnd={console.log}
     />
   )
 }
