@@ -1,3 +1,4 @@
+import { PanInfo } from "framer-motion"
 import { NodeID } from "../tree"
 
 export type Color = string
@@ -35,7 +36,7 @@ const defaultEvents = {
   click: undefined,
   clearHighlight: undefined,
   clearSelect: undefined,
-  test: undefined
+  drag: undefined
 }
 
 export type NodeEvents = { [event in keyof typeof defaultEvents]?: MouseEventHandler }
@@ -52,7 +53,7 @@ export type TreeLayout = typeof defaultTreeLayout
 export type Layout = keyof TreeLayout
 
 type NodeElement = SVGPathElement
-export type MouseEventHandler = (event: React.MouseEvent<NodeElement, MouseEvent>) => void
+export type MouseEventHandler = (event: any, panInfo?: PanInfo) => void
 
 export interface VisualState {
   expression: string

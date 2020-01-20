@@ -1,17 +1,17 @@
 import _ from "lodash"
 import React from "react"
-import { Coords, BoardState } from "../../state"
+import { Tree } from "../../state"
 import { Abs } from "./abstraction"
 import { Appl } from "./application"
 import { Var } from "./variable"
 
 interface TreeGraphProps {
-  board: BoardState
+  tree: Tree
 }
 
 export const TreeGraph = (props: TreeGraphProps) => (
   <g>
-    {_.map(props.board.tree.nodes, (node, nodeID) => {
+    {_.map(props.tree, (node, nodeID) => {
       switch (node.type) {
         case "VARIABLE":
           return <Var key={nodeID} id={nodeID} variableName={node.name} />

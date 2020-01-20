@@ -29,6 +29,14 @@ export const visual = (state = initialVisualState, action: VisualAction): Visual
           [action.parameter]: action.value
         }
       }
+    case "ADJUST_TREE_LAYOUT":
+      return {
+        ...state,
+        treeLayout: {
+          ...state.treeLayout,
+          [action.parameter]: state.treeLayout[action.parameter] + action.value
+        }
+      }
     case "SET_NODE_DIMENSION":
       return {
         ...state,

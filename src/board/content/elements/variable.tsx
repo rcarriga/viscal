@@ -38,13 +38,13 @@ const RawVar = (props: RawVarProps) => {
     <motion.path
       data-nodeid={props.id}
       id={props.id}
+      onPan={props.events.drag}
       onClick={props.events.click}
       onMouseOver={props.events.highlight}
       onMouseLeave={props.events.clearHighlight}
       initial={false}
       animate={{
         d: path,
-        pathLength: 1,
         fill: props.style.fill,
         ...props.style.stroke
       }}

@@ -12,9 +12,9 @@ import {
   setHighlighted,
   setEvent,
   setLayout,
-  useCoord,
   queueReduction,
-  nextReductionStage
+  nextReductionStage,
+  adjustLayout
 } from "../state"
 import { TreeGraph } from "./elements"
 
@@ -28,6 +28,7 @@ const mapDispatch = {
   setHighlighted,
   setSelected,
   setLayout,
+  adjustLayout,
   queueReduction,
   nextReductionStage
 }
@@ -64,32 +65,34 @@ export const BoardContent = connect(
       props.setEvent("highlight", e =>
         props.setHighlighted(e.currentTarget.getAttribute("data-nodeid") || undefined)
       )
-      props.setEvent("clearHighlight", e => {
+      props.setEvent("drag", (_e, info) => {
+        if (info) {
+          props.adjustLayout("startX", info.delta.x)
+          props.adjustLayout("startY", info.delta.y)
+        }
+      })
+      props.setEvent("clearHighlight", () => {
         props.setHighlighted(undefined)
       })
     }
   })
   return (
-    <div>
-      <motion.svg
-        id="board-content"
-        pointerEvents="all"
-        drag
-        onDrag={(e, info) => {
-          props.setLayout("startX", props.state.visual.treeLayout.startX + info.delta.x)
-          props.setLayout("startY", props.state.visual.treeLayout.startY + info.delta.y)
-        }}
-        className={props.className}
-      >
-        <TreeGraph board={props.state} />
-      </motion.svg>
-    </div>
+    <motion.svg
+      id="board-content"
+      pointerEvents="all"
+      onClick={e => {
+        if (props.state.tree.reduction) props.nextReductionStage()
+        else props.queueReduction("app2")
+      }}
+      className={props.className}
+    >
+      <TreeGraph tree={props.state.tree.nodes} />
+    </motion.svg>
   )
 })`
   background: ${(props: BoardProps) => props.state.visual.theme.background};
   height: 100%;
   width: 100%;
-  margin: 5px;
   flex-grow: 3;
   padding: 0px;
 `)

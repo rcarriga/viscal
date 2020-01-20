@@ -29,6 +29,12 @@ interface SetLayout {
   value: number
 }
 
+interface AdjustLayout {
+  type: "ADJUST_TREE_LAYOUT"
+  parameter: Layout
+  value: number
+}
+
 export const setSelected = (nodeID?: string): VisualAction => ({
   type: "SET_SELECTED",
   nodeID
@@ -57,4 +63,16 @@ export const setLayout = (parameter: Layout, value: number): VisualAction => ({
   value
 })
 
-export type VisualAction = SetSelected | SetHighlighted | SetEvent | SetDimension | SetLayout
+export const adjustLayout = (parameter: Layout, value: number): VisualAction => ({
+  type: "ADJUST_TREE_LAYOUT",
+  parameter,
+  value
+})
+
+export type VisualAction =
+  | SetSelected
+  | SetHighlighted
+  | SetEvent
+  | SetDimension
+  | SetLayout
+  | AdjustLayout

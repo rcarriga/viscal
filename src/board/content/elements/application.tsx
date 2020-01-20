@@ -63,6 +63,7 @@ const RawAppl = (props: RawApplProps) => {
         onClick={props.events.click}
         onMouseOver={props.events.highlight}
         onMouseLeave={props.events.clearHighlight}
+        onPan={props.events.drag}
       />
       <motion.path
         className={props.className}
@@ -75,6 +76,7 @@ const RawAppl = (props: RawApplProps) => {
         data-nodeid={props.id}
         pointerEvents="painted"
         onClick={props.events.click}
+        onPan={props.events.drag}
       />
     </g>
   )
