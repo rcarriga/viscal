@@ -34,7 +34,7 @@ interface AddApplication extends AddExpression {
 
 interface QueueReduction {
   type: "QUEUE_REDUCTION"
-  applicationID: NodeID
+  parent: NodeID
 }
 
 interface NextReductionStage {
@@ -83,9 +83,9 @@ export const addApplication = (nodeID: NodeID, left: NodeID, right: NodeID): Tre
   right
 })
 
-export const queueReduction = (applicationID: NodeID): TreeAction => ({
+export const queueReduction = (parent: NodeID): TreeAction => ({
   type: "QUEUE_REDUCTION",
-  applicationID
+  parent
 })
 
 export const nextReductionStage = (): TreeAction => ({

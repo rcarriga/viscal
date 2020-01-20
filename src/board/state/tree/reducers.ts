@@ -8,7 +8,6 @@ import {
   NodeID,
   Tree,
   initialTreeState,
-  Reduction,
   ReductionStage
 } from "./types"
 
@@ -41,16 +40,13 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
     case "QUEUE_REDUCTION":
       return {
         ...state,
-        reductions: [...state.reductions, { stage: "CONSUME", applicationID: action.applicationID }]
+        reduction: { type: "APPLY", parent: action.parent }
       }
     case "NEXT_REDUCTION_STAGE":
-      if (state.reductions) {
-        const current = state.reductions[0]
-        const nextStage = getNextStage(current)
-        const updated = nextStage ? [{ ...current, stage: nextStage }] : []
+      if (state.reduction) {
         return {
           ...state,
-          reductions: [...updated, ..._.tail(state.reductions)]
+          reduction: getNextStage(state.reduction, state.nodes)
         }
       }
       return state
@@ -69,16 +65,30 @@ const addNode = (state: TreeState, nodeID: NodeID, expr: TreeNode): TreeState =>
   }
 }
 
-const getNextStage = (reduction: Reduction): ReductionStage | undefined => {
-  switch (reduction.stage) {
-    case "CONSUME":
-      return "UNBIND"
-    case "UNBIND":
-      return "SUBSTITUTE"
+const getNextStage = (reduction: ReductionStage, tree: Tree): ReductionStage | undefined => {
+  switch (reduction.type) {
+    case "APPLY":
+      return { type: "CONSUME", parent: reduction.parent }
+    // case "CONSUME":
+    //   return { type: "UNBIND", parent: reduction.parent }
+    // case "UNBIND":
+    //   return { type: "SUBSTITUTE", parent: reduction.parent, substitutions: {} }
+    // case "SUBSTITUTE":
     default:
+      return undefined
   }
 }
 
+/**
+ * Get the ID of the abstraction which binds a variable.
+ * Returns undefined for free variables or non variable nodes.
+ *
+ * @function getBinder
+ * @param {NodeID|undefined} nodeID - Node to search from.
+ * @param {VarIndex} index - DeBruijn index of the variable to search for.
+ * @param {TreeState} tree - Tree to search down.
+ * @return {NodeID|undefined} ID of binding abstraction if found.
+ */
 const getBinder = (
   nodeID: NodeID | undefined = undefined,
   index: VarIndex,
@@ -96,6 +106,14 @@ const getNode = (nodeID: NodeID, tree: Tree): TreeNode => {
   return tree[nodeID] || { type: "NULL", children: [] }
 }
 
+/**
+ * Get the children for a node after filtering out redundant applications.
+ *
+ * @function getChildren
+ * @param {NodeID} nodeID - Node to get children of.
+ * @param {Tree} tree - Tree to retrieve children from.
+ * @return {NodeID[]} List of children parented by given node.
+ */
 const getChildren = (nodeID: NodeID, tree: Tree): NodeID[] => {
   const node = getNode(nodeID, tree)
   const direct = getDirect(node)
@@ -106,6 +124,14 @@ const getChildren = (nodeID: NodeID, tree: Tree): NodeID[] => {
   return direct
 }
 
+/**
+ * Get the direct children for a node.
+ * This means to not exclude redundant applications.
+ *
+ * @function getDirect
+ * @param {TreeNode} node - The node to get children of.
+ * @return {NodeID[]} List of children directly under the given node.
+ */
 const getDirect = (node: TreeNode): NodeID[] => {
   return _.filter(
     node.type === "ABSTRACTION"

@@ -1,6 +1,6 @@
 import _ from "lodash"
 import { createSelector } from "reselect"
-import { Dimensions, BoardState, NodeID, Tree, TreeNode, TreeState, Reduction } from ".."
+import { Dimensions, BoardState, NodeID, Tree, TreeNode, TreeState, ReductionStage } from ".."
 
 export type Coords = { [nodeID: string]: NodeCoord }
 
@@ -14,69 +14,103 @@ export interface NodeCoord {
 const constructCoords = (
   tree: TreeState,
   dimensions: Dimensions,
-  reduction?: Reduction
+  reduction?: ReductionStage
 ): Coords => {
   const root = tree.root
   if (root) {
-    const offsets = reduction ? calculateOffsets(tree.nodes, dimensions, reduction) : {}
-    const withDimensions = addDimensions(root, tree.nodes, dimensions, offsets)
-    return fillCoords(root, withDimensions, tree.nodes, dimensions, offsets)
+    const dimensionOffsets = reduction
+      ? calculateDimensionOffsets(tree.nodes, dimensions, reduction)
+      : {}
+    const withDimensions = addDimensions(root, tree.nodes, dimensions, dimensionOffsets)
+    const coordOffsets = reduction ? calculateCoordOffsets(tree.nodes, dimensions, reduction) : {}
+    return fillCoords(root, withDimensions, tree.nodes, dimensions, coordOffsets)
   } else return {}
 }
 
 export const coordsSelector = createSelector(
   (state: BoardState) => state.tree,
   (state: BoardState) => state.visual.dimensions,
-  (state: BoardState) => _.head(state.tree.reductions),
+  (state: BoardState) => state.tree.reduction,
   constructCoords
 )
 
-const calculateOffsets = (tree: Tree, dimensions: Dimensions, reduction: Reduction): Coords => {
-  const parentNode = tree[reduction.applicationID]
-  const defaultOffset = { x: 0, y: 0, w: 0, h: 0 }
+type Offset = { [key in keyof NodeCoord]?: number }
+type Offsets = { [nodeID in NodeID]: Offset }
+
+const calculateCoordOffsets = (
+  tree: Tree,
+  dimensions: Dimensions,
+  reduction: ReductionStage
+): Offsets => {
+  const parentNode = tree[reduction.parent]
   if (parentNode) {
-    const [absID, nodeID, ...remainingChildren] = parentNode.children(tree)
-    if (absID && nodeID)
-      switch (reduction.stage) {
-        case "UNBIND":
-        case "CONSUME": {
-          const xOffset = -(dimensions.widthMargin + dimensions.circleRadius)
-          const wOffset = -dimensions.widthMargin
+    const [absID, nodeID] = parentNode.children(tree)
+    if (absID && nodeID) {
+      const xOffset = -(dimensions.widthMargin + dimensions.circleRadius)
+      switch (reduction.type) {
+        case "APPLY":
           return {
-            [reduction.applicationID]: {
-              ...defaultOffset,
-              w: wOffset
-            },
-            [nodeID]: {
-              ...defaultOffset,
+            [absID]: {
+              x: xOffset
+            }
+          }
+        case "CONSUME":
+          return {
+            [absID]: {
               x: xOffset
             },
-            ..._.reduce(
-              remainingChildren,
-              (offsets, childID) => ({
-                ...offsets,
-                [childID]: {
-                  ...defaultOffset,
-                  x: xOffset
-                }
-              }),
-              {}
-            )
+            [nodeID]: {
+              x: xOffset
+            }
           }
-        }
         default:
+          return {}
       }
+    }
   }
   return {}
 }
 
-const addOffset = (coord: NodeCoord, offset?: NodeCoord): NodeCoord =>
+const calculateDimensionOffsets = (
+  tree: Tree,
+  dimensions: Dimensions,
+  reduction: ReductionStage
+): Offsets => {
+  const parentNode = tree[reduction.parent]
+  if (parentNode) {
+    const [absID, nodeID] = parentNode.children(tree)
+    if (absID && nodeID) {
+      const wOffset = dimensions.circleRadius + dimensions.widthMargin
+      switch (reduction.type) {
+        case "APPLY":
+          return {
+            [absID]: {
+              w: wOffset
+            },
+            [reduction.parent]: { w: -wOffset }
+          }
+        case "CONSUME":
+          return {
+            [absID]: {
+              w: wOffset
+            },
+            [reduction.parent]: { w: -2 * wOffset }
+          }
+        default:
+          return {}
+      }
+    }
+  }
+  return {}
+}
+
+const addOffset = (coord: NodeCoord, offset?: Offset): NodeCoord =>
   offset
     ? {
-        x: coord.x + offset.x,
-        y: coord.y + offset.y,
-        w: coord.w + offset.w,
-        h: coord.h + offset.h
+        x: coord.x + (offset.x || 0),
+        y: coord.y + (offset.y || 0),
+        w: coord.w + (offset.w || 0),
+        h: coord.h + (offset.h || 0)
       }
     : coord
 
@@ -85,7 +119,7 @@ const fillCoords = (
   coords: Coords,
   tree: Tree,
   dimensions: Dimensions,
-  offsets: Coords,
+  offsets: Offsets,
   baseX: number = 0,
   baseY: number = 0
 ): Coords => {
@@ -96,17 +130,18 @@ const fillCoords = (
     return _.reduce(
       children,
       (current, nodeID) => {
+        const updatedCoords = fillCoords(
+          nodeID,
+          current.coords,
+          tree,
+          dimensions,
+          offsets,
+          current.baseX,
+          baseY
+        )
         return {
-          baseX: current.baseX + current.coords[nodeID].w + dimensions.widthMargin,
-          coords: fillCoords(
-            nodeID,
-            current.coords,
-            tree,
-            dimensions,
-            offsets,
-            current.baseX,
-            baseY
-          )
+          baseX: updatedCoords[nodeID].x + updatedCoords[nodeID].w + dimensions.widthMargin,
+          coords: updatedCoords
         }
       },
       {
@@ -125,23 +160,22 @@ const addDimensions = (
   rootID: NodeID,
   tree: Tree,
   dimensions: Dimensions,
-  offsets: Coords,
+  offsets: Offsets,
   coords: Coords = {}
 ): Coords => {
   const root = tree[rootID]
   if (root) {
     const children = root.children(tree)
-    const updated = _.reduce(
-      children,
-      (coords, childID) => addDimensions(childID, tree, dimensions, offsets, coords),
-      coords
+    const childDimensions: Coords = _.merge(
+      {},
+      ..._.map(children, childID => addDimensions(childID, tree, dimensions, offsets, coords))
     )
     return {
-      ...updated,
+      ...childDimensions,
       [rootID]: addOffset(
         {
-          h: elementHeight(root, updated, dimensions, tree),
-          w: elementWidth(root, updated, dimensions, tree),
+          h: elementHeight(root, childDimensions, dimensions, tree),
+          w: elementWidth(root, childDimensions, dimensions, offsets, tree),
           x: 0,
           y: 0
         },
@@ -156,6 +190,7 @@ const elementWidth = (
   node: TreeNode,
   coords: Coords,
   dimensions: Dimensions,
+  offsets: Offsets,
   tree: Tree
 ): number => {
   const sumChildren = () =>
