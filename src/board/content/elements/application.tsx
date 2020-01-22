@@ -58,6 +58,7 @@ const RawAppl = (props: RawApplProps) => {
           fill: props.style.output.fill,
           ...props.style.output.stroke
         }}
+        transition={{ d: { type: "tween" } }}
         initial={false}
         data-nodeid={props.id}
         onClick={props.events.click}
@@ -68,6 +69,7 @@ const RawAppl = (props: RawApplProps) => {
       <motion.path
         className={props.className}
         initial={false}
+        transition={{ d: { type: "tween" } }}
         animate={{
           d: boxPath,
           fill: props.style.fill,

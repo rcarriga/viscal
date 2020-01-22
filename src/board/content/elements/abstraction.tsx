@@ -1,4 +1,4 @@
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import React from "react"
 import { useAbsStyle, useCoord, useDimensions, useEvents, AbsStyle } from "../../state"
 import { ExprProps, RawExprProps } from "./base"
@@ -13,22 +13,24 @@ export const Abs = (props: AbsProps) => {
   const style = useAbsStyle(props.id)
   const events = useEvents()
 
-  if (coord)
-    return (
-      <RawAbs
-        events={events}
-        height={coord.h}
-        heightMargin={dimensions.heightMargin}
-        id={props.id}
-        radius={dimensions.circleRadius}
-        style={style}
-        width={coord.w}
-        widthMargin={dimensions.widthMargin}
-        x={coord.x}
-        y={coord.y}
-      />
-    )
-  return null
+  return (
+    <AnimatePresence>
+      {coord && (
+        <RawAbs
+          events={events}
+          height={coord.h}
+          heightMargin={dimensions.heightMargin}
+          id={props.id}
+          radius={dimensions.circleRadius}
+          style={style}
+          width={coord.w}
+          widthMargin={dimensions.widthMargin}
+          x={coord.x}
+          y={coord.y}
+        />
+      )}
+    </AnimatePresence>
+  )
 }
 
 interface RawAbsProps extends RawExprProps {
@@ -59,10 +61,11 @@ const RawAbs = (props: RawAbsProps) => {
         l0,${props.height}`
 
   return (
-    <g id={props.id}>
+    <motion.g initial={{ opacity: 1 }} exit={{ opacity: 0 }} id={props.id}>
       <motion.path
         className={props.className}
         animate={{ d: outPath, color: props.style.output.fill, ...props.style.output.stroke }}
+        transition={{ d: { type: "tween" } }}
         initial={false}
         data-nodeid={props.id}
         onClick={props.events.click}
@@ -77,6 +80,7 @@ const RawAbs = (props: RawAbsProps) => {
           fill: props.style.input.fill,
           ...props.style.input.stroke
         }}
+        transition={{ d: { type: "tween" } }}
         onMouseOver={props.events.highlight}
         onMouseLeave={props.events.clearHighlight}
         onPan={props.events.drag}
@@ -86,6 +90,7 @@ const RawAbs = (props: RawAbsProps) => {
         className={props.className}
         data-nodeid={props.id}
         initial={false}
+        transition={{ d: { type: "tween" } }}
         animate={{
           d: boxPath,
           fill: props.style.fill,
@@ -95,6 +100,6 @@ const RawAbs = (props: RawAbsProps) => {
         pointerEvents="painted"
         onPan={props.events.drag}
       />
-    </g>
+    </motion.g>
   )
 }
