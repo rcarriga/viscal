@@ -1,4 +1,4 @@
-import { NodeID, VarIndex } from "./types"
+import { NodeID, VarIndex, Substitutions } from "./types"
 
 interface NormalOrderReductionAction {
   type: "NORMAL_ORDER_REDUCTION"
@@ -35,6 +35,7 @@ interface AddApplication extends AddExpression {
 interface QueueReduction {
   type: "QUEUE_REDUCTION"
   parent: NodeID
+  substitutions: Substitutions
 }
 
 interface NextReductionStage {
@@ -65,11 +66,7 @@ export const addVariable = (nodeID: NodeID, index: VarIndex, name: string): Tree
   name
 })
 
-export const addAbstraction = (
-  nodeID: NodeID,
-  variableName: string,
-  child?: NodeID
-): TreeAction => ({
+export const addAbstraction = (nodeID: NodeID, variableName: string, child?: NodeID): TreeAction => ({
   type: "ADD_ABSTRACTION",
   nodeID,
   variableName,
@@ -83,9 +80,10 @@ export const addApplication = (nodeID: NodeID, left: NodeID, right: NodeID): Tre
   right
 })
 
-export const queueReduction = (parent: NodeID): TreeAction => ({
+export const queueReduction = (parent: NodeID, substitutions: Substitutions): TreeAction => ({
   type: "QUEUE_REDUCTION",
-  parent
+  parent,
+  substitutions
 })
 
 export const nextReductionStage = (): TreeAction => ({
