@@ -1,36 +1,27 @@
 import { BoardAction } from "../actions"
 import { parentsSelector } from "./selectors"
-import { VarIndex, TreeState, TreeNode, NodeID, Tree, initialTreeState, ReductionStage, Substitution } from "./types"
+import {
+  VarIndex,
+  TreeState,
+  TreeNode,
+  NodeID,
+  Tree,
+  initialTreeState,
+  ReductionStage,
+  Substitution,
+  VarName
+} from "./types"
 
 export const tree = (state = initialTreeState, action: BoardAction): TreeState => {
   switch (action.type) {
     case "SET_ROOT":
       return { ...state, root: action.nodeID }
     case "ADD_VARIABLE":
-      return addNode(state, action.nodeID, {
-        type: "VARIABLE",
-        index: action.index,
-        name: action.name,
-        children: () => [],
-        directChildren: [],
-        binder: tree => getBinder(action.nodeID, action.index, tree)
-      })
+      return addNode(state, action.nodeID, createVar(action.nodeID, action.index, action.name))
     case "ADD_ABSTRACTION":
-      return addNode(state, action.nodeID, {
-        type: "ABSTRACTION",
-        variableName: action.variableName,
-        child: action.child,
-        directChildren: [action.child].filter(isString),
-        children: tree => getChildren(action.nodeID, tree)
-      })
+      return addNode(state, action.nodeID, createAbs(action.nodeID, action.variableName, action.child))
     case "ADD_APPLICATION":
-      return addNode(state, action.nodeID, {
-        type: "APPLICATION",
-        left: action.left,
-        right: action.right,
-        directChildren: [action.left, action.right].filter(isString),
-        children: tree => getChildren(action.nodeID, tree)
-      })
+      return addNode(state, action.nodeID, createAppl(action.nodeID, action.left, action.right))
     case "QUEUE_REDUCTION":
       return state.nodes[action.parent]
         ? {
@@ -96,18 +87,21 @@ const performReduction = (reduction: ReductionStage, state: TreeState): TreeStat
         const updated = () => {
           switch (node.type) {
             case "VARIABLE":
-              return { ...node, index: node.index !== undefined ? node.index + indexOffset : undefined }
+              return createVar(
+                substitution[nodeID],
+                node.index !== undefined ? node.index + indexOffset : undefined,
+                node.name
+              )
             case "ABSTRACTION":
-              return { ...node, child: node.child ? substitution[node.child] || node.child : node.child }
+              return createAbs(
+                substitution[nodeID],
+                node.variableName,
+                node.child ? substitution[node.child] : node.child
+              )
             case "APPLICATION": {
               const newLeft = node.left ? substitution[node.left] : node.left
               const newRight = node.right ? substitution[node.right] : node.right
-              return {
-                ...node,
-                left: newLeft,
-                right: newRight,
-                directChildren: [newLeft, newRight].filter(isString)
-              }
+              return createAppl(substitution[nodeID], newLeft, newRight)
             }
             default:
               return node
@@ -146,19 +140,18 @@ const removeAbs = (absID: NodeID, rootID: NodeID, tree: Tree): Tree => {
 const replaceChild = (oldChild: NodeID, newChild: NodeID, rootID: NodeID, tree: Tree): Tree => {
   return mapTree(
     tree,
-    node => {
+    (node, nodeID) => {
       switch (node.type) {
         case "VARIABLE":
           return node
         case "ABSTRACTION":
-          if (node.child === oldChild) return { ...node, child: newChild }
-          return node
+          return node.child === oldChild ? createAbs(nodeID, node.variableName, newChild) : node
         case "APPLICATION":
-          if (node.left === oldChild)
-            return { ...node, left: newChild, directChildren: [newChild, node.directChildren[1]].filter(isString) }
-          if (node.right === oldChild)
-            return { ...node, right: newChild, directChildren: [node.directChildren[0], newChild].filter(isString) }
-          return node
+          return node.left === oldChild
+            ? createAppl(nodeID, newChild, node.right)
+            : node.right === oldChild
+            ? createAppl(nodeID, node.left, newChild)
+            : node
         default:
           return node
       }
@@ -167,7 +160,11 @@ const replaceChild = (oldChild: NodeID, newChild: NodeID, rootID: NodeID, tree: 
   )
 }
 
-const searchTree = (tree: Tree, f: (node: TreeNode, nodeID: NodeID) => boolean, rootID: NodeID): NodeID | undefined => {
+export const searchTree = (
+  tree: Tree,
+  f: (node: TreeNode, nodeID: NodeID) => boolean,
+  rootID: NodeID
+): NodeID | undefined => {
   const root = tree[rootID]
   if (f(root, rootID)) return rootID
   switch (root.type) {
@@ -183,11 +180,16 @@ const searchTree = (tree: Tree, f: (node: TreeNode, nodeID: NodeID) => boolean, 
   }
 }
 
-const mapTree = (tree: Tree, f: (node: TreeNode, nodeID: NodeID) => TreeNode, rootID: NodeID): Tree => {
+export const mapTree = (tree: Tree, f: (node: TreeNode, nodeID: NodeID) => TreeNode, rootID: NodeID): Tree => {
   return reduceTree(tree, (tree, node, nodeID) => ({ ...tree, [nodeID]: f(node, nodeID) }), tree, rootID)
 }
 
-const reduceTree = <A>(tree: Tree, f: (accum: A, node: TreeNode, nodeID: NodeID) => A, accum: A, rootID: NodeID): A => {
+export const reduceTree = <A>(
+  tree: Tree,
+  f: (accum: A, node: TreeNode, nodeID: NodeID) => A,
+  accum: A,
+  rootID: NodeID
+): A => {
   const root = tree[rootID]
   if (!root) return accum
   const updated = f(accum, root, rootID)
@@ -204,6 +206,31 @@ const reduceTree = <A>(tree: Tree, f: (accum: A, node: TreeNode, nodeID: NodeID)
       return accum
   }
 }
+
+const createVar = (nodeID: NodeID, index: VarIndex, name: VarName): TreeNode => ({
+  type: "VARIABLE",
+  index: index,
+  name: name,
+  children: () => [],
+  directChildren: [],
+  binder: tree => getBinder(nodeID, index, tree)
+})
+
+const createAbs = (nodeID: NodeID, variableName: VarName, child?: NodeID): TreeNode => ({
+  type: "ABSTRACTION",
+  variableName: variableName,
+  child: child,
+  directChildren: [child].filter(isString),
+  children: tree => getChildren(nodeID, tree)
+})
+
+const createAppl = (nodeID: NodeID, left?: NodeID, right?: NodeID): TreeNode => ({
+  type: "APPLICATION",
+  left: left,
+  right: right,
+  directChildren: [left, right].filter(isString),
+  children: tree => getChildren(nodeID, tree)
+})
 
 const addNode = (state: TreeState, nodeID: NodeID, expr: TreeNode): TreeState => {
   return {

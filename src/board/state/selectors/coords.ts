@@ -1,5 +1,6 @@
 import _ from "lodash"
 import { createSelector } from "reselect"
+import { reduceTree } from "../tree/reducers"
 import { Dimensions, BoardState, NodeID, Tree, TreeNode, TreeState, ReductionStage } from ".."
 
 export type Coords = { [nodeID: string]: NodeCoord }
@@ -19,10 +20,17 @@ const constructCoords = (tree: TreeState, dimensions: Dimensions, reduction?: Re
     const coordOffsets = reduction ? calculateCoordOffsets(tree.nodes, dimensions, reduction) : {}
     const coords = fillCoords(root, withDimensions, tree.nodes, dimensions, coordOffsets)
     if (reduction && reduction.type === "UNBIND") {
-      // In unbinding create subs and place all in location of the node being consumed.
-
-      const absID = tree.nodes[reduction.parent].children(tree.nodes)[0]
-      return _.omit(coords, [absID, ..._.keys(reduction.substitutions)])
+      const omitFrom = tree.nodes[reduction.parent].children(tree.nodes)[0]
+      reduceTree(
+        tree.nodes,
+        (coords, node, nodeID) => {
+          delete coords[nodeID]
+          return coords
+        },
+        coords,
+        omitFrom
+      )
+      return _.omit(coords, [omitFrom])
     }
     return coords
   } else return {}
