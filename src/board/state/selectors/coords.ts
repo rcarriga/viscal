@@ -11,19 +11,20 @@ export interface NodeCoord {
   readonly w: number
 }
 
-const constructCoords = (
-  tree: TreeState,
-  dimensions: Dimensions,
-  reduction?: ReductionStage
-): Coords => {
+const constructCoords = (tree: TreeState, dimensions: Dimensions, reduction?: ReductionStage): Coords => {
   const root = tree.root
   if (root) {
-    const dimensionOffsets = reduction
-      ? calculateDimensionOffsets(tree.nodes, dimensions, reduction)
-      : {}
+    const dimensionOffsets = reduction ? calculateDimensionOffsets(tree.nodes, dimensions, reduction) : {}
     const withDimensions = addDimensions(root, tree.nodes, dimensions, dimensionOffsets)
     const coordOffsets = reduction ? calculateCoordOffsets(tree.nodes, dimensions, reduction) : {}
-    return fillCoords(root, withDimensions, tree.nodes, dimensions, coordOffsets)
+    const coords = fillCoords(root, withDimensions, tree.nodes, dimensions, coordOffsets)
+    if (reduction && reduction.type === "UNBIND") {
+      // In unbinding create subs and place all in location of the node being consumed.
+
+      const absID = tree.nodes[reduction.parent].children(tree.nodes)[0]
+      return _.omit(coords, [absID, ..._.keys(reduction.substitutions)])
+    }
+    return coords
   } else return {}
 }
 
@@ -37,11 +38,7 @@ export const coordsSelector = createSelector(
 type Offset = { [key in keyof NodeCoord]?: number }
 type Offsets = { [nodeID in NodeID]: Offset }
 
-const calculateCoordOffsets = (
-  tree: Tree,
-  dimensions: Dimensions,
-  reduction: ReductionStage
-): Offsets => {
+const calculateCoordOffsets = (tree: Tree, dimensions: Dimensions, reduction: ReductionStage): Offsets => {
   const parentNode = tree[reduction.parent]
   if (parentNode) {
     const [absID, nodeID] = parentNode.children(tree)
@@ -71,11 +68,7 @@ const calculateCoordOffsets = (
   return {}
 }
 
-const calculateDimensionOffsets = (
-  tree: Tree,
-  dimensions: Dimensions,
-  reduction: ReductionStage
-): Offsets => {
+const calculateDimensionOffsets = (tree: Tree, dimensions: Dimensions, reduction: ReductionStage): Offsets => {
   const parentNode = tree[reduction.parent]
   if (parentNode) {
     const [absID, nodeID] = parentNode.children(tree)
@@ -130,15 +123,7 @@ const fillCoords = (
     return _.reduce(
       children,
       (current, nodeID) => {
-        const updatedCoords = fillCoords(
-          nodeID,
-          current.coords,
-          tree,
-          dimensions,
-          offsets,
-          current.baseX,
-          baseY
-        )
+        const updatedCoords = fillCoords(nodeID, current.coords, tree, dimensions, offsets, current.baseX, baseY)
         return {
           baseX: updatedCoords[nodeID].x + updatedCoords[nodeID].w + dimensions.widthMargin,
           coords: updatedCoords
@@ -168,14 +153,14 @@ const addDimensions = (
     const children = root.children(tree)
     const childDimensions: Coords = _.merge(
       {},
-      ..._.map(children, childID => addDimensions(childID, tree, dimensions, offsets, coords))
+      ...children.map(childID => addDimensions(childID, tree, dimensions, offsets, coords))
     )
     return {
       ...childDimensions,
       [rootID]: addOffset(
         {
           h: elementHeight(root, childDimensions, dimensions, tree),
-          w: elementWidth(root, childDimensions, dimensions, offsets, tree),
+          w: elementWidth(root, childDimensions, dimensions, tree),
           x: 0,
           y: 0
         },
@@ -186,18 +171,10 @@ const addDimensions = (
   return coords
 }
 
-const elementWidth = (
-  node: TreeNode,
-  coords: Coords,
-  dimensions: Dimensions,
-  offsets: Offsets,
-  tree: Tree
-): number => {
+const elementWidth = (node: TreeNode, coords: Coords, dimensions: Dimensions, tree: Tree): number => {
   const sumChildren = () =>
     _.sumBy(
-      _.map(node.children(tree), childID =>
-        tree[childID] ? coords[childID].w : -dimensions.widthMargin
-      ),
+      _.map(node.children(tree), childID => (tree[childID] ? coords[childID].w : -dimensions.widthMargin)),
       w => w + dimensions.widthMargin
     )
 
@@ -213,14 +190,9 @@ const elementWidth = (
   }
 }
 
-const elementHeight = (
-  node: TreeNode,
-  coords: Coords,
-  dimensions: Dimensions,
-  tree: Tree
-): number => {
+const elementHeight = (node: TreeNode, coords: Coords, dimensions: Dimensions, tree: Tree): number => {
   const maxChildren = () =>
-    _.max(_.map(node.children(tree), childID => coords[childID].h)) || dimensions.circleRadius * 2
+    Math.max(...node.children(tree).map(childID => coords[childID].h)) || dimensions.circleRadius * 2
 
   switch (node.type) {
     case "VARIABLE":

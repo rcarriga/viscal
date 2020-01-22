@@ -9,8 +9,7 @@ export const useVarStyle = (nodeID: NodeID): VarStyle => {
   const colors = useColors()
   const node = state.tree.nodes[nodeID]
   const binder = node && node.type === "VARIABLE" ? node.binder(state.tree) || nodeID : nodeID
-  const isHighlighted =
-    state.highlighted && (state.highlighted === nodeID || state.highlighted === binder)
+  const isHighlighted = state.highlighted && (state.highlighted === nodeID || state.highlighted === binder)
   const isSelected = state.selected && state.selected === nodeID
   return {
     type: "VAR_STYLE",
