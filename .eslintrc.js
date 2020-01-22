@@ -33,7 +33,6 @@ module.exports = {
   ],
   rules: {
     "import/order": ["error", {"alphabetize": {"order": "asc"}}],
-    "max-len": ["error", {"code": 100}],
     "@typescript-eslint/no-unused-vars": ["error"],
     "quotes": ["error", "double"],
     "linebreak-style": ["error", "unix"],
