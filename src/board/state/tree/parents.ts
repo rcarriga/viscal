@@ -10,7 +10,7 @@ const constructParents = (tree: TreeState, parents = {}): Parents => {
   if (root) {
     const node = tree.nodes[rootID]
     return _.reduce(
-      node.children,
+      node.children(tree.nodes),
       (parents: Parents, nodeID: string) => {
         return constructParents({ ...tree, root: nodeID }, { ...parents, [nodeID]: rootID })
       },
