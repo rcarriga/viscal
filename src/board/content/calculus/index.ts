@@ -1,9 +1,10 @@
 import { TreeState, NodeID, Substitutions, Tree, Substitution } from "../../state"
+import { generateID } from "../util"
 
 export const createSubstitutions = (absID: NodeID, consumedID: NodeID, tree: TreeState): Substitutions => {
   const removed = getRemoved(absID, tree)
   return removed
-    .map(nodeID => ({ [nodeID]: createCopyIDs(consumedID, tree.nodes) }))
+    .map((nodeID, index) => ({ [nodeID]: index === 0 ? {} : createCopyIDs(consumedID, tree.nodes) }))
     .reduce((prev, cur) => ({ ...prev, ...cur }))
 }
 
@@ -23,6 +24,3 @@ const getRemoved = (binderID: NodeID, tree: TreeState): NodeID[] => {
   })
 }
 
-const generateID = (): NodeID => {
-  return "_" + (Number(String(Math.random()).slice(2)) + Date.now() + Math.round(performance.now())).toString(36)
-}

@@ -81,6 +81,7 @@ const performReduction = (reduction: ReductionStage, state: TreeState): TreeStat
 
     const indexOffset = calcOffset(0, absID) || 0
 
+    const getSub = (nodeID: NodeID) => substitution[nodeID] || nodeID
     const subTree = reduceTree(
       tree,
       (tree, node, nodeID) => {
@@ -88,20 +89,16 @@ const performReduction = (reduction: ReductionStage, state: TreeState): TreeStat
           switch (node.type) {
             case "VARIABLE":
               return createVar(
-                substitution[nodeID],
+                getSub(nodeID),
                 node.index !== undefined ? node.index + indexOffset : undefined,
                 node.name
               )
             case "ABSTRACTION":
-              return createAbs(
-                substitution[nodeID],
-                node.variableName,
-                node.child ? substitution[node.child] : node.child
-              )
+              return createAbs(getSub(nodeID), node.variableName, node.child ? getSub(node.child) : node.child)
             case "APPLICATION": {
-              const newLeft = node.left ? substitution[node.left] : node.left
-              const newRight = node.right ? substitution[node.right] : node.right
-              return createAppl(substitution[nodeID], newLeft, newRight)
+              const newLeft = node.left ? getSub(node.left) : node.left
+              const newRight = node.right ? getSub(node.right) : node.right
+              return createAppl(getSub(nodeID), newLeft, newRight)
             }
             default:
               return node
@@ -109,7 +106,7 @@ const performReduction = (reduction: ReductionStage, state: TreeState): TreeStat
         }
         return {
           ...tree,
-          [substitution[nodeID] || nodeID]: updated()
+          [getSub(nodeID)]: updated()
         }
       },
       {},
