@@ -60,13 +60,18 @@ const RawAbs = (props: RawAbsProps) => {
         l${-boxWidth},0
         l0,${props.height}`
 
+  const outAnimate = { d: outPath, fill: props.style.output.fill, ...props.style.output.stroke }
+  const inAnimate = { d: inPath, fill: props.style.input.fill, ...props.style.input.stroke }
+  const boxAnimate = { d: boxPath, fill: props.style.fill, ...props.style.stroke }
+
   return (
     <motion.g initial={{ opacity: 1 }} exit={{ opacity: 0 }} id={props.id}>
       <motion.path
         className={props.className}
-        animate={{ d: outPath, color: props.style.output.fill, ...props.style.output.stroke }}
-        transition={{ d: { type: "tween" } }}
-        initial={false}
+        animate={outAnimate}
+        transition={props.style.animation.transition}
+        initial={{ ...outAnimate, fill: "rgba(255,255,255,0)" }}
+        exit={{ fill: "rgba(255,255,255,0)" }}
         data-nodeid={props.id}
         onClick={props.events.click}
         onMouseOver={props.events.highlight}
@@ -74,13 +79,9 @@ const RawAbs = (props: RawAbsProps) => {
       />
       <motion.path
         data-nodeid={props.id}
-        initial={false}
-        animate={{
-          d: inPath,
-          fill: props.style.input.fill,
-          ...props.style.input.stroke
-        }}
-        transition={{ d: { type: "tween" } }}
+        initial={{ ...inAnimate, fill: "rgba(255,255,255,0)" }}
+        animate={inAnimate}
+        transition={props.style.animation.transition}
         onMouseOver={props.events.highlight}
         onMouseLeave={props.events.clearHighlight}
         onPan={props.events.drag}
@@ -89,13 +90,10 @@ const RawAbs = (props: RawAbsProps) => {
       <motion.path
         className={props.className}
         data-nodeid={props.id}
-        initial={false}
-        transition={{ d: { type: "tween" } }}
-        animate={{
-          d: boxPath,
-          fill: props.style.fill,
-          ...props.style.stroke
-        }}
+        transition={props.style.animation.transition}
+        initial={{ ...boxAnimate, stroke: "rgba(255,255,255,0)" }}
+        exit={{ stroke: "rgba(255,255,255,0)" }}
+        animate={boxAnimate}
         onClick={props.events.click}
         pointerEvents="painted"
         onPan={props.events.drag}

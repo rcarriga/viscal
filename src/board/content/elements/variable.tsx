@@ -13,16 +13,7 @@ export const Var = (props: VarProps) => {
   const events = useEvents()
   return (
     <AnimatePresence>
-      {coord && (
-        <RawVar
-          events={events}
-          id={props.id}
-          radius={coord.w / 2}
-          style={style}
-          x={coord.x}
-          y={coord.y}
-        />
-      )}
+      {coord && <RawVar events={events} id={props.id} radius={coord.w / 2} style={style} x={coord.x} y={coord.y} />}
     </AnimatePresence>
   )
 }
@@ -36,6 +27,11 @@ const RawVar = (props: RawVarProps) => {
   const path = `M${props.x},${props.y}
       a${props.radius},${props.radius} 0 1,0 ${props.radius * 2},0
       a${props.radius},${props.radius} 0 1,0 -${props.radius * 2},0`
+  const animate = {
+    d: path,
+    fill: props.style.fill,
+    ...props.style.stroke
+  }
   return (
     <motion.path
       data-nodeid={props.id}
@@ -44,14 +40,10 @@ const RawVar = (props: RawVarProps) => {
       onClick={props.events.click}
       onMouseOver={props.events.highlight}
       onMouseLeave={props.events.clearHighlight}
-      initial={false}
-      transition={{ d: { type: "tween" } }}
+      initial={{ ...animate, fill: "rgba(255,255,255,0)" }}
+      transition={props.style.animation.transition}
       exit={{ fill: "rgba(255,255,255,0)" }}
-      animate={{
-        d: path,
-        fill: props.style.fill,
-        ...props.style.stroke
-      }}
+      animate={animate}
     />
   )
 }

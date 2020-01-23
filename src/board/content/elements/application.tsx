@@ -1,4 +1,4 @@
-import { motion } from "framer-motion"
+import { motion, Transition } from "framer-motion"
 import React from "react"
 import { useDimensions, useCoord, useApplStyle, useEvents, ApplStyle } from "../../state"
 import { ExprProps, RawExprProps } from "./base"
@@ -48,18 +48,16 @@ const RawAppl = (props: RawApplProps) => {
           l0,${-props.height}
           l${-boxWidth},0
           l0,${props.height}`
+  const outAnimate = { d: outPath, fill: props.style.output.fill, ...props.style.output.stroke }
+  const boxAnimate = { d: boxPath, fill: props.style.fill, ...props.style.stroke }
 
   return (
     <g id={props.id}>
       <motion.path
         className={props.className}
-        animate={{
-          d: outPath,
-          fill: props.style.output.fill,
-          ...props.style.output.stroke
-        }}
-        transition={{ d: { type: "tween" } }}
-        initial={false}
+        animate={outAnimate}
+        transition={props.style.animation.transition}
+        initial={{ ...outAnimate, fill: "rgba(255,255,255,0)" }}
         data-nodeid={props.id}
         onClick={props.events.click}
         onMouseOver={props.events.highlight}
@@ -68,13 +66,9 @@ const RawAppl = (props: RawApplProps) => {
       />
       <motion.path
         className={props.className}
-        initial={false}
-        transition={{ d: { type: "tween" } }}
-        animate={{
-          d: boxPath,
-          fill: props.style.fill,
-          ...props.style.stroke
-        }}
+        transition={props.style.animation.transition}
+        initial={{ ...boxAnimate, stroke: "rgba(255,255,255,0)" }}
+        animate={boxAnimate}
         data-nodeid={props.id}
         pointerEvents="painted"
         onClick={props.events.click}

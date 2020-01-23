@@ -1,6 +1,7 @@
 import _ from "lodash"
 import randomcolor from "randomcolor"
 import { createSelector } from "reselect"
+import { AnimationSettings } from "../visual"
 import { useBoard } from "./base"
 import { BoardState, NodeID, TreeState, Color, Theme, Dimensions, TreeNode } from ".."
 
@@ -14,6 +15,7 @@ export const useVarStyle = (nodeID: NodeID): VarStyle => {
   return {
     type: "VAR_STYLE",
     fill: colors[binder] || "black",
+    animation: state.animation,
     stroke: {
       stroke: isSelected
         ? state.theme.selectedStroke
@@ -32,6 +34,7 @@ export const useAbsStyle = (nodeID: NodeID): AbsStyle => {
   return {
     type: "ABS_STYLE",
     fill: "transparent",
+    animation: state.animation,
     stroke: {
       stroke: isSelected
         ? state.theme.selectedStroke
@@ -52,6 +55,7 @@ export const useApplStyle = (nodeID: NodeID): ApplStyle => {
   return {
     type: "APPL_STYLE",
     fill: "transparent",
+    animation: state.animation,
     stroke: {
       stroke: isSelected
         ? state.theme.selectedStroke
@@ -71,24 +75,24 @@ interface StrokeStyle {
   strokeWidth: number
 }
 
-export interface VarStyle {
-  type: "VAR_STYLE"
+interface BaseNodeStyle {
   fill: string
   stroke: StrokeStyle
+  animation: AnimationSettings
 }
 
-export interface AbsStyle {
+export interface VarStyle extends BaseNodeStyle {
+  type: "VAR_STYLE"
+}
+
+export interface AbsStyle extends BaseNodeStyle {
   type: "ABS_STYLE"
-  fill: string
-  stroke: StrokeStyle
   input: VarStyle
   output: VarStyle
 }
 
-export interface ApplStyle {
+export interface ApplStyle extends BaseNodeStyle {
   type: "APPL_STYLE"
-  fill: string
-  stroke: StrokeStyle
   output: VarStyle
 }
 
@@ -98,6 +102,7 @@ type StylesState = {
   tree: TreeState
   theme: Theme
   dimensions: Dimensions
+  animation: AnimationSettings
   highlighted?: NodeID
   selected?: NodeID
 }
@@ -108,6 +113,7 @@ const useStylesState: () => StylesState = () => {
     tree: state.tree,
     theme: state.visual.theme,
     dimensions: state.visual.dimensions,
+    animation: state.visual.animation,
     selected: state.visual.selected,
     highlighted: state.visual.highlighted
   }
