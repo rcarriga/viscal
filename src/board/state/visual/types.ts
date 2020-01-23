@@ -26,9 +26,9 @@ const defaultDimensions = {
   widthMargin: 32
 }
 
-export type Dimensions = typeof defaultDimensions
+export type DimensionSettings = typeof defaultDimensions
 
-export type NodeDimension = keyof Dimensions
+export type DimensionSetting = keyof DimensionSettings
 
 const defaultEvents = {
   select: undefined,
@@ -71,7 +71,7 @@ export interface VisualState {
   selected?: NodeID
   highlighted?: NodeID
   theme: Theme
-  dimensions: Dimensions
+  dimensions: DimensionSettings
   treeLayout: TreeLayout
   events: NodeEvents
   animation: AnimationSettings

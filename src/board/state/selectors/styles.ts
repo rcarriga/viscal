@@ -3,7 +3,7 @@ import randomcolor from "randomcolor"
 import { createSelector } from "reselect"
 import { AnimationSettings } from "../visual"
 import { useBoard } from "./base"
-import { BoardState, NodeID, TreeState, Color, Theme, Dimensions, TreeNode } from ".."
+import { BoardState, NodeID, TreeState, Color, Theme, DimensionSettings, TreeNode } from ".."
 
 export const useVarStyle = (nodeID: NodeID): VarStyle => {
   const state = useStylesState()
@@ -101,7 +101,7 @@ export type NodeStyle = VarStyle | AbsStyle | ApplStyle
 type StylesState = {
   tree: TreeState
   theme: Theme
-  dimensions: Dimensions
+  dimensions: DimensionSettings
   animation: AnimationSettings
   highlighted?: NodeID
   selected?: NodeID
