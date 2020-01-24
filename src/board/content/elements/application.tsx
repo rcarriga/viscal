@@ -1,32 +1,32 @@
 import { motion, Transition } from "framer-motion"
 import React from "react"
-import { useDimensions, useCoord, useApplStyle, useEvents, ApplStyle } from "../../state"
+import { useDimensions, useCoords, useApplStyle, useEvents, ApplStyle } from "../../state"
 import { ExprProps, RawExprProps } from "./base"
 
 interface ApplProps extends ExprProps {}
 
 export const Appl = (props: ApplProps) => {
-  const coord = useCoord(props.id)
   const dimensions = useDimensions()
-  const style = useApplStyle(props.id)
+  const style = useApplStyle(props.coord.nodeID)
   const events = useEvents()
 
-  if (coord)
-    return (
-      <RawAppl
-        events={events}
-        height={coord.h}
-        heightMargin={dimensions.heightMargin}
-        id={props.id}
-        radius={dimensions.circleRadius}
-        style={style}
-        width={coord.w}
-        widthMargin={dimensions.widthMargin}
-        x={coord.x}
-        y={coord.y}
-      />
-    )
-  return null
+  return (
+    <RawAppl
+      events={events}
+      height={props.coord.h}
+      heightMargin={dimensions.heightMargin}
+      id={props.id}
+      nodeID={props.coord.nodeID}
+      radius={dimensions.circleRadius}
+      style={style}
+      width={props.coord.w}
+      widthMargin={dimensions.widthMargin}
+      x={props.coord.x}
+      y={props.coord.y}
+    >
+      {props.children}
+    </RawAppl>
+  )
 }
 
 interface RawApplProps extends RawExprProps {
@@ -58,18 +58,19 @@ const RawAppl = (props: RawApplProps) => {
         animate={outAnimate}
         transition={props.style.animation.transition}
         initial={{ ...outAnimate, fill: "rgba(255,255,255,0)" }}
-        data-nodeid={props.id}
+        data-nodeid={props.nodeID}
         onClick={props.events.click}
         onMouseOver={props.events.highlight}
         onMouseLeave={props.events.clearHighlight}
         onPan={props.events.drag}
+        onTransitionEnd={console.log}
       />
       <motion.path
         className={props.className}
         transition={props.style.animation.transition}
         initial={{ ...boxAnimate, stroke: "rgba(255,255,255,0)" }}
         animate={boxAnimate}
-        data-nodeid={props.id}
+        data-nodeid={props.nodeID}
         pointerEvents="painted"
         onClick={props.events.click}
         onPan={props.events.drag}

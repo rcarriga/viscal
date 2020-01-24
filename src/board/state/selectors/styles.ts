@@ -14,7 +14,7 @@ export const useVarStyle = (nodeID: NodeID): VarStyle => {
   const isSelected = state.selected && state.selected === nodeID
   return {
     type: "VAR_STYLE",
-    fill: colors[binder] || "black",
+    fill: colors[binder] || "rgba(0,0,0,1)",
     animation: state.animation,
     stroke: {
       stroke: isSelected
@@ -143,7 +143,7 @@ const createColor = (nodeID: NodeID, node: TreeNode, tree: TreeState): Color => 
       return color(nodeID)
     case "VARIABLE": {
       const binder = node.binder(tree)
-      return binder ? color(binder) : "black"
+      return binder ? color(binder) : "rgba(0,0,0,1)"
     }
     default:
       return "transparent"

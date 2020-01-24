@@ -85,7 +85,7 @@ export const BoardContent = connect(
       }}
       className={props.className}
     >
-      <TreeGraph tree={props.state.tree.nodes} />
+      <TreeGraph layout={props.state.visual.treeLayout} tree={props.state.tree.nodes} />
     </motion.svg>
   )
 })`

@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion"
 import React from "react"
-import { VarName, useVarStyle, useCoord, useEvents, VarStyle } from "../../state"
+import { VarName, useVarStyle, useCoords, useEvents, VarStyle } from "../../state"
 import { RawExprProps, ExprProps } from "./base"
 
 interface VarProps extends ExprProps {
@@ -8,12 +8,19 @@ interface VarProps extends ExprProps {
 }
 
 export const Var = (props: VarProps) => {
-  const coord = useCoord(props.id)
-  const style = useVarStyle(props.id)
+  const style = useVarStyle(props.coord.nodeID)
   const events = useEvents()
   return (
     <AnimatePresence>
-      {coord && <RawVar events={events} id={props.id} radius={coord.w / 2} style={style} x={coord.x} y={coord.y} />}
+      <RawVar
+        events={events}
+        id={props.id}
+        nodeID={props.coord.nodeID}
+        radius={props.coord.w / 2}
+        style={style}
+        x={props.coord.x}
+        y={props.coord.y}
+      />
     </AnimatePresence>
   )
 }
@@ -34,7 +41,7 @@ const RawVar = (props: RawVarProps) => {
   }
   return (
     <motion.path
-      data-nodeid={props.id}
+      data-nodeid={props.nodeID}
       id={props.id}
       onPan={props.events.drag}
       onClick={props.events.click}

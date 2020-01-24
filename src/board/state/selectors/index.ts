@@ -2,14 +2,14 @@ import { coordsSelector, NodeCoord } from "../"
 
 import { NodeID } from "../tree"
 import { useBoard } from "./base"
+import { Coords } from "./coords"
 
 export * from "./coords"
 export * from "./styles"
 
-export const useCoord: (nodeID: NodeID) => NodeCoord | undefined = (nodeID: NodeID) => {
-  const layout = useBoard().visual.treeLayout
-  const coord = coordsSelector(useBoard())[nodeID]
-  if (coord) return { ...coord, x: coord.x + layout.startX, y: coord.y + layout.startY }
+export const useCoords = (): Coords => {
+  const state = useBoard()
+  return coordsSelector(state)
 }
 
 export const useEvents = () => {

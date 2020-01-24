@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion"
 import React from "react"
-import { useAbsStyle, useCoord, useDimensions, useEvents, AbsStyle } from "../../state"
+import { useAbsStyle, useCoords, useDimensions, useEvents, AbsStyle } from "../../state"
 import { ExprProps, RawExprProps } from "./base"
 
 interface AbsProps extends ExprProps {
@@ -8,27 +8,25 @@ interface AbsProps extends ExprProps {
 }
 
 export const Abs = (props: AbsProps) => {
-  const coord = useCoord(props.id)
   const dimensions = useDimensions()
-  const style = useAbsStyle(props.id)
+  const style = useAbsStyle(props.coord.nodeID)
   const events = useEvents()
 
   return (
     <AnimatePresence>
-      {coord && (
-        <RawAbs
-          events={events}
-          height={coord.h}
-          heightMargin={dimensions.heightMargin}
-          id={props.id}
-          radius={dimensions.circleRadius}
-          style={style}
-          width={coord.w}
-          widthMargin={dimensions.widthMargin}
-          x={coord.x}
-          y={coord.y}
-        />
-      )}
+      <RawAbs
+        events={events}
+        height={props.coord.h}
+        heightMargin={dimensions.heightMargin}
+        id={props.id}
+        nodeID={props.coord.nodeID}
+        radius={dimensions.circleRadius}
+        style={style}
+        width={props.coord.w}
+        widthMargin={dimensions.widthMargin}
+        x={props.coord.x}
+        y={props.coord.y}
+      />
     </AnimatePresence>
   )
 }
@@ -72,13 +70,13 @@ const RawAbs = (props: RawAbsProps) => {
         transition={props.style.animation.transition}
         initial={{ ...outAnimate, fill: "rgba(255,255,255,0)" }}
         exit={{ fill: "rgba(255,255,255,0)" }}
-        data-nodeid={props.id}
+        data-nodeid={props.nodeID}
         onClick={props.events.click}
         onMouseOver={props.events.highlight}
         onPan={props.events.drag}
       />
       <motion.path
-        data-nodeid={props.id}
+        data-nodeid={props.nodeID}
         initial={{ ...inAnimate, fill: "rgba(255,255,255,0)" }}
         animate={inAnimate}
         transition={props.style.animation.transition}
@@ -89,7 +87,7 @@ const RawAbs = (props: RawAbsProps) => {
       />
       <motion.path
         className={props.className}
-        data-nodeid={props.id}
+        data-nodeid={props.nodeID}
         transition={props.style.animation.transition}
         initial={{ ...boxAnimate, stroke: "rgba(255,255,255,0)" }}
         exit={{ stroke: "rgba(255,255,255,0)" }}

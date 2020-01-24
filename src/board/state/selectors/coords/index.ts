@@ -1,5 +1,6 @@
 import { createSelector } from "reselect"
 import { DimensionSettings, BoardState, NodeID, Tree, TreeState, ReductionStage } from "../.."
+import { generateID } from "../../../content/util"
 import { getDimensions } from "./dimensions"
 import { Coords, CoordOffsets, NodeCoord, CoordOffset, NodeDimensions } from "./types"
 
@@ -57,6 +58,7 @@ const fillCoords = (
   tree: Tree,
   settings: DimensionSettings,
   offsets: CoordOffsets,
+  coordID = generateID(),
   baseX: number = 0,
   baseY: number = 0
 ): Coords => {
@@ -66,17 +68,17 @@ const fillCoords = (
     const coord = addOffset({ nodeID: rootID, ...dimensions[rootID], x: baseX, y: baseY }, offsets[rootID])
     return children.reduce(
       (current, nodeID) => {
-        const childCoord = fillCoords(nodeID, dimensions, tree, settings, offsets, current.baseX, baseY)
-        console.log(nodeID, childCoord)
+        const childID = generateID()
+        const childCoord = fillCoords(nodeID, dimensions, tree, settings, offsets, childID, current.baseX, baseY)
         return {
-          baseX: childCoord[nodeID].x + childCoord[nodeID].w + settings.widthMargin,
+          baseX: childCoord[childID].x + childCoord[childID].w + settings.widthMargin,
           coords: { ...childCoord, ...current.coords }
         }
       },
       {
         baseX: coord.x + settings.circleRadius + settings.widthMargin,
         coords: {
-          [rootID]: coord
+          [coordID]: coord
         }
       }
     ).coords
