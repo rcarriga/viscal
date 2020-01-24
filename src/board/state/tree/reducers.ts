@@ -4,12 +4,12 @@ import {
   VarIndex,
   TreeState,
   TreeNode,
-  NodeID,
   Tree,
   initialTreeState,
   ReductionStage,
   Substitution,
-  VarName
+  VarName,
+  NodeID
 } from "./types"
 
 export const tree = (state = initialTreeState, action: BoardAction): TreeState => {
@@ -22,13 +22,27 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
       return addNode(state, action.nodeID, createAbs(action.nodeID, action.variableName, action.child))
     case "ADD_APPLICATION":
       return addNode(state, action.nodeID, createAppl(action.nodeID, action.left, action.right))
-    case "QUEUE_REDUCTION":
+    case "QUEUE_REDUCTION": {
+      const parentNode = state.nodes[action.parent]
+      if (!parentNode) return state
+      const [abs, consumed] = parentNode.children(state.nodes)
+      if (!abs || !consumed || !state.nodes[abs] || !state.nodes[consumed]) return state
+      const child = state.nodes[abs].children(state.nodes)[0]
       return state.nodes[action.parent]
         ? {
             ...state,
-            reduction: { type: "APPLY", parent: action.parent, substitutions: action.substitutions }
+            reduction: {
+              type: "APPLY",
+              visibleParent: action.parent,
+              parentApplication: action.parent,
+              abs,
+              child,
+              consumed,
+              substitutions: action.substitutions
+            }
           }
         : state
+    }
     case "NEXT_REDUCTION_STAGE":
       if (state.reduction) {
         const stage = getNextStage(state.reduction)
@@ -55,10 +69,10 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
 const performReduction = (reduction: ReductionStage, state: TreeState): TreeState => {
   const rootID = state.root
   if (!rootID) return state
-  const parentNode = state.nodes[reduction.parent]
+  const parentNode = state.nodes[reduction.visibleParent]
   const children = parentNode.children(state.nodes)
   const [absID, consumedID] = children
-  const tree = removeAbs(absID, rootID, state.nodes)
+  const tree = state.nodes // removeAbs(absID, rootID, state.nodes)
 
   const performSubstitution = (toReplace: NodeID, substitution: Substitution, tree: Tree): Tree => {
     const calcOffset = (offset: number, nodeID?: NodeID): VarIndex => {
@@ -79,7 +93,7 @@ const performReduction = (reduction: ReductionStage, state: TreeState): TreeStat
       }
     }
 
-    const indexOffset = calcOffset(0, absID) || 0
+    const indexOffset = calcOffset(0, reduction.child) || 0
 
     const getSub = (nodeID: NodeID) => substitution[nodeID] || nodeID
     const subTree = reduceTree(
@@ -113,7 +127,7 @@ const performReduction = (reduction: ReductionStage, state: TreeState): TreeStat
       consumedID
     )
 
-    return replaceChild(toReplace, substitution[consumedID], rootID, { ...tree, ...subTree })
+    return replaceChild(toReplace, getSub(reduction.consumed), rootID, { ...tree, ...subTree })
   }
 
   const substituted = Object.keys(reduction.substitutions).reduce(

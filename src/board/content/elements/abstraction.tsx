@@ -1,15 +1,14 @@
 import { motion, AnimatePresence } from "framer-motion"
 import React from "react"
-import { useAbsStyle, useCoords, useDimensions, useEvents, AbsStyle } from "../../state"
+import { useCoords, useDimensions, useEvents, AbsStyle } from "../../state"
 import { ExprProps, RawExprProps } from "./base"
 
 interface AbsProps extends ExprProps {
-  variableName: string
+  style: AbsStyle
 }
 
 export const Abs = (props: AbsProps) => {
   const dimensions = useDimensions()
-  const style = useAbsStyle(props.coord.nodeID)
   const events = useEvents()
 
   return (
@@ -21,7 +20,7 @@ export const Abs = (props: AbsProps) => {
         id={props.id}
         nodeID={props.coord.nodeID}
         radius={dimensions.circleRadius}
-        style={style}
+        style={props.style}
         width={props.coord.w}
         widthMargin={dimensions.widthMargin}
         x={props.coord.x}

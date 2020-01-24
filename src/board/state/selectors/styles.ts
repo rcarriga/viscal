@@ -5,69 +5,6 @@ import { AnimationSettings } from "../visual"
 import { useBoard } from "./base"
 import { BoardState, NodeID, TreeState, Color, Theme, DimensionSettings, TreeNode } from ".."
 
-export const useVarStyle = (nodeID: NodeID): VarStyle => {
-  const state = useStylesState()
-  const colors = useColors()
-  const node = state.tree.nodes[nodeID]
-  const binder = node && node.type === "VARIABLE" ? node.binder(state.tree) || nodeID : nodeID
-  const isHighlighted = state.highlighted && (state.highlighted === nodeID || state.highlighted === binder)
-  const isSelected = state.selected && state.selected === nodeID
-  return {
-    type: "VAR_STYLE",
-    fill: colors[binder] || "rgba(0,0,0,1)",
-    animation: state.animation,
-    stroke: {
-      stroke: isSelected
-        ? state.theme.selectedStroke
-        : isHighlighted
-        ? state.theme.highlightedStroke
-        : state.theme.varStroke,
-      strokeWidth: state.dimensions.strokeWidth
-    }
-  }
-}
-
-export const useAbsStyle = (nodeID: NodeID): AbsStyle => {
-  const state = useStylesState()
-  const isHighlighted = state.highlighted === nodeID
-  const isSelected = state.selected && state.selected === nodeID
-  return {
-    type: "ABS_STYLE",
-    fill: "transparent",
-    animation: state.animation,
-    stroke: {
-      stroke: isSelected
-        ? state.theme.selectedStroke
-        : isHighlighted
-        ? state.theme.highlightedStroke
-        : state.theme.stroke,
-      strokeWidth: state.dimensions.strokeWidth
-    },
-    input: useVarStyle(nodeID),
-    output: useVarStyle("")
-  }
-}
-
-export const useApplStyle = (nodeID: NodeID): ApplStyle => {
-  const state = useStylesState()
-  const isHighlighted = state.highlighted === nodeID
-  const isSelected = state.selected === nodeID
-  return {
-    type: "APPL_STYLE",
-    fill: "transparent",
-    animation: state.animation,
-    stroke: {
-      stroke: isSelected
-        ? state.theme.selectedStroke
-        : isHighlighted
-        ? state.theme.highlightedStroke
-        : state.theme.stroke,
-      strokeWidth: state.dimensions.strokeWidth
-    },
-    output: useVarStyle("")
-  }
-}
-
 type VarColors = { [bindingID in NodeID]: Color }
 
 interface StrokeStyle {
@@ -97,33 +34,140 @@ export interface ApplStyle extends BaseNodeStyle {
 }
 
 export type NodeStyle = VarStyle | AbsStyle | ApplStyle
+type NodeStyles = { [nodeID in NodeID]: NodeStyle }
 
 type StylesState = {
   tree: TreeState
   theme: Theme
+  colors: VarColors
   dimensions: DimensionSettings
   animation: AnimationSettings
   highlighted?: NodeID
   selected?: NodeID
 }
 
-const useStylesState: () => StylesState = () => {
-  const state = useBoard()
+export const useStyles = (): NodeStyles => {
+  const board = useBoard()
+  return stylesSelector(board)
+}
+
+const createStyles = (state: StylesState): NodeStyles => {
+  const tree = state.tree.nodes
+  const reduction = state.tree.reduction
+  const initStyles = Object.keys(tree).reduce((styles: NodeStyles, nodeID: NodeID) => {
+    const style = createStyle(nodeID, state)
+    return style ? { ...styles, [nodeID]: style } : styles
+  }, {})
+  if (!reduction) return initStyles
+  switch (reduction.type) {
+    case "UNBIND":
+      return Object.values(reduction.substitutions).reduce(
+        (styles: NodeStyles, substitution) =>
+          Object.values(substitution).reduce((styles, toHide) => {
+            const style = createStyle(toHide, state, true)
+            return style ? { ...styles, [toHide]: style } : styles
+          }, styles),
+        initStyles
+      )
+    default:
+      return initStyles
+  }
+}
+
+const createStyle = (nodeID: NodeID, state: StylesState, transparent = false): NodeStyle | undefined => {
+  const node = state.tree.nodes[nodeID]
+  switch (node.type) {
+    case "VARIABLE":
+      return createVarStyle(nodeID, state, transparent)
+    case "ABSTRACTION":
+      return createAbsStyle(nodeID, state, transparent)
+    case "APPLICATION":
+      return createApplStyle(nodeID, state, transparent)
+    default:
+      return undefined
+  }
+}
+
+const createVarStyle = (nodeID: NodeID, state: StylesState, transparent: boolean): VarStyle => {
+  const node = state.tree.nodes[nodeID]
+  const theme = state.theme
+  const binder = node && node.type === "VARIABLE" ? node.binder(state.tree) || nodeID : nodeID
+  const isHighlighted = state.highlighted && (state.highlighted === nodeID || state.highlighted === binder)
+  const isSelected = state.selected && state.selected === nodeID
   return {
+    type: "VAR_STYLE",
+    fill: transparent ? theme.transparent : state.colors[binder] || theme.unbinded,
+    animation: state.animation,
+    stroke: {
+      stroke: transparent
+        ? theme.transparent
+        : isSelected
+        ? theme.selectedStroke
+        : isHighlighted
+        ? theme.highlightedStroke
+        : theme.varStroke,
+      strokeWidth: state.dimensions.strokeWidth
+    }
+  }
+}
+
+const createAbsStyle = (nodeID: NodeID, state: StylesState, transparent: boolean): AbsStyle => {
+  const theme = state.theme
+  const isHighlighted = state.highlighted === nodeID
+  const isSelected = state.selected && state.selected === nodeID
+  return {
+    type: "ABS_STYLE",
+    fill: theme.transparent,
+    animation: state.animation,
+    stroke: {
+      stroke: transparent
+        ? theme.transparent
+        : isSelected
+        ? theme.selectedStroke
+        : isHighlighted
+        ? theme.highlightedStroke
+        : theme.stroke,
+      strokeWidth: state.dimensions.strokeWidth
+    },
+    input: createVarStyle(nodeID, state, transparent),
+    output: createVarStyle("", state, transparent)
+  }
+}
+
+const createApplStyle = (nodeID: NodeID, state: StylesState, transparent: boolean): ApplStyle => {
+  const theme = state.theme
+  const isHighlighted = state.highlighted === nodeID
+  const isSelected = state.selected === nodeID
+  return {
+    type: "APPL_STYLE",
+    fill: theme.transparent,
+    animation: state.animation,
+    stroke: {
+      stroke: isSelected
+        ? state.theme.selectedStroke
+        : isHighlighted
+        ? state.theme.highlightedStroke
+        : state.theme.stroke,
+      strokeWidth: state.dimensions.strokeWidth
+    },
+    output: createVarStyle("", state, transparent)
+  }
+}
+
+const stylesSelector = createSelector(
+  (state: BoardState) => ({
     tree: state.tree,
+    colors: colorsSelector(state),
     theme: state.visual.theme,
     dimensions: state.visual.dimensions,
     animation: state.visual.animation,
     selected: state.visual.selected,
     highlighted: state.visual.highlighted
-  }
-}
+  }),
+  createStyles
+)
 
-const useColors: () => VarColors = () => {
-  return colorsSelector(useBoard())
-}
-
-const constructColors = (tree: TreeState): VarColors => {
+const createColors = (tree: TreeState): VarColors => {
   return _.reduce(
     tree.nodes,
     (colors, node, nodeID) => ({
@@ -133,8 +177,6 @@ const constructColors = (tree: TreeState): VarColors => {
     {}
   )
 }
-
-const colorsSelector = createSelector((state: BoardState) => state.tree, constructColors)
 
 const createColor = (nodeID: NodeID, node: TreeNode, tree: TreeState): Color => {
   const color = (nodeID: NodeID) => randomcolor({ seed: nodeID, luminosity: "bright" })
@@ -149,3 +191,5 @@ const createColor = (nodeID: NodeID, node: TreeNode, tree: TreeState): Color => 
       return "transparent"
   }
 }
+
+const colorsSelector = createSelector((state: BoardState) => state.tree, createColors)

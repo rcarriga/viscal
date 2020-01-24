@@ -1,4 +1,5 @@
 export type NodeID = string
+export type RefID = string
 export type VarName = string
 export type VarIndex = number | undefined
 
@@ -32,37 +33,21 @@ interface Application extends BaseExpression {
 
 export type TreeNode = NullExpression | Variable | Abstraction | Application
 
-export type Tree = { [nodeId: string]: TreeNode }
+export type Tree = { [nodeId in NodeID]: TreeNode }
 
 export type Substitution = { [nodeID in NodeID]: NodeID }
 
 export type Substitutions = { [variable in NodeID]: Substitution }
 
-interface Apply {
-  type: "APPLY"
-  parent: NodeID
+export interface ReductionStage {
+  type: "APPLY" | "CONSUME" | "UNBIND" | "SUBSTITUTE"
+  visibleParent: NodeID
+  parentApplication: NodeID
+  abs: NodeID
+  child: NodeID
+  consumed: NodeID
   substitutions: Substitutions
 }
-
-interface Consume {
-  type: "CONSUME"
-  parent: NodeID
-  substitutions: Substitutions
-}
-
-interface Unbind {
-  type: "UNBIND"
-  parent: NodeID
-  substitutions: Substitutions
-}
-
-interface Substitute {
-  type: "SUBSTITUTE"
-  parent: NodeID
-  substitutions: Substitutions
-}
-
-export type ReductionStage = Apply | Consume | Unbind | Substitute
 
 export interface TreeState {
   readonly root?: NodeID

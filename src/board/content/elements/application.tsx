@@ -1,13 +1,14 @@
-import { motion, Transition } from "framer-motion"
+import { motion } from "framer-motion"
 import React from "react"
-import { useDimensions, useCoords, useApplStyle, useEvents, ApplStyle } from "../../state"
+import { useDimensions, useEvents, ApplStyle } from "../../state"
 import { ExprProps, RawExprProps } from "./base"
 
-interface ApplProps extends ExprProps {}
+interface ApplProps extends ExprProps {
+  style: ApplStyle
+}
 
 export const Appl = (props: ApplProps) => {
   const dimensions = useDimensions()
-  const style = useApplStyle(props.coord.nodeID)
   const events = useEvents()
 
   return (
@@ -18,7 +19,7 @@ export const Appl = (props: ApplProps) => {
       id={props.id}
       nodeID={props.coord.nodeID}
       radius={dimensions.circleRadius}
-      style={style}
+      style={props.style}
       width={props.coord.w}
       widthMargin={dimensions.widthMargin}
       x={props.coord.x}

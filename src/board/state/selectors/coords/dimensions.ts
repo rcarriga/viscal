@@ -8,41 +8,36 @@ export const getDimensions = (
   settings: DimensionSettings,
   reduction?: ReductionStage
 ): NodeDimensions => {
-  const dimensionOffsets = reduction ? calculateDimensionOffsets(tree, settings, reduction) : {}
+  const dimensionOffsets = reduction ? calculateDimensionOffsets(settings, reduction) : {}
+  console.log(tree)
   return calculateDimensions(root, tree, settings, dimensionOffsets)
 }
 
-const calculateDimensionOffsets = (
-  tree: Tree,
-  settings: DimensionSettings,
-  reduction: ReductionStage
-): DimensionOffsets => {
-  const parentNode = tree[reduction.parent]
-  if (parentNode) {
-    const [absID, nodeID] = parentNode.children(tree)
-    if (absID && nodeID) {
-      const wOffset = settings.circleRadius + settings.widthMargin
-      switch (reduction.type) {
-        case "APPLY":
-          return {
-            [absID]: {
-              w: wOffset
-            },
-            [reduction.parent]: { w: -wOffset }
-          }
-        case "CONSUME":
-          return {
-            [absID]: {
-              w: wOffset
-            },
-            [reduction.parent]: { w: -2 * wOffset }
-          }
-        default:
-          return {}
+const calculateDimensionOffsets = (settings: DimensionSettings, reduction: ReductionStage): DimensionOffsets => {
+  const wOffset = settings.circleRadius + settings.widthMargin
+  switch (reduction.type) {
+    case "APPLY":
+      return {
+        [reduction.abs]: {
+          w: wOffset
+        },
+        [reduction.visibleParent]: { w: -wOffset }
       }
-    }
+    case "CONSUME":
+      return {
+        [reduction.abs]: {
+          w: wOffset
+        },
+        [reduction.visibleParent]: { w: -2 * wOffset }
+      }
+    case "UNBIND":
+    case "SUBSTITUTE":
+      return {
+        [reduction.visibleParent]: { w: -2 * wOffset }
+      }
+    default:
+      return {}
   }
-  return {}
 }
 
 const calculateDimensions = (

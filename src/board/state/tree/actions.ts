@@ -1,4 +1,4 @@
-import { NodeID, VarIndex, Substitutions } from "./types"
+import { VarIndex, Substitutions, NodeID, VarName } from "./types"
 
 interface NormalOrderReductionAction {
   type: "NORMAL_ORDER_REDUCTION"
@@ -17,7 +17,7 @@ interface AddExpression {
 interface AddVariable extends AddExpression {
   type: "ADD_VARIABLE"
   index: VarIndex
-  name: string
+  name: VarName
 }
 
 interface AddAbstraction extends AddExpression {
@@ -28,8 +28,8 @@ interface AddAbstraction extends AddExpression {
 
 interface AddApplication extends AddExpression {
   type: "ADD_APPLICATION"
-  left: NodeID
-  right: NodeID
+  left?: NodeID
+  right?: NodeID
 }
 
 interface QueueReduction {
@@ -56,24 +56,24 @@ export const normalOrderReduce = (nodeID: NodeID): TreeAction => {
 }
 
 export const setRoot = (nodeID: NodeID): TreeAction => {
-  return { type: "SET_ROOT", nodeID: nodeID }
+  return { type: "SET_ROOT", nodeID }
 }
 
-export const addVariable = (nodeID: NodeID, index: VarIndex, name: string): TreeAction => ({
+export const addVariable = (nodeID: NodeID, index: VarIndex, name: VarName): TreeAction => ({
   type: "ADD_VARIABLE",
   nodeID,
   index,
   name
 })
 
-export const addAbstraction = (nodeID: NodeID, variableName: string, child?: NodeID): TreeAction => ({
+export const addAbstraction = (nodeID: NodeID, variableName: VarName, child?: NodeID): TreeAction => ({
   type: "ADD_ABSTRACTION",
   nodeID,
   variableName,
   child
 })
 
-export const addApplication = (nodeID: NodeID, left: NodeID, right: NodeID): TreeAction => ({
+export const addApplication = (nodeID: NodeID, left?: NodeID, right?: NodeID): TreeAction => ({
   type: "ADD_APPLICATION",
   nodeID,
   left,

@@ -1,14 +1,13 @@
 import { motion, AnimatePresence } from "framer-motion"
 import React from "react"
-import { VarName, useVarStyle, useCoords, useEvents, VarStyle } from "../../state"
+import { useEvents, VarStyle } from "../../state"
 import { RawExprProps, ExprProps } from "./base"
 
 interface VarProps extends ExprProps {
-  variableName: VarName
+  style: VarStyle
 }
 
 export const Var = (props: VarProps) => {
-  const style = useVarStyle(props.coord.nodeID)
   const events = useEvents()
   return (
     <AnimatePresence>
@@ -17,7 +16,7 @@ export const Var = (props: VarProps) => {
         id={props.id}
         nodeID={props.coord.nodeID}
         radius={props.coord.w / 2}
-        style={style}
+        style={props.style}
         x={props.coord.x}
         y={props.coord.y}
       />

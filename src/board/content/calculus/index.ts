@@ -4,7 +4,7 @@ import { generateID } from "../util"
 export const createSubstitutions = (absID: NodeID, consumedID: NodeID, tree: TreeState): Substitutions => {
   const removed = getRemoved(absID, tree)
   return removed
-    .map((nodeID, index) => ({ [nodeID]: index === 0 ? {} : createCopyIDs(consumedID, tree.nodes) }))
+    .map((nodeID, index) => ({ [nodeID]: index === -1 ? {} : createCopyIDs(consumedID, tree.nodes) }))
     .reduce((prev, cur) => ({ ...prev, ...cur }))
 }
 

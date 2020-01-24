@@ -1,6 +1,6 @@
 import _ from "lodash"
 import React from "react"
-import { Tree, useCoords, Layout, TreeLayout } from "../../state"
+import { Tree, useCoords, Layout, TreeLayout, useStyles } from "../../state"
 import { Abs } from "./abstraction"
 import { Appl } from "./application"
 import { Var } from "./variable"
@@ -12,6 +12,7 @@ interface TreeGraphProps {
 
 export const TreeGraph = (props: TreeGraphProps) => {
   const coords = useCoords()
+  const styles = useStyles()
   return (
     <g>
       {Object.keys(coords)
@@ -19,14 +20,14 @@ export const TreeGraph = (props: TreeGraphProps) => {
         .map(coordID => {
           const baseCoord = coords[coordID]
           const coord = { ...baseCoord, x: baseCoord.x + props.layout.startX, y: baseCoord.y + props.layout.startY }
-          const node = props.tree[coord.nodeID]
-          switch (node.type) {
-            case "VARIABLE":
-              return <Var key={coord.nodeID} id={coordID} coord={coord} variableName={node.name} />
-            case "ABSTRACTION":
-              return <Abs key={coord.nodeID} id={coordID} coord={coord} variableName={node.variableName} />
-            case "APPLICATION":
-              return <Appl key={coord.nodeID} id={coordID} coord={coord} />
+          const style = styles[coordID]
+          switch (style.type) {
+            case "VAR_STYLE":
+              return <Var key={coord.nodeID} id={coordID} coord={coord} style={style} />
+            case "ABS_STYLE":
+              return <Abs key={coord.nodeID} id={coordID} coord={coord} style={style} />
+            case "APPL_STYLE":
+              return <Appl key={coord.nodeID} id={coordID} coord={coord} style={style} />
             default:
               return null
           }
