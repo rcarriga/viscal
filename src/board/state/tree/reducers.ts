@@ -11,6 +11,10 @@ import {
   NodeID,
   REDUCTION_STAGES
 } from "./types"
+import {reduceTree} from "./util"
+import {mapTree} from "./util"
+import {isString} from "util"
+import {isString} from "util"
 
 export const tree = (state = initialTreeState, action: BoardAction): TreeState => {
   switch (action.type) {
@@ -155,53 +159,6 @@ const replaceChild = (oldChild: NodeID, newChild: NodeID, rootID: NodeID, tree: 
   )
 }
 
-export const searchTree = (
-  tree: Tree,
-  f: (node: TreeNode, nodeID: NodeID) => boolean,
-  rootID: NodeID
-): NodeID | undefined => {
-  const root = tree[rootID]
-  if (f(root, rootID)) return rootID
-  switch (root.type) {
-    case "ABSTRACTION":
-      return root.child ? searchTree(tree, f, root.child) : undefined
-    case "APPLICATION":
-      return (
-        (root.left ? searchTree(tree, f, root.left) : undefined) ||
-        (root.right ? searchTree(tree, f, root.right) : undefined)
-      )
-    default:
-      return undefined
-  }
-}
-
-export const mapTree = (tree: Tree, f: (node: TreeNode, nodeID: NodeID) => TreeNode, rootID: NodeID): Tree => {
-  return reduceTree(tree, (tree, node, nodeID) => ({ ...tree, [nodeID]: f(node, nodeID) }), tree, rootID)
-}
-
-export const reduceTree = <A>(
-  tree: Tree,
-  f: (accum: A, node: TreeNode, nodeID: NodeID) => A,
-  accum: A,
-  rootID: NodeID
-): A => {
-  const root = tree[rootID]
-  if (!root) return accum
-  const updated = f(accum, root, rootID)
-  switch (root.type) {
-    case "VARIABLE":
-      return updated
-    case "ABSTRACTION":
-      return root.child ? reduceTree(tree, f, updated, root.child) : updated
-    case "APPLICATION":
-      return [root.left, root.right]
-        .filter(isString)
-        .reduce((updated, childID) => reduceTree(tree, f, updated, childID), updated)
-    default:
-      return accum
-  }
-}
-
 const createVar = (nodeID: NodeID, index: VarIndex, name: VarName): TreeNode => ({
   type: "VARIABLE",
   index: index,
@@ -266,5 +223,3 @@ const getChildren = (nodeID: NodeID, tree: Tree): NodeID[] => {
   }
   return node.directChildren
 }
-
-const isString = (str: string | undefined): str is string => !!str // Allows typechecking

@@ -1,5 +1,13 @@
-import { TreeState, NodeID, Substitutions, Tree, Substitution, ReductionStage, REDUCTION_STAGES } from "../../state"
-import { searchTree } from "../../state/tree/reducers"
+import {
+  TreeState,
+  NodeID,
+  Substitutions,
+  Tree,
+  Substitution,
+  ReductionStage,
+  REDUCTION_STAGES,
+  searchTree
+} from "../../state"
 import { generateID } from "../util"
 
 export const createReduction = (parentID: NodeID, tree: TreeState): ReductionStage | undefined => {
