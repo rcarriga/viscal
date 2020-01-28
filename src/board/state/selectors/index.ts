@@ -1,6 +1,5 @@
-import { coordsSelector, NodeCoord } from "../"
+import { coordsSelector } from "../"
 
-import { NodeID } from "../tree"
 import { useBoard } from "./base"
 import { Coords } from "./coords"
 

@@ -9,31 +9,21 @@ export const getDimensions = (
   reduction?: ReductionStage
 ): NodeDimensions => {
   const dimensionOffsets = reduction ? calculateDimensionOffsets(settings, reduction) : {}
-  console.log(tree)
   return calculateDimensions(root, tree, settings, dimensionOffsets)
 }
 
 const calculateDimensionOffsets = (settings: DimensionSettings, reduction: ReductionStage): DimensionOffsets => {
   const wOffset = settings.circleRadius + settings.widthMargin
   switch (reduction.type) {
-    case "APPLY":
+    case "CONSUME":
+    case "LIFT":
+    case "HOVER":
+    case "UNBIND":
       return {
         [reduction.abs]: {
           w: wOffset
         },
         [reduction.visibleParent]: { w: -wOffset }
-      }
-    case "CONSUME":
-      return {
-        [reduction.abs]: {
-          w: wOffset
-        },
-        [reduction.visibleParent]: { w: -2 * wOffset }
-      }
-    case "UNBIND":
-    case "SUBSTITUTE":
-      return {
-        [reduction.visibleParent]: { w: -2 * wOffset }
       }
     default:
       return {}
@@ -97,16 +87,13 @@ const elementHeight = (
   settings: DimensionSettings,
   tree: Tree
 ): number => {
-  const maxChildren = () =>
-    Math.max(...node.children(tree).map(childID => nodeDimensions[childID].h)) || settings.circleRadius * 2
-
   switch (node.type) {
     case "VARIABLE":
       return settings.circleRadius * 2
     case "ABSTRACTION":
-      return maxChildren() + settings.heightMargin * 2
+      return settings.circleRadius * 2 + settings.heightMargin * 2
     case "APPLICATION":
-      return maxChildren() + settings.heightMargin * 2
+      return settings.circleRadius * 2 + settings.heightMargin * 2
     default:
       return 0
   }

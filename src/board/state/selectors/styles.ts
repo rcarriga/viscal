@@ -3,7 +3,7 @@ import randomcolor from "randomcolor"
 import { createSelector } from "reselect"
 import { AnimationSettings } from "../visual"
 import { useBoard } from "./base"
-import { BoardState, NodeID, TreeState, Color, Theme, DimensionSettings, TreeNode } from ".."
+import { BoardState, NodeID, TreeState, Color, Theme, DimensionSettings, TreeNode, ReductionStage } from ".."
 
 type VarColors = { [bindingID in NodeID]: Color }
 
@@ -39,11 +39,18 @@ type NodeStyles = { [nodeID in NodeID]: NodeStyle }
 type StylesState = {
   tree: TreeState
   theme: Theme
+  copies: { [nodeID in NodeID]: NodeID }
   colors: VarColors
   dimensions: DimensionSettings
   animation: AnimationSettings
   highlighted?: NodeID
   selected?: NodeID
+}
+
+type StyleOverride = {
+  transparent?: boolean
+  highlighted?: boolean
+  selected?: boolean
 }
 
 export const useStyles = (): NodeStyles => {
@@ -55,45 +62,106 @@ const createStyles = (state: StylesState): NodeStyles => {
   const tree = state.tree.nodes
   const reduction = state.tree.reduction
   const initStyles = Object.keys(tree).reduce((styles: NodeStyles, nodeID: NodeID) => {
-    const style = createStyle(nodeID, state)
+    const style = createStyle(nodeID, state, {})
     return style ? { ...styles, [nodeID]: style } : styles
   }, {})
   if (!reduction) return initStyles
   switch (reduction.type) {
     case "UNBIND":
-      return Object.values(reduction.substitutions).reduce(
-        (styles: NodeStyles, substitution) =>
-          Object.values(substitution).reduce((styles, toHide) => {
-            const style = createStyle(toHide, state, true)
-            return style ? { ...styles, [toHide]: style } : styles
-          }, styles),
-        initStyles
+      return overrideUnbinded(
+        reduction,
+        { transparent: true },
+        state,
+        overrideConsumed(
+          reduction,
+          { highlighted: true },
+          state,
+          overrideNewNodes(reduction, { highlighted: true }, state, initStyles)
+        )
       )
     default:
-      return initStyles
+      return overrideConsumed(
+        reduction,
+        { highlighted: true },
+        state,
+        overrideNewNodes(reduction, { highlighted: true }, state, initStyles)
+      )
   }
 }
 
-const createStyle = (nodeID: NodeID, state: StylesState, transparent = false): NodeStyle | undefined => {
-  const node = state.tree.nodes[nodeID]
+const overrideUnbinded = (
+  reduction: ReductionStage,
+  override: StyleOverride,
+  state: StylesState,
+  styles: NodeStyles
+): NodeStyles =>
+  Object.keys(reduction.substitutions).reduce((styles: NodeStyles, unbindedVar) => {
+    const style = createStyle(unbindedVar, state, override)
+    return style ? { ...styles, [unbindedVar]: style } : styles
+  }, styles)
+
+const overrideNewNodes = (
+  reduction: ReductionStage,
+  override: StyleOverride,
+  state: StylesState,
+  styles: NodeStyles
+): NodeStyles =>
+  Object.values(reduction.substitutions).reduce(
+    (styles: NodeStyles, substitution) =>
+      Object.values(substitution).reduce((styles, newNodeID) => {
+        if (state.tree.nodes[newNodeID]) {
+          const style = createStyle(newNodeID, state, override)
+          return style ? { ...styles, [newNodeID]: style } : styles
+        }
+        return styles
+      }, styles),
+    styles
+  )
+
+const overrideConsumed = (
+  reduction: ReductionStage,
+  override: StyleOverride,
+  state: StylesState,
+  styles: NodeStyles
+): NodeStyles =>
+  Object.values(reduction.substitutions).reduce(
+    (styles: NodeStyles, substitution) =>
+      Object.keys(substitution).reduce((styles, newNodeID) => {
+        if (state.tree.nodes[newNodeID]) {
+          const style = createStyle(newNodeID, state, override)
+          return style ? { ...styles, [newNodeID]: style } : styles
+        }
+        return styles
+      }, styles),
+    styles
+  )
+
+const createStyle = (nodeID: NodeID, state: StylesState, overrides: StyleOverride): NodeStyle | undefined => {
+  const styleID = state.copies[nodeID] || nodeID
+  const node = state.tree.nodes[styleID]
+  const binder = node && node.type === "VARIABLE" ? node.binder(state.tree) || styleID : styleID
+  const highlighted = (state.highlighted && (state.highlighted === styleID || state.highlighted === binder)) || false
+  const selected = (state.selected && state.selected === styleID) || false
   switch (node.type) {
     case "VARIABLE":
-      return createVarStyle(nodeID, state, transparent)
+      return createVarStyle(styleID, state, { highlighted, selected, ...overrides })
     case "ABSTRACTION":
-      return createAbsStyle(nodeID, state, transparent)
+      return createAbsStyle(styleID, state, { highlighted, selected, ...overrides })
     case "APPLICATION":
-      return createApplStyle(nodeID, state, transparent)
+      return createApplStyle(styleID, state, { highlighted, selected, ...overrides })
     default:
       return undefined
   }
 }
 
-const createVarStyle = (nodeID: NodeID, state: StylesState, transparent: boolean): VarStyle => {
+const createVarStyle = (
+  nodeID: NodeID,
+  state: StylesState,
+  { transparent, selected, highlighted }: StyleOverride
+): VarStyle => {
   const node = state.tree.nodes[nodeID]
   const theme = state.theme
   const binder = node && node.type === "VARIABLE" ? node.binder(state.tree) || nodeID : nodeID
-  const isHighlighted = state.highlighted && (state.highlighted === nodeID || state.highlighted === binder)
-  const isSelected = state.selected && state.selected === nodeID
   return {
     type: "VAR_STYLE",
     fill: transparent ? theme.transparent : state.colors[binder] || theme.unbinded,
@@ -101,9 +169,9 @@ const createVarStyle = (nodeID: NodeID, state: StylesState, transparent: boolean
     stroke: {
       stroke: transparent
         ? theme.transparent
-        : isSelected
+        : selected
         ? theme.selectedStroke
-        : isHighlighted
+        : highlighted
         ? theme.highlightedStroke
         : theme.varStroke,
       strokeWidth: state.dimensions.strokeWidth
@@ -111,10 +179,12 @@ const createVarStyle = (nodeID: NodeID, state: StylesState, transparent: boolean
   }
 }
 
-const createAbsStyle = (nodeID: NodeID, state: StylesState, transparent: boolean): AbsStyle => {
+const createAbsStyle = (
+  nodeID: NodeID,
+  state: StylesState,
+  { transparent, selected, highlighted }: StyleOverride
+): AbsStyle => {
   const theme = state.theme
-  const isHighlighted = state.highlighted === nodeID
-  const isSelected = state.selected && state.selected === nodeID
   return {
     type: "ABS_STYLE",
     fill: theme.transparent,
@@ -122,35 +192,33 @@ const createAbsStyle = (nodeID: NodeID, state: StylesState, transparent: boolean
     stroke: {
       stroke: transparent
         ? theme.transparent
-        : isSelected
+        : selected
         ? theme.selectedStroke
-        : isHighlighted
+        : highlighted
         ? theme.highlightedStroke
         : theme.stroke,
       strokeWidth: state.dimensions.strokeWidth
     },
-    input: createVarStyle(nodeID, state, transparent),
-    output: createVarStyle("", state, transparent)
+    input: createVarStyle(nodeID, state, { transparent, selected, highlighted }),
+    output: createVarStyle("", state, { transparent, selected, highlighted })
   }
 }
 
-const createApplStyle = (nodeID: NodeID, state: StylesState, transparent: boolean): ApplStyle => {
+const createApplStyle = (
+  nodeID: NodeID,
+  state: StylesState,
+  { transparent, selected, highlighted }: StyleOverride
+): ApplStyle => {
   const theme = state.theme
-  const isHighlighted = state.highlighted === nodeID
-  const isSelected = state.selected === nodeID
   return {
     type: "APPL_STYLE",
     fill: theme.transparent,
     animation: state.animation,
     stroke: {
-      stroke: isSelected
-        ? state.theme.selectedStroke
-        : isHighlighted
-        ? state.theme.highlightedStroke
-        : state.theme.stroke,
+      stroke: selected ? state.theme.selectedStroke : highlighted ? state.theme.highlightedStroke : state.theme.stroke,
       strokeWidth: state.dimensions.strokeWidth
     },
-    output: createVarStyle("", state, transparent)
+    output: createVarStyle("", state, { transparent, selected, highlighted })
   }
 }
 
@@ -158,6 +226,7 @@ const stylesSelector = createSelector(
   (state: BoardState) => ({
     tree: state.tree,
     colors: colorsSelector(state),
+    copies: state.tree.reduction ? constructCopyMap(state.tree.reduction) : {},
     theme: state.visual.theme,
     dimensions: state.visual.dimensions,
     animation: state.visual.animation,
@@ -166,6 +235,21 @@ const stylesSelector = createSelector(
   }),
   createStyles
 )
+
+const constructCopyMap = (reduction: ReductionStage): { [nodeID in NodeID]: NodeID } => {
+  switch (reduction.type) {
+    case "REMOVE":
+      return {}
+    default:
+      return Object.values(reduction.substitutions).reduce(
+        (copies, sub) => ({
+          ...copies,
+          ...Object.keys(sub).reduce((copies, toCopy) => ({ ...copies, [sub[toCopy]]: toCopy }), {})
+        }),
+        {}
+      )
+  }
+}
 
 const createColors = (tree: TreeState): VarColors => {
   return _.reduce(
