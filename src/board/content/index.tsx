@@ -16,7 +16,7 @@ import {
   nextReductionStage,
   adjustLayout
 } from "../state"
-import { createSubstitutions } from "./calculus"
+import { createReduction } from "./calculus"
 import { TreeGraph } from "./elements"
 
 const mapState = (state: BoardState) => ({ state })
@@ -81,7 +81,7 @@ export const BoardContent = connect(
       pointerEvents="all"
       onClick={() => {
         if (props.state.tree.reduction) props.nextReductionStage()
-        else props.queueReduction("app2", createSubstitutions("abs1", "abs2", props.state.tree))
+        else props.queueReduction(createReduction("app2", props.state.tree))
       }}
       className={props.className}
     >
