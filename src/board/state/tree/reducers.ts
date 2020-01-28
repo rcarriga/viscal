@@ -7,9 +7,9 @@ import {
   Tree,
   initialTreeState,
   ReductionStage,
-  Substitution,
   VarName,
-  NodeID
+  NodeID,
+  REDUCTION_STAGES
 } from "./types"
 
 export const tree = (state = initialTreeState, action: BoardAction): TreeState => {
@@ -23,36 +23,31 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
     case "ADD_APPLICATION":
       return addNode(state, action.nodeID, createAppl(action.nodeID, action.left, action.right))
     case "QUEUE_REDUCTION": {
-      const parentNode = state.nodes[action.parent]
-      if (!parentNode) return state
-      const [abs, consumed] = parentNode.children(state.nodes)
-      if (!abs || !consumed || !state.nodes[abs] || !state.nodes[consumed]) return state
-      const child = state.nodes[abs].children(state.nodes)[0]
-      return state.nodes[action.parent]
-        ? {
-            ...state,
-            reduction: {
-              type: "APPLY",
-              visibleParent: action.parent,
-              parentApplication: action.parent,
-              abs,
-              child,
-              consumed,
-              substitutions: action.substitutions
-            }
-          }
-        : state
+      if (action.reduction) {
+        const withReduction: TreeState = {
+          ...state,
+          reduction: action.reduction
+        }
+        return { ...withReduction, nodes: addReplacementNodes(action.reduction, state.nodes) }
+      }
+      return state
     }
     case "NEXT_REDUCTION_STAGE":
       if (state.reduction) {
         const stage = getNextStage(state.reduction)
-        if (!stage) return state
+        if (!stage) return { ...state, reduction: undefined }
         switch (stage.type) {
-          case "UNBIND":
+          case "SUBSTITUTE":
+            return replaceNodes(state.reduction, { ...state, reduction: stage })
+          case "REMOVE": {
+            const newChild = state.nodes[stage.abs].directChildren[0]
+            const newTree = replaceChild(stage.parentApplication, newChild, stage.visibleParent, state.nodes)
             return {
-              ...performReduction(stage, state),
-              reduction: stage
+              ...state,
+              reduction: stage,
+              nodes: newTree
             }
+          }
           default:
             return {
               ...state,
@@ -66,15 +61,9 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
   }
 }
 
-const performReduction = (reduction: ReductionStage, state: TreeState): TreeState => {
-  const rootID = state.root
-  if (!rootID) return state
-  const parentNode = state.nodes[reduction.visibleParent]
-  const children = parentNode.children(state.nodes)
-  const [absID, consumedID] = children
-  const tree = state.nodes // removeAbs(absID, rootID, state.nodes)
-
-  const performSubstitution = (toReplace: NodeID, substitution: Substitution, tree: Tree): Tree => {
+const addReplacementNodes = (reduction: ReductionStage, tree: Tree): Tree =>
+  Object.keys(reduction.substitutions).reduce((tree: Tree, toReplace: NodeID) => {
+    const substitution = reduction.substitutions[toReplace]
     const calcOffset = (offset: number, nodeID?: NodeID): VarIndex => {
       if (!nodeID) return undefined
       const node = tree[nodeID]
@@ -124,28 +113,23 @@ const performReduction = (reduction: ReductionStage, state: TreeState): TreeStat
         }
       },
       {},
-      consumedID
+      reduction.consumed
     )
 
-    return replaceChild(toReplace, getSub(reduction.consumed), rootID, { ...tree, ...subTree })
-  }
+    return { ...tree, ...subTree }
+  }, tree)
 
-  const substituted = Object.keys(reduction.substitutions).reduce(
-    (tree, toReplace) => performSubstitution(toReplace, reduction.substitutions[toReplace], tree),
-    tree
-  )
-
-  return { ...state, nodes: substituted }
-
-  // const newParent = children.length > 2 ? {...parentNode, }
-}
-
-const removeAbs = (absID: NodeID, rootID: NodeID, tree: Tree): Tree => {
-  const abs = tree[absID]
-  if (abs.type !== "ABSTRACTION" || !abs.child) return tree
-  const childLifted = replaceChild(absID, abs.child, rootID, tree)
-  delete childLifted[absID]
-  return childLifted
+const replaceNodes = (reduction: ReductionStage, state: TreeState): TreeState => {
+  const root = state.root
+  return root
+    ? {
+        ...state,
+        nodes: Object.keys(reduction.substitutions).reduce((tree: Tree, toReplace: NodeID) => {
+          const getSub = (nodeID: NodeID) => reduction.substitutions[toReplace][nodeID] || nodeID
+          return replaceChild(toReplace, getSub(reduction.consumed), root, tree)
+        }, state.nodes)
+      }
+    : state
 }
 
 const replaceChild = (oldChild: NodeID, newChild: NodeID, rootID: NodeID, tree: Tree): Tree => {
@@ -254,16 +238,8 @@ const addNode = (state: TreeState, nodeID: NodeID, expr: TreeNode): TreeState =>
 }
 
 const getNextStage = (reduction: ReductionStage): ReductionStage | undefined => {
-  switch (reduction.type) {
-    case "APPLY":
-      return { ...reduction, type: "CONSUME" }
-    case "CONSUME":
-      return { ...reduction, type: "UNBIND" }
-    case "UNBIND":
-      return { ...reduction, type: "SUBSTITUTE" }
-    default:
-      return undefined
-  }
+  const stage = REDUCTION_STAGES[REDUCTION_STAGES.indexOf(reduction.type) + 1]
+  return stage ? { ...reduction, type: stage } : undefined
 }
 
 const getBinder = (

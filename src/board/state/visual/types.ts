@@ -14,7 +14,7 @@ const defaultTheme = {
   stroke: "rgba(139, 139, 139, 1)",
   varStroke: "rgba(0,0,0,0)",
   transparent: "rgba(0, 0, 0, 0)",
-  unbinded: "rgba(0, 0, 0, 1)"
+  unbinded: "rgba(139, 139, 139, 1)"
 }
 
 export type Theme = typeof defaultTheme
@@ -47,7 +47,7 @@ export type NodeEvent = keyof NodeEvents
 
 const defaultTreeLayout = {
   startX: 400,
-  startY: 200
+  startY: 400
 }
 
 export type TreeLayout = typeof defaultTreeLayout

@@ -39,8 +39,10 @@ export type Substitution = { [nodeID in NodeID]: NodeID }
 
 export type Substitutions = { [variable in NodeID]: Substitution }
 
+export const REDUCTION_STAGES = ["CONSUME", "LIFT", "HOVER", "UNBIND", "SUBSTITUTE", "REMOVE"] as const
+
 export interface ReductionStage {
-  type: "APPLY" | "CONSUME" | "UNBIND" | "SUBSTITUTE"
+  type: typeof REDUCTION_STAGES[number]
   visibleParent: NodeID
   parentApplication: NodeID
   abs: NodeID
