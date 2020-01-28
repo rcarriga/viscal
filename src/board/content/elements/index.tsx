@@ -1,6 +1,5 @@
-import _ from "lodash"
 import React from "react"
-import { Tree, useCoords, Layout, TreeLayout, useStyles } from "../../state"
+import { Tree, useCoords, TreeLayout, useStyles } from "../../state"
 import { Abs } from "./abstraction"
 import { Appl } from "./application"
 import { Var } from "./variable"
@@ -21,6 +20,7 @@ export const TreeGraph = (props: TreeGraphProps) => {
           const baseCoord = coords[coordID]
           const coord = { ...baseCoord, x: baseCoord.x + props.layout.startX, y: baseCoord.y + props.layout.startY }
           const style = styles[coordID]
+          if (!style) return null
           switch (style.type) {
             case "VAR_STYLE":
               return <Var key={coord.nodeID} id={coordID} coord={coord} style={style} />
