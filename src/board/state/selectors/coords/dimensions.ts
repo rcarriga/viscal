@@ -1,18 +1,21 @@
 import { NodeID, Tree, DimensionSettings, TreeNode } from "../.."
-import { ReductionStage } from "../../tree"
+import { ReductionStage, TreeState } from "../../tree"
 import { NodeDimension, DimensionOffsets, DimensionOffset, NodeDimensions } from "./types"
 
 export const getDimensions = (
-  root: NodeID,
-  tree: Tree,
+  state: TreeState,
   settings: DimensionSettings,
   reduction?: ReductionStage
 ): NodeDimensions => {
-  const dimensionOffsets = reduction ? calculateDimensionOffsets(settings, reduction) : {}
-  return calculateDimensions(root, tree, settings, dimensionOffsets)
+  const dimensionOffsets = reduction ? calculateDimensionOffsets(settings, reduction, state) : {}
+  return calculateDimensions(state.root, state.nodes, settings, dimensionOffsets)
 }
 
-const calculateDimensionOffsets = (settings: DimensionSettings, reduction: ReductionStage): DimensionOffsets => {
+const calculateDimensionOffsets = (
+  settings: DimensionSettings,
+  reduction: ReductionStage,
+  state: TreeState
+): DimensionOffsets => {
   const wOffset = settings.circleRadius + settings.widthMargin
   switch (reduction.type) {
     case "CONSUME":
@@ -26,10 +29,19 @@ const calculateDimensionOffsets = (settings: DimensionSettings, reduction: Reduc
         [reduction.visibleParent]: { w: -wOffset }
       }
     case "SUBSTITUTE":
-    case "SHIFT":
       return {
-        [reduction.visibleParent]: { w: -wOffset }
+        [reduction.visibleParent]: {
+          w: -(wOffset + (reduction.visibleParent === reduction.parentApplication ? wOffset : 0))
+        }
       }
+    case "SHIFT": {
+      return {
+        [reduction.visibleParent]: {
+          w: -(wOffset + (reduction.visibleParent === reduction.parentApplication ? wOffset * 2 : 0))
+        },
+        [reduction.abs]: { w: -wOffset }
+      }
+    }
     default:
       return {}
   }

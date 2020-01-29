@@ -8,8 +8,8 @@ export * from "./types"
 const constructCoords = (tree: TreeState, settings: DimensionSettings): Coords => {
   const root = tree.root
   if (root) {
-    const dimensions = getDimensions(root, tree.nodes, settings, tree.reduction)
-    const coordOffsets = tree.reduction ? calculateCoordOffsets(settings, tree.reduction) : {}
+    const dimensions = getDimensions(tree, settings, tree.reduction)
+    const coordOffsets = tree.reduction ? calculateCoordOffsets(settings, tree.reduction, tree) : {}
 
     const coords = fillCoords(root, dimensions, tree.nodes, settings, coordOffsets)
     return tree.reduction ? moveReplacements(coords, tree.reduction, settings) : coords
@@ -68,7 +68,11 @@ const moveReplacements = (coords: Coords, reduction: ReductionStage, settings: D
   }, coords)
 }
 
-const calculateCoordOffsets = (settings: DimensionSettings, reduction: ReductionStage): CoordOffsets => {
+const calculateCoordOffsets = (
+  settings: DimensionSettings,
+  reduction: ReductionStage,
+  state: TreeState
+): CoordOffsets => {
   const xOffset = settings.widthMargin + settings.circleRadius
   switch (reduction.type) {
     case "CONSUME":
@@ -85,12 +89,20 @@ const calculateCoordOffsets = (settings: DimensionSettings, reduction: Reduction
           x: -xOffset
         }
       }
-    case "SHIFT":
+    case "SHIFT": {
+      const newChild = state.nodes[reduction.abs].directChildren[0]
       return {
         [reduction.consumed]: {
           x: -xOffset
+        },
+        [newChild]: {
+          x: -xOffset
+        },
+        [reduction.abs]: {
+          x: reduction.visibleParent === reduction.parentApplication ? -xOffset : 0
         }
       }
+    }
     default:
       return {}
   }
