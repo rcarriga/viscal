@@ -28,7 +28,6 @@ module.exports = {
   plugins: [
     "react",
     "@typescript-eslint",
-    "immutable",
     "import"
   ],
   rules: {
@@ -38,9 +37,6 @@ module.exports = {
     "linebreak-style": ["error", "unix"],
     "object-curly-spacing": ["error", "always"],
     "semi": ["error", "never"],
-    "immutable/no-let": 2,
-    "immutable/no-this": 2,
-    "immutable/no-mutation": 2,
     "no-var": "error",
     "no-undef": "error",
     "no-param-reassign": "error",

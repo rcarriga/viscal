@@ -46,9 +46,9 @@ const RawVar = (props: RawVarProps) => {
       onClick={props.events.click}
       onMouseOver={props.events.highlight}
       onMouseLeave={props.events.clearHighlight}
-      initial={{ ...animate, fill: "rgba(255,255,255,0)" }}
+      initial={{ ...animate }}
       transition={props.style.animation.transition}
-      exit={{ fill: "rgba(255,255,255,0)" }}
+      exit={{ opacity: 0 }}
       animate={animate}
     />
   )

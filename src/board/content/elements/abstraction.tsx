@@ -67,8 +67,7 @@ const RawAbs = (props: RawAbsProps) => {
         className={props.className}
         animate={outAnimate}
         transition={props.style.animation.transition}
-        initial={{ ...outAnimate, fill: "rgba(255,255,255,0)" }}
-        exit={{ fill: "rgba(255,255,255,0)" }}
+        initial={{ ...outAnimate }}
         data-nodeid={props.nodeID}
         onClick={props.events.click}
         onMouseOver={props.events.highlight}
@@ -76,7 +75,7 @@ const RawAbs = (props: RawAbsProps) => {
       />
       <motion.path
         data-nodeid={props.nodeID}
-        initial={{ ...inAnimate, fill: "rgba(255,255,255,0)" }}
+        initial={{ ...inAnimate }}
         animate={inAnimate}
         transition={props.style.animation.transition}
         onMouseOver={props.events.highlight}
@@ -88,8 +87,7 @@ const RawAbs = (props: RawAbsProps) => {
         className={props.className}
         data-nodeid={props.nodeID}
         transition={props.style.animation.transition}
-        initial={{ ...boxAnimate, stroke: "rgba(255,255,255,0)" }}
-        exit={{ stroke: "rgba(255,255,255,0)" }}
+        initial={{ ...boxAnimate }}
         animate={boxAnimate}
         onClick={props.events.click}
         pointerEvents="painted"

@@ -1,4 +1,4 @@
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import React from "react"
 import { useDimensions, useEvents, ApplStyle } from "../../state"
 import { ExprProps, RawExprProps } from "./base"
@@ -12,21 +12,23 @@ export const Appl = (props: ApplProps) => {
   const events = useEvents()
 
   return (
-    <RawAppl
-      events={events}
-      height={props.coord.h}
-      heightMargin={dimensions.heightMargin}
-      id={props.id}
-      nodeID={props.coord.nodeID}
-      radius={dimensions.circleRadius}
-      style={props.style}
-      width={props.coord.w}
-      widthMargin={dimensions.widthMargin}
-      x={props.coord.x}
-      y={props.coord.y}
-    >
-      {props.children}
-    </RawAppl>
+    <AnimatePresence>
+      <RawAppl
+        events={events}
+        height={props.coord.h}
+        heightMargin={dimensions.heightMargin}
+        id={props.id}
+        nodeID={props.coord.nodeID}
+        radius={dimensions.circleRadius}
+        style={props.style}
+        width={props.coord.w}
+        widthMargin={dimensions.widthMargin}
+        x={props.coord.x}
+        y={props.coord.y}
+      >
+        {props.children}
+      </RawAppl>
+    </AnimatePresence>
   )
 }
 
@@ -51,17 +53,16 @@ const RawAppl = (props: RawApplProps) => {
   const boxAnimate = { d: boxPath, fill: props.style.fill, ...props.style.stroke }
 
   return (
-    <g id={props.id}>
-      <motion.path
-        className={props.className}
-        transition={props.style.animation.transition}
-        initial={{ ...boxAnimate, stroke: "rgba(255,255,255,0)" }}
-        animate={boxAnimate}
-        data-nodeid={props.nodeID}
-        pointerEvents="painted"
-        onClick={props.events.click}
-        onPan={props.events.drag}
-      />
-    </g>
+    <motion.path
+      className={props.className}
+      transition={props.style.animation.transition}
+      initial={{ ...boxAnimate }}
+      exit={{ opacity: 0 }}
+      animate={boxAnimate}
+      data-nodeid={props.nodeID}
+      pointerEvents="painted"
+      onClick={props.events.click}
+      onPan={props.events.drag}
+    />
   )
 }
