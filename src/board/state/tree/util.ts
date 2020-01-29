@@ -1,3 +1,4 @@
+import { isString } from "../../util"
 import { Tree, TreeNode, NodeID } from "."
 /**
  * Depth first search through the tree for first node to pass a predicate.
@@ -67,9 +68,10 @@ export const reduceTree = <A>(
       return root.child ? reduceTree(tree, f, updated, root.child) : updated
     case "APPLICATION":
       return [root.left, root.right]
-        .filter((str: string | undefined): str is string => !!str)
+        .filter(isString)
         .reduce((updated, childID) => reduceTree(tree, f, updated, childID), updated)
     default:
       return accum
   }
 }
+

@@ -25,6 +25,11 @@ const calculateDimensionOffsets = (settings: DimensionSettings, reduction: Reduc
         },
         [reduction.visibleParent]: { w: -wOffset }
       }
+    case "SUBSTITUTE":
+    case "SHIFT":
+      return {
+        [reduction.visibleParent]: { w: -wOffset }
+      }
     default:
       return {}
   }

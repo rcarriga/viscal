@@ -1,3 +1,4 @@
+import { isString, mapObj, filterObj } from "../../util"
 import { BoardAction } from "../actions"
 import { parentsSelector } from "./selectors"
 import {
@@ -11,10 +12,7 @@ import {
   NodeID,
   REDUCTION_STAGES
 } from "./types"
-import {reduceTree} from "./util"
-import {mapTree} from "./util"
-import {isString} from "util"
-import {isString} from "util"
+import { reduceTree, mapTree } from "./util"
 
 export const tree = (state = initialTreeState, action: BoardAction): TreeState => {
   switch (action.type) {
@@ -43,15 +41,8 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
         switch (stage.type) {
           case "SUBSTITUTE":
             return replaceNodes(state.reduction, { ...state, reduction: stage })
-          case "REMOVE": {
-            const newChild = state.nodes[stage.abs].directChildren[0]
-            const newTree = replaceChild(stage.parentApplication, newChild, stage.visibleParent, state.nodes)
-            return {
-              ...state,
-              reduction: stage,
-              nodes: newTree
-            }
-          }
+          case "REMOVE":
+            return removeReduced(state, stage)
           default:
             return {
               ...state,
@@ -62,6 +53,19 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
       return state
     default:
       return state
+  }
+}
+
+const removeReduced = (state: TreeState, reduction: ReductionStage): TreeState => {
+  const newChild = state.nodes[reduction.abs].directChildren[0]
+  const replaceRoot = state.root === reduction.parentApplication
+  const childReplaced = replaceChild(reduction.parentApplication, newChild, reduction.visibleParent, state.nodes)
+  const newTree = filterObj(childReplaced, [...Object.keys(reduction.substitutions), reduction.abs, reduction.consumed])
+  return {
+    ...state,
+    reduction: reduction,
+    root: replaceRoot ? newChild : state.root,
+    nodes: newTree
   }
 }
 

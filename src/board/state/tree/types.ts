@@ -39,7 +39,7 @@ export type Substitution = { [nodeID in NodeID]: NodeID }
 
 export type Substitutions = { [variable in NodeID]: Substitution }
 
-export const REDUCTION_STAGES = ["CONSUME", "LIFT", "HOVER", "UNBIND", "SUBSTITUTE", "REMOVE"] as const
+export const REDUCTION_STAGES = ["CONSUME", "LIFT", "HOVER", "UNBIND", "SUBSTITUTE", "SHIFT", "REMOVE"] as const
 
 export interface ReductionStage {
   type: typeof REDUCTION_STAGES[number]
@@ -52,9 +52,9 @@ export interface ReductionStage {
 }
 
 export interface TreeState {
-  readonly root?: NodeID
+  readonly root: NodeID
   readonly nodes: Tree
   readonly reduction?: ReductionStage
 }
 
-export const initialTreeState: TreeState = { nodes: {} }
+export const initialTreeState: TreeState = { nodes: {}, root: "" }

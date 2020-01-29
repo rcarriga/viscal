@@ -9,7 +9,7 @@ const constructCoords = (tree: TreeState, settings: DimensionSettings): Coords =
   const root = tree.root
   if (root) {
     const dimensions = getDimensions(root, tree.nodes, settings, tree.reduction)
-    const coordOffsets = tree.reduction ? calculateCoordOffsets(settings, tree.reduction, tree.nodes, dimensions) : {}
+    const coordOffsets = tree.reduction ? calculateCoordOffsets(settings, tree.reduction) : {}
 
     const coords = fillCoords(root, dimensions, tree.nodes, settings, coordOffsets)
     return tree.reduction ? moveReplacements(coords, tree.reduction, settings) : coords
@@ -28,7 +28,8 @@ const moveReplacements = (coords: Coords, reduction: ReductionStage, settings: D
     const substitution = reduction.substitutions[unbindedVar]
     return Object.keys(substitution).reduce((coords, renamedTerm) => {
       const replacement = substitution[renamedTerm]
-      if (coords[renamedTerm])
+      if (coords[renamedTerm]) {
+        const yOffset = settings.heightMargin * 2 + settings.circleRadius * 4
         switch (reduction.type) {
           case "CONSUME":
             return {
@@ -43,7 +44,7 @@ const moveReplacements = (coords: Coords, reduction: ReductionStage, settings: D
               ...coords,
               [replacement]: {
                 ...coords[renamedTerm],
-                y: coords[renamedTerm].y - (settings.heightMargin * 2 + settings.circleRadius * 4),
+                y: coords[renamedTerm].y - yOffset,
                 nodeID: replacement
               }
             }
@@ -53,7 +54,7 @@ const moveReplacements = (coords: Coords, reduction: ReductionStage, settings: D
               ...coords,
               [replacement]: {
                 ...coords[renamedTerm],
-                y: coords[renamedTerm].y - (settings.heightMargin * 2 + settings.circleRadius * 4),
+                y: coords[renamedTerm].y - yOffset,
                 x: coords[unbindedVar].x - (coords[reduction.consumed].x - coords[renamedTerm].x),
                 nodeID: replacement
               }
@@ -61,17 +62,13 @@ const moveReplacements = (coords: Coords, reduction: ReductionStage, settings: D
           default:
             return coords
         }
+      }
       return coords
     }, coords)
   }, coords)
 }
 
-const calculateCoordOffsets = (
-  settings: DimensionSettings,
-  reduction: ReductionStage,
-  tree: Tree,
-  dimensions: NodeDimensions
-): CoordOffsets => {
+const calculateCoordOffsets = (settings: DimensionSettings, reduction: ReductionStage): CoordOffsets => {
   const xOffset = settings.widthMargin + settings.circleRadius
   switch (reduction.type) {
     case "CONSUME":
@@ -84,9 +81,12 @@ const calculateCoordOffsets = (
       return { [reduction.consumed]: { x: -xOffset } }
     case "SUBSTITUTE":
       return {
-        [reduction.child]: {
-          x: xOffset
-        },
+        [reduction.consumed]: {
+          x: -xOffset
+        }
+      }
+    case "SHIFT":
+      return {
         [reduction.consumed]: {
           x: -xOffset
         }
