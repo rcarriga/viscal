@@ -1,5 +1,5 @@
 import { NodeID } from "../tree"
-import { MouseEventHandler, NodeEvent, DimensionSetting, Layout } from "./types"
+import { EventHandler, NodeEvent, DimensionSetting, Layout } from "./types"
 
 interface SetSelected {
   type: "SET_SELECTED"
@@ -20,7 +20,7 @@ interface SetDimension {
 interface SetEvent {
   type: "SET_EVENT"
   event: NodeEvent
-  handler?: MouseEventHandler
+  handler?: EventHandler
 }
 
 interface SetLayout {
@@ -45,7 +45,7 @@ export const setHighlighted = (variableName?: string): VisualAction => ({
   variableName
 })
 
-export const setEvent = (event: NodeEvent, handler?: MouseEventHandler): VisualAction => ({
+export const setEvent = (event: NodeEvent, handler?: EventHandler): VisualAction => ({
   type: "SET_EVENT",
   event,
   handler

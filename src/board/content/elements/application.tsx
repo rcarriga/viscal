@@ -1,5 +1,5 @@
-import { motion, AnimatePresence } from "framer-motion"
-import React from "react"
+import React, { useEffect, useState } from "react"
+import { useSpring, animated } from "react-spring"
 import { useDimensions, useEvents, ApplStyle } from "../../state"
 import { ExprProps, RawExprProps } from "./base"
 
@@ -10,34 +10,27 @@ interface ApplProps extends ExprProps {
 export const Appl = (props: ApplProps) => {
   const dimensions = useDimensions()
   const events = useEvents()
-
   return (
-    <AnimatePresence>
-      <RawAppl
-        events={events}
-        height={props.coord.h}
-        heightMargin={dimensions.heightMargin}
-        id={props.id}
-        nodeID={props.coord.nodeID}
-        radius={dimensions.circleRadius}
-        style={props.style}
-        width={props.coord.w}
-        widthMargin={dimensions.widthMargin}
-        x={props.coord.x}
-        y={props.coord.y}
-      >
-        {props.children}
-      </RawAppl>
-    </AnimatePresence>
+    <RawAppl
+      events={events}
+      height={props.coord.h}
+      id={props.id}
+      nodeID={props.coord.nodeID}
+      radius={dimensions.circleRadius}
+      style={props.style}
+      width={props.coord.w}
+      x={props.coord.x}
+      y={props.coord.y}
+    >
+      {props.children}
+    </RawAppl>
   )
 }
 
 interface RawApplProps extends RawExprProps {
-  height: number
-  heightMargin: number
   radius: number
   width: number
-  widthMargin: number
+  height: number
   style: ApplStyle
 }
 
@@ -50,19 +43,16 @@ const RawAppl = (props: RawApplProps) => {
           l0,${-props.height}
           l${-boxWidth},0
           l0,${props.height}`
-  const boxAnimate = { d: boxPath, fill: props.style.fill, ...props.style.stroke }
+
+  const boxAnimate = useSpring({ d: boxPath, fill: props.style.fill, ...props.style.stroke, onRest: console.log })
 
   return (
-    <motion.path
+    <animated.path
+      {...boxAnimate}
       className={props.className}
-      transition={props.style.animation.transition}
-      initial={{ ...boxAnimate }}
-      exit={{ opacity: 0 }}
-      animate={boxAnimate}
       data-nodeid={props.nodeID}
       pointerEvents="painted"
       onClick={props.events.click}
-      onPan={props.events.drag}
     />
   )
 }

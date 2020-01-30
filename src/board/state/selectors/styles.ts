@@ -1,6 +1,6 @@
-import _ from "lodash"
 import randomcolor from "randomcolor"
 import { createSelector } from "reselect"
+import { reduceObj } from "../../util"
 import { AnimationSettings } from "../visual"
 import { useBoard } from "./base"
 import { BoardState, NodeID, TreeState, Color, Theme, DimensionSettings, TreeNode, ReductionStage } from ".."
@@ -61,10 +61,10 @@ export const useStyles = (): NodeStyles => {
 const createStyles = (state: StylesState): NodeStyles => {
   const tree = state.tree.nodes
   const reduction = state.tree.reduction
-  const initStyles = Object.keys(tree).reduce((styles: NodeStyles, nodeID: NodeID) => {
+  const initStyles = reduceObj(tree, {}, (styles: NodeStyles, _, nodeID: NodeID) => {
     const style = createStyle(nodeID, state, {})
     return style ? { ...styles, [nodeID]: style } : styles
-  }, {})
+  })
   if (!reduction) return initStyles
   switch (reduction.type) {
     case "UNBIND":
@@ -95,10 +95,10 @@ const overrideUnbinded = (
   state: StylesState,
   styles: NodeStyles
 ): NodeStyles =>
-  Object.keys(reduction.substitutions).reduce((styles: NodeStyles, unbindedVar) => {
+  reduceObj(reduction.substitutions, styles, (styles, _, unbindedVar) => {
     const style = createStyle(unbindedVar, state, override)
     return style ? { ...styles, [unbindedVar]: style } : styles
-  }, styles)
+  })
 
 const overrideNewNodes = (
   reduction: ReductionStage,
@@ -106,16 +106,14 @@ const overrideNewNodes = (
   state: StylesState,
   styles: NodeStyles
 ): NodeStyles =>
-  Object.values(reduction.substitutions).reduce(
-    (styles: NodeStyles, substitution) =>
-      Object.values(substitution).reduce((styles, newNodeID) => {
-        if (state.tree.nodes[newNodeID]) {
-          const style = createStyle(newNodeID, state, override)
-          return style ? { ...styles, [newNodeID]: style } : styles
-        }
-        return styles
-      }, styles),
-    styles
+  reduceObj(reduction.substitutions, styles, (styles: NodeStyles, substitution) =>
+    reduceObj(substitution, styles, (styles, newNodeID) => {
+      if (state.tree.nodes[newNodeID]) {
+        const style = createStyle(newNodeID, state, override)
+        return style ? { ...styles, [newNodeID]: style } : styles
+      }
+      return styles
+    })
   )
 
 const overrideConsumed = (
@@ -124,16 +122,14 @@ const overrideConsumed = (
   state: StylesState,
   styles: NodeStyles
 ): NodeStyles =>
-  Object.values(reduction.substitutions).reduce(
-    (styles: NodeStyles, substitution) =>
-      Object.keys(substitution).reduce((styles, newNodeID) => {
-        if (state.tree.nodes[newNodeID]) {
-          const style = createStyle(newNodeID, state, override)
-          return style ? { ...styles, [newNodeID]: style } : styles
-        }
-        return styles
-      }, styles),
-    styles
+  reduceObj(reduction.substitutions, styles, (styles: NodeStyles, substitution) =>
+    reduceObj(substitution, styles, (styles, _, newNodeID) => {
+      if (state.tree.nodes[newNodeID]) {
+        const style = createStyle(newNodeID, state, override)
+        return style ? { ...styles, [newNodeID]: style } : styles
+      }
+      return styles
+    })
   )
 
 const createStyle = (nodeID: NodeID, state: StylesState, overrides: StyleOverride): NodeStyle | undefined => {
@@ -241,25 +237,18 @@ const constructCopyMap = (reduction: ReductionStage): { [nodeID in NodeID]: Node
     case "REMOVE":
       return {}
     default:
-      return Object.values(reduction.substitutions).reduce(
-        (copies, sub) => ({
-          ...copies,
-          ...Object.keys(sub).reduce((copies, toCopy) => ({ ...copies, [sub[toCopy]]: toCopy }), {})
-        }),
-        {}
-      )
+      return reduceObj(reduction.substitutions, {}, (copies, sub) => ({
+        ...copies,
+        ...reduceObj(sub, {}, (copies, toReplace, toCopy) => ({ ...copies, [toReplace]: toCopy }))
+      }))
   }
 }
 
 const createColors = (tree: TreeState): VarColors => {
-  return _.reduce(
-    tree.nodes,
-    (colors, node, nodeID) => ({
-      ...colors,
-      [nodeID]: createColor(nodeID, node, tree)
-    }),
-    {}
-  )
+  return reduceObj(tree.nodes, {}, (colors, node, nodeID) => ({
+    ...colors,
+    [nodeID]: createColor(nodeID, node, tree)
+  }))
 }
 
 const createColor = (nodeID: NodeID, node: TreeNode, tree: TreeState): Color => {

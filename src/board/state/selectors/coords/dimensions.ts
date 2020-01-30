@@ -18,30 +18,26 @@ const calculateDimensionOffsets = (
 ): DimensionOffsets => {
   const wOffset = settings.circleRadius + settings.widthMargin
   switch (reduction.type) {
-    case "CONSUME":
-    case "LIFT":
-    case "HOVER":
-    case "UNBIND":
-      return {
-        [reduction.abs]: {
-          w: wOffset
-        },
-        [reduction.visibleParent]: { w: -wOffset }
-      }
     case "SUBSTITUTE":
       return {
         [reduction.visibleParent]: {
-          w: -(wOffset + (reduction.visibleParent === reduction.parentApplication ? wOffset : 0))
+          w: -wOffset
         }
       }
-    case "SHIFT": {
+    case "SHIFT_ABS":
+      return {
+        [reduction.visibleParent]: {
+          w: -wOffset
+        },
+        [reduction.abs]: { w: -wOffset }
+      }
+    case "SHIFT_PARENT":
       return {
         [reduction.visibleParent]: {
           w: -(wOffset + (reduction.visibleParent === reduction.parentApplication ? wOffset * 2 : 0))
         },
         [reduction.abs]: { w: -wOffset }
       }
-    }
     default:
       return {}
   }

@@ -1,5 +1,6 @@
 import { createSelector } from "reselect"
 import { DimensionSettings, BoardState, NodeID, Tree, TreeState, ReductionStage } from "../.."
+import { reduceObj } from "../../../util"
 import { getDimensions } from "./dimensions"
 import { Coords, CoordOffsets, NodeCoord, CoordOffset, NodeDimensions } from "./types"
 
@@ -23,14 +24,13 @@ export const coordsSelector = createSelector(
   constructCoords
 )
 
-const moveReplacements = (coords: Coords, reduction: ReductionStage, settings: DimensionSettings): Coords => {
-  return Object.keys(reduction.substitutions).reduce((coords, unbindedVar) => {
-    const substitution = reduction.substitutions[unbindedVar]
-    return Object.keys(substitution).reduce((coords, renamedTerm) => {
-      const replacement = substitution[renamedTerm]
+const moveReplacements = (coords: Coords, reduction: ReductionStage, settings: DimensionSettings): Coords =>
+  reduceObj(reduction.substitutions, coords, (coords, substitution, unbindedVar) =>
+    reduceObj(substitution, coords, (coords, replacement, renamedTerm) => {
       if (coords[renamedTerm]) {
         const yOffset = settings.heightMargin * 2 + settings.circleRadius * 4
         switch (reduction.type) {
+          case "SELECT":
           case "CONSUME":
             return {
               ...coords,
@@ -64,9 +64,8 @@ const moveReplacements = (coords: Coords, reduction: ReductionStage, settings: D
         }
       }
       return coords
-    }, coords)
-  }, coords)
-}
+    })
+  )
 
 const calculateCoordOffsets = (
   settings: DimensionSettings,
@@ -74,23 +73,31 @@ const calculateCoordOffsets = (
   state: TreeState
 ): CoordOffsets => {
   const xOffset = settings.widthMargin + settings.circleRadius
+  const afterConsumed = state.nodes[reduction.visibleParent].children(state.nodes)[2]
+  const newChild = state.nodes[reduction.abs] ? state.nodes[reduction.abs].directChildren[0] : ""
   switch (reduction.type) {
     case "CONSUME":
-      return {
-        [reduction.consumed]: { x: -xOffset }
-      }
     case "LIFT":
     case "HOVER":
     case "UNBIND":
-      return { [reduction.consumed]: { x: -xOffset } }
+      return {
+        [reduction.consumed]: { x: -xOffset },
+        ...(afterConsumed ? { [afterConsumed]: { x: xOffset } } : {})
+      }
     case "SUBSTITUTE":
+      return {
+        [reduction.consumed]: { x: -xOffset }
+      }
+    case "SHIFT_ABS":
       return {
         [reduction.consumed]: {
           x: -xOffset
+        },
+        [newChild]: {
+          x: -xOffset
         }
       }
-    case "SHIFT": {
-      const newChild = state.nodes[reduction.abs].directChildren[0]
+    case "SHIFT_PARENT":
       return {
         [reduction.consumed]: {
           x: -xOffset
@@ -102,7 +109,6 @@ const calculateCoordOffsets = (
           x: reduction.visibleParent === reduction.parentApplication ? -xOffset : 0
         }
       }
-    }
     default:
       return {}
   }

@@ -1,26 +1,19 @@
 export const isString = (str: string | undefined): str is string => !!str // Allows typechecking
 
-type StringObj<V> = { [key: string]: V }
-
-export const reduceObj = <A, V, O extends StringObj<V>>(
-  obj: O,
-  initial: A,
-  f: (accum: A, value: V, key: string, obj: O) => A
-): A => {
-  return Object.keys(obj).reduce((accum, key) => f(accum, obj[key], key, obj), initial)
+export const reduceObj = <A, O>(obj: O, initial: A, f: (accum: A, value: O[keyof O], key: keyof O, obj: O) => A): A => {
+  let init = initial
+  for (const key in obj) init = f(init, obj[key], key, obj)
+  return init
 }
 
-export const filterObj = <V>(obj: StringObj<V>, omit: string[]): StringObj<V> => {
+export const filterObj = <O, Keys extends Extract<keyof O, string>[], K extends Keys[number]>(
+  obj: O,
+  omit: Keys
+): Omit<O, K> => {
   const keys = new Set(omit)
-  const init: StringObj<V> = {}
-  return reduceObj(obj, init, (newObj, value: V, key) =>
-    keys.has(key)
-      ? newObj
-      : {
-          ...newObj,
-          [key]: value
-        }
-  )
+  const newObj = { ...obj }
+  for (const key in obj) if (keys.has(key)) delete newObj[key]
+  return newObj
 }
 
 export const mapObj = <A, V, O extends { [key: string]: V }>(obj: O, f: (value: V, key: string, obj: O) => A): A[] => {

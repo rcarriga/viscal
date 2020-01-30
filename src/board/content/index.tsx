@@ -1,6 +1,6 @@
-import { motion } from "framer-motion"
 import React, { useEffect } from "react"
 import { connect } from "react-redux"
+import { animated } from "react-spring"
 import styled from "styled-components"
 import {
   BoardState,
@@ -54,29 +54,25 @@ export const BoardContent = connect(
       props.addVar("var1", undefined, "a")
 
       props.setRoot("app2")
-      props.setEvent("click", e => {
-        console.log(e.currentTarget.getAttribute("data-nodeid"))
+      props.setEvent("click", (e: any) => {
+        console.log(e.currentTarget ? e.currentTarget.getAttribute("data-nodeid") : "")
         props.setEvent("select", undefined)
         props.setEvent("clearSelect", undefined)
         props.setSelected(e.currentTarget.getAttribute("data-nodeid") || undefined)
       })
-      props.setEvent("select", e => {
+      props.setEvent("select", (e: any) => {
         props.setSelected(e.currentTarget.getAttribute("data-nodeid") || undefined)
       })
-      props.setEvent("highlight", e => props.setHighlighted(e.currentTarget.getAttribute("data-nodeid") || undefined))
-      props.setEvent("drag", (_e, info) => {
-        if (info) {
-          props.adjustLayout("startX", info.delta.x)
-          props.adjustLayout("startY", info.delta.y)
-        }
-      })
+      props.setEvent("highlight", (e: any) =>
+        props.setHighlighted(e.currentTarget.getAttribute("data-nodeid") || undefined)
+      )
       props.setEvent("clearHighlight", () => {
         props.setHighlighted(undefined)
       })
     }
   })
   return (
-    <motion.svg
+    <animated.svg
       id="board-content"
       pointerEvents="all"
       onClick={() => {
@@ -86,7 +82,7 @@ export const BoardContent = connect(
       className={props.className}
     >
       <TreeGraph layout={props.state.visual.treeLayout} tree={props.state.tree.nodes} />
-    </motion.svg>
+    </animated.svg>
   )
 })`
   background: ${(props: BoardProps) => props.state.visual.theme.background};

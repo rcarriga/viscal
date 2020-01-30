@@ -1,4 +1,3 @@
-import { PanInfo, Transition } from "framer-motion"
 import { NodeID } from "../tree"
 
 export type Color = string
@@ -38,10 +37,12 @@ const defaultEvents = {
   click: undefined,
   clearHighlight: undefined,
   clearSelect: undefined,
-  drag: undefined
+  drag: undefined,
+  rest: undefined,
+  move: undefined
 }
 
-export type NodeEvents = { [event in keyof typeof defaultEvents]?: MouseEventHandler }
+export type NodeEvents = { [event in keyof typeof defaultEvents]?: EventHandler }
 
 export type NodeEvent = keyof NodeEvents
 
@@ -54,18 +55,18 @@ export type TreeLayout = typeof defaultTreeLayout
 
 export type Layout = keyof TreeLayout
 
-type NodeElement = SVGPathElement
-export type MouseEventHandler = (event: any, panInfo?: PanInfo) => void
+export type EventHandler = (event: any) => void
 
-export interface AnimationSettings {
-  transition: Transition
+export interface AnimationSettings {}
+
+export interface AnimationState {
+  settings: AnimationSettings
+  moving: NodeID[]
 }
-const defaultAnimationSettings: AnimationSettings = {
-  transition: {
-    stroke: { type: "tween", duration: 0.1 },
-    fill: { type: "tween", duration: 0.1 },
-    d: { type: "spring", stiffness: 30 }
-  }
+
+const defaultAnimationState: AnimationState = {
+  settings: {},
+  moving: []
 }
 
 export interface VisualState {
@@ -76,7 +77,7 @@ export interface VisualState {
   dimensions: DimensionSettings
   treeLayout: TreeLayout
   events: NodeEvents
-  animation: AnimationSettings
+  animation: AnimationState
 }
 
 export const initialVisualState: VisualState = {
@@ -85,5 +86,5 @@ export const initialVisualState: VisualState = {
   dimensions: defaultDimensions,
   treeLayout: defaultTreeLayout,
   events: defaultEvents,
-  animation: defaultAnimationSettings
+  animation: defaultAnimationState
 }

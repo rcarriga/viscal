@@ -1,4 +1,4 @@
-import { isString, mapObj, filterObj } from "../../util"
+import { isString, filterObj, reduceObj } from "../../util"
 import { BoardAction } from "../actions"
 import { parentsSelector } from "./selectors"
 import {
@@ -70,8 +70,7 @@ const removeReduced = (state: TreeState, reduction: ReductionStage): TreeState =
 }
 
 const addReplacementNodes = (reduction: ReductionStage, tree: Tree): Tree =>
-  Object.keys(reduction.substitutions).reduce((tree: Tree, toReplace: NodeID) => {
-    const substitution = reduction.substitutions[toReplace]
+  reduceObj(reduction.substitutions, tree, (tree, substitution, toReplace) => {
     const calcOffset = (offset: number, nodeID?: NodeID): VarIndex => {
       if (!nodeID) return undefined
       const node = tree[nodeID]
@@ -125,7 +124,7 @@ const addReplacementNodes = (reduction: ReductionStage, tree: Tree): Tree =>
     )
 
     return { ...tree, ...subTree }
-  }, tree)
+  })
 
 const replaceNodes = (reduction: ReductionStage, state: TreeState): TreeState => {
   const root = state.root
