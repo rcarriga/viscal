@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { NodeEvents, NodeCoord, NodeID } from "../../state"
 
 export interface ExprProps {
@@ -15,3 +16,11 @@ export interface RawExprProps {
   children?: any
 }
 
+export const useMoveTracker = (props: RawExprProps) => {
+  return {
+    // onRest: (current: any) => {
+    //   console.log(current)
+    //   // if (current === prev) props.events.rest(props.id)
+    // }
+  }
+}

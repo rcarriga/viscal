@@ -1,8 +1,8 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { useSpring, animated } from "react-spring"
 
 import { useEvents, VarStyle } from "../../state"
-import { RawExprProps, ExprProps } from "./base"
+import { RawExprProps, ExprProps, useMoveTracker } from "./base"
 
 interface VarProps extends ExprProps {
   style: VarStyle
@@ -36,16 +36,17 @@ const RawVar = (props: RawVarProps) => {
   const animate = useSpring({
     d: path,
     fill: props.style.fill,
-    ...props.style.stroke
+    ...props.style.stroke,
+    ...useMoveTracker(props)
   })
   return (
     <animated.path
       {...animate}
-      data-nodeid={props.nodeID}
       id={props.id}
-      onClick={props.events.click}
-      onMouseOver={props.events.highlight}
-      onMouseLeave={props.events.clearHighlight}
+      data-nodeid={props.nodeID}
+      onClick={() => props.events.click(props.id)}
+      onMouseOver={() => props.events.highlight(props.id)}
+      onMouseLeave={() => props.events.clearHighlight(props.id)}
     />
   )
 }

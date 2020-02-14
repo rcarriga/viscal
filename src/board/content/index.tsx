@@ -12,9 +12,12 @@ import {
   setHighlighted,
   setEvent,
   setLayout,
+  setMoving,
+  setStopped,
   queueReduction,
   nextReductionStage,
-  adjustLayout
+  adjustLayout,
+  NodeID
 } from "../state"
 import { createReduction } from "./calculus"
 import { TreeGraph } from "./elements"
@@ -29,6 +32,8 @@ const mapDispatch = {
   setHighlighted,
   setSelected,
   setLayout,
+  setMoving,
+  setStopped,
   adjustLayout,
   queueReduction,
   nextReductionStage
@@ -54,20 +59,23 @@ export const BoardContent = connect(
       props.addVar("var1", undefined, "a")
 
       props.setRoot("app2")
-      props.setEvent("click", (e: any) => {
-        console.log(e.currentTarget ? e.currentTarget.getAttribute("data-nodeid") : "")
+      props.setEvent("click", nodeID => {
         props.setEvent("select", undefined)
         props.setEvent("clearSelect", undefined)
-        props.setSelected(e.currentTarget.getAttribute("data-nodeid") || undefined)
+        props.setSelected(nodeID)
       })
-      props.setEvent("select", (e: any) => {
-        props.setSelected(e.currentTarget.getAttribute("data-nodeid") || undefined)
+      props.setEvent("select", nodeID => {
+        props.setSelected(nodeID)
       })
-      props.setEvent("highlight", (e: any) =>
-        props.setHighlighted(e.currentTarget.getAttribute("data-nodeid") || undefined)
-      )
+      props.setEvent("highlight", nodeID => props.setHighlighted(nodeID))
       props.setEvent("clearHighlight", () => {
         props.setHighlighted(undefined)
+      })
+      props.setEvent("move", (nodeID: NodeID) => {
+        props.setMoving(nodeID)
+      })
+      props.setEvent("rest", (nodeID: NodeID) => {
+        props.setStopped(nodeID)
       })
     }
   })

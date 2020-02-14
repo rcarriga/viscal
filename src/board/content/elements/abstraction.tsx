@@ -1,7 +1,7 @@
-import React, { useEffect } from "react"
+import React from "react"
 import { useSpring, animated } from "react-spring"
 import { useDimensions, useEvents, AbsStyle } from "../../state"
-import { ExprProps, RawExprProps } from "./base"
+import { ExprProps, RawExprProps, useMoveTracker } from "./base"
 
 interface AbsProps extends ExprProps {
   style: AbsStyle
@@ -55,9 +55,20 @@ const RawAbs = (props: RawAbsProps) => {
         l${-boxWidth},0
         l0,${props.height}`
 
-  const outAnimate = useSpring({ d: outPath, fill: props.style.output.fill, ...props.style.output.stroke })
-  const inAnimate = useSpring({ d: inPath, fill: props.style.input.fill, ...props.style.input.stroke })
-  const boxAnimate = useSpring({ d: boxPath, fill: props.style.fill, ...props.style.stroke })
+  const commonAnimateConf = useMoveTracker(props)
+  const outAnimate = useSpring({
+    d: outPath,
+    fill: props.style.output.fill,
+    ...props.style.output.stroke,
+    ...commonAnimateConf
+  })
+  const inAnimate = useSpring({
+    d: inPath,
+    fill: props.style.input.fill,
+    ...props.style.input.stroke,
+    ...commonAnimateConf
+  })
+  const boxAnimate = useSpring({ d: boxPath, fill: props.style.fill, ...props.style.stroke, ...commonAnimateConf })
 
   return (
     <animated.g id={props.id}>
@@ -65,16 +76,16 @@ const RawAbs = (props: RawAbsProps) => {
         {...outAnimate}
         className={props.className}
         data-nodeid={props.nodeID}
-        onClick={props.events.click}
-        onMouseOver={props.events.highlight}
+        onClick={() => props.events.click(props.id)}
+        onMouseOver={() => props.events.highlight(props.id)}
       />
       <animated.path
         {...inAnimate}
         data-nodeid={props.nodeID}
         x={props.x}
         y={props.y}
-        onMouseOver={props.events.highlight}
-        onMouseLeave={props.events.clearHighlight}
+        onMouseOver={() => props.events.highlight(props.id)}
+        onMouseLeave={() => props.events.clearHighlight(props.id)}
       />
       <animated.path
         {...boxAnimate}
@@ -82,7 +93,7 @@ const RawAbs = (props: RawAbsProps) => {
         x={props.x}
         y={props.y}
         data-nodeid={props.nodeID}
-        onClick={props.events.click}
+        onClick={() => props.events.click(props.id)}
         pointerEvents="painted"
       />
     </animated.g>

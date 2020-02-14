@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { useSpring, animated } from "react-spring"
 import { useDimensions, useEvents, ApplStyle } from "../../state"
-import { ExprProps, RawExprProps } from "./base"
+import { ExprProps, RawExprProps, useMoveTracker } from "./base"
 
 interface ApplProps extends ExprProps {
   style: ApplStyle
@@ -44,7 +44,12 @@ const RawAppl = (props: RawApplProps) => {
           l${-boxWidth},0
           l0,${props.height}`
 
-  const boxAnimate = useSpring({ d: boxPath, fill: props.style.fill, ...props.style.stroke, onRest: console.log })
+  const boxAnimate = useSpring({
+    d: boxPath,
+    fill: props.style.fill,
+    ...props.style.stroke,
+    ...useMoveTracker(props)
+  })
 
   return (
     <animated.path
@@ -52,7 +57,7 @@ const RawAppl = (props: RawApplProps) => {
       className={props.className}
       data-nodeid={props.nodeID}
       pointerEvents="painted"
-      onClick={props.events.click}
+      onClick={() => props.events.click(props.id)}
     />
   )
 }

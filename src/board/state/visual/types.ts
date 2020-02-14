@@ -32,17 +32,17 @@ export type DimensionSettings = typeof defaultDimensions
 export type DimensionSetting = keyof DimensionSettings
 
 const defaultEvents = {
-  select: undefined,
-  highlight: undefined,
-  click: undefined,
-  clearHighlight: undefined,
-  clearSelect: undefined,
-  drag: undefined,
-  rest: undefined,
-  move: undefined
+  select: () => {},
+  highlight: () => {},
+  click: () => {},
+  clearHighlight: () => {},
+  clearSelect: () => {},
+  drag: () => {},
+  rest: () => {},
+  move: () => {}
 }
 
-export type NodeEvents = { [event in keyof typeof defaultEvents]?: EventHandler }
+export type NodeEvents = { [event in keyof typeof defaultEvents]: EventHandler }
 
 export type NodeEvent = keyof NodeEvents
 
@@ -55,18 +55,18 @@ export type TreeLayout = typeof defaultTreeLayout
 
 export type Layout = keyof TreeLayout
 
-export type EventHandler = (event: any) => void
+export type EventHandler = (nodeID: NodeID) => void
 
 export interface AnimationSettings {}
 
 export interface AnimationState {
   settings: AnimationSettings
-  moving: NodeID[]
+  moving: Set<NodeID>
 }
 
 const defaultAnimationState: AnimationState = {
   settings: {},
-  moving: []
+  moving: new Set()
 }
 
 export interface VisualState {
