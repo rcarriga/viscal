@@ -1,5 +1,4 @@
 import React from "react"
-import styled from "styled-components"
 
 interface ExpressionInputProps {
   value: string
@@ -7,21 +6,12 @@ interface ExpressionInputProps {
   placeHolder: string
 }
 
-const ExpressionInput = styled.input.attrs((props: ExpressionInputProps) => ({
-  onChange: props.onChange,
-  placeholder: props.placeHolder,
-  type: "text"
-}))`
-  width: 90%;
-`
-
-interface ExpressionControlProps extends ExpressionInputProps {}
-
-export const ExpressionControl = (props: ExpressionInputProps) => {
+export const ExpressionControl = (_: ExpressionInputProps) => {
   return (
-    <div>
-      <p>Expression:</p>
-      <ExpressionInput {...props}></ExpressionInput>
+    <div className="field">
+      <div className="control">
+        <input className="input is-link" type="text" placeholder="Enter Lamba Expression" />
+      </div>
     </div>
   )
 }

@@ -1,9 +1,7 @@
-import { useState } from "react"
-import { NodeEvents, NodeCoord, NodeID } from "../../state"
+import { NodeEvents, NodeID } from "../../state"
 
 export interface ExprProps {
   id: string
-  coord: NodeCoord
   children?: any
 }
 export interface RawExprProps {
@@ -16,7 +14,7 @@ export interface RawExprProps {
   children?: any
 }
 
-export const useMoveTracker = (props: RawExprProps) => {
+export const useMoveTracker = () => {
   return {
     // onRest: (current: any) => {
     //   console.log(current)

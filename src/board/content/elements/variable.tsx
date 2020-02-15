@@ -1,27 +1,28 @@
-import React, { useEffect, useState } from "react"
+import React  from "react"
 import { useSpring, animated } from "react-spring"
 
-import { useEvents, VarStyle } from "../../state"
-import { RawExprProps, ExprProps, useMoveTracker } from "./base"
+import { useEvents, VarStyle, useStyle, useCoord } from "../../state"
+import { RawExprProps, useMoveTracker, ExprProps } from "./base"
 
-interface VarProps extends ExprProps {
-  style: VarStyle
-}
-
-export const Var = (props: VarProps) => {
+const Var = (props: ExprProps) => {
   const events = useEvents()
+  const style = useStyle(props.id)
+  const coord = useCoord(props.id)
+  if (!style || !coord || style.type !== "VAR_STYLE" ) return null
   return (
     <RawVar
       events={events}
       id={props.id}
-      nodeID={props.coord.nodeID}
-      radius={props.coord.w / 2}
-      style={props.style}
-      x={props.coord.x}
-      y={props.coord.y}
+      nodeID={coord.nodeID}
+      radius={coord.w / 2}
+      style={style}
+      x={coord.x}
+      y={coord.y}
     />
   )
 }
+
+export default Var
 
 interface RawVarProps extends RawExprProps {
   radius: number
@@ -37,7 +38,7 @@ const RawVar = (props: RawVarProps) => {
     d: path,
     fill: props.style.fill,
     ...props.style.stroke,
-    ...useMoveTracker(props)
+    ...useMoveTracker()
   })
   return (
     <animated.path

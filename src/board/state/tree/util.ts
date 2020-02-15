@@ -37,7 +37,22 @@ export const searchTree = (
  * @param f - Function to apply to each node
  * @return Tree with mapped nodes
  */
-export const mapTree = (tree: Tree, f: (node: TreeNode, nodeID: NodeID) => TreeNode, rootID: NodeID): Tree => {
+export const mapTree = <A>(tree: Tree, f: (node: TreeNode, nodeID: NodeID) => A, rootID: NodeID): {[nodeID in NodeID]: A} => {
+  return reduceTree(tree, (tree, node, nodeID) => ({ ...tree, [nodeID]: f(node, nodeID) }), {}, rootID)
+}
+
+
+/**
+ * Apply a function to nodes in a tree.
+ * Function is applied in depth first order.
+ * Any nodes not mapped over are returned as is.
+ *
+ * @function mapTree
+ * @param tree - Tree to map over
+ * @param f - Function to apply to each node
+ * @return Tree with mapped nodes
+ */
+export const partialMapTree = (tree: Tree, f: (node: TreeNode, nodeID: NodeID) => TreeNode, rootID: NodeID): Tree => {
   return reduceTree(tree, (tree, node, nodeID) => ({ ...tree, [nodeID]: f(node, nodeID) }), tree, rootID)
 }
 

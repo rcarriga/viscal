@@ -1,32 +1,32 @@
 import React from "react"
 import { useSpring, animated } from "react-spring"
-import { useDimensions, useEvents, AbsStyle } from "../../state"
+import { useDimensions, useEvents, AbsStyle, useStyle, useCoord } from "../../state"
 import { ExprProps, RawExprProps, useMoveTracker } from "./base"
 
-interface AbsProps extends ExprProps {
-  style: AbsStyle
-}
-
-export const Abs = (props: AbsProps) => {
+const Abs = (props: ExprProps) => {
   const dimensions = useDimensions()
   const events = useEvents()
-
+  const style = useStyle(props.id)
+  const coord = useCoord(props.id)
+  if (!style || !coord || style.type !== "ABS_STYLE" ) return null
   return (
     <RawAbs
-      events={events}
-      height={props.coord.h}
-      heightMargin={dimensions.heightMargin}
       id={props.id}
-      nodeID={props.coord.nodeID}
+      events={events}
+      height={coord.h}
+      heightMargin={dimensions.heightMargin}
+      nodeID={coord.nodeID}
       radius={dimensions.circleRadius}
-      style={props.style}
-      width={props.coord.w}
+      style={style}
+      width={coord.w}
       widthMargin={dimensions.widthMargin}
-      x={props.coord.x}
-      y={props.coord.y}
+      x={coord.x}
+      y={coord.y}
     />
   )
 }
+
+export default Abs
 
 interface RawAbsProps extends RawExprProps {
   height: number
@@ -55,7 +55,7 @@ const RawAbs = (props: RawAbsProps) => {
         l${-boxWidth},0
         l0,${props.height}`
 
-  const commonAnimateConf = useMoveTracker(props)
+  const commonAnimateConf = useMoveTracker()
   const outAnimate = useSpring({
     d: outPath,
     fill: props.style.output.fill,

@@ -1,9 +1,7 @@
 import React, { useEffect } from "react"
-import { connect } from "react-redux"
 import { animated } from "react-spring"
-import styled from "styled-components"
+import { style } from "typestyle"
 import {
-  BoardState,
   addVariable,
   addAbstraction,
   addApplication,
@@ -11,91 +9,78 @@ import {
   setSelected,
   setHighlighted,
   setEvent,
-  setLayout,
   setMoving,
   setStopped,
   queueReduction,
   nextReductionStage,
-  adjustLayout,
-  NodeID
+  NodeID,
+  useTreeState,
+  useDispatch
 } from "../state"
 import { createReduction } from "./calculus"
-import { TreeGraph } from "./elements"
+import TreeGraph from "./elements"
 
-const mapState = (state: BoardState) => ({ state })
-const mapDispatch = {
-  addAbs: addAbstraction,
-  addApp: addApplication,
-  addVar: addVariable,
-  setRoot,
-  setEvent,
-  setHighlighted,
-  setSelected,
-  setLayout,
-  setMoving,
-  setStopped,
-  adjustLayout,
-  queueReduction,
-  nextReductionStage
-}
-
-export type BoardProps = ReturnType<typeof mapState> & typeof mapDispatch & { className?: string }
-
-export const BoardContent = connect(
-  mapState,
-  mapDispatch
-)(styled((props: BoardProps) => {
+export const BoardContent = () => {
+  const treeState = useTreeState()
+  const dis = useDispatch()
   useEffect(() => {
-    if (!props.state.tree.root) {
-      props.addApp("app2", "app1", "var1")
-      props.addApp("app1", "abs1", "abs2")
-      props.addAbs("abs1", "a", "var2")
-      props.addVar("var2", 0, "b")
-      props.addAbs("abs2", "n", "abs3")
-      props.addAbs("abs3", "e", "app3")
-      props.addApp("app3", "var3", "var4")
-      props.addVar("var3", 1, "c")
-      props.addVar("var4", 0, "d")
-      props.addVar("var1", undefined, "a")
+    if (!treeState.root) {
+      dis(addApplication("app2", "app1", "var1"))
+      dis(addApplication("app1", "abs1", "abs2"))
+      dis(addAbstraction("abs1", "a", "var2"))
+      dis(addVariable("var2", 0, "b"))
+      dis(addAbstraction("abs2", "n", "abs3"))
+      dis(addAbstraction("abs3", "e", "app3"))
+      dis(addApplication("app3", "var3", "var4"))
+      dis(addVariable("var3", 1, "c"))
+      dis(addVariable("var4", 0, "d"))
+      dis(addVariable("var1", undefined, "a"))
 
-      props.setRoot("app2")
-      props.setEvent("click", nodeID => {
-        props.setEvent("select", undefined)
-        props.setEvent("clearSelect", undefined)
-        props.setSelected(nodeID)
-      })
-      props.setEvent("select", nodeID => {
-        props.setSelected(nodeID)
-      })
-      props.setEvent("highlight", nodeID => props.setHighlighted(nodeID))
-      props.setEvent("clearHighlight", () => {
-        props.setHighlighted(undefined)
-      })
-      props.setEvent("move", (nodeID: NodeID) => {
-        props.setMoving(nodeID)
-      })
-      props.setEvent("rest", (nodeID: NodeID) => {
-        props.setStopped(nodeID)
-      })
+      dis(setRoot("app2"))
+      dis(
+        setEvent("click", nodeID => {
+          dis(setEvent("select", undefined))
+          dis(setEvent("clearSelect", undefined))
+          dis(setSelected(nodeID))
+        })
+      )
+      dis(
+        setEvent("select", nodeID => {
+          dis(setSelected(nodeID))
+        })
+      )
+      dis(setEvent("highlight", nodeID => dis(setHighlighted(nodeID))))
+      dis(
+        setEvent("clearHighlight", () => {
+          dis(setHighlighted(undefined))
+        })
+      )
+      dis(
+        setEvent("move", (nodeID: NodeID) => {
+          dis(setMoving(nodeID))
+        })
+      )
+      dis(
+        setEvent("rest", (nodeID: NodeID) => {
+          dis(setStopped(nodeID))
+        })
+      )
     }
   })
   return (
     <animated.svg
       id="board-content"
       pointerEvents="all"
+      className={style({
+        width: "100%",
+        height: "100%"
+      })}
       onClick={() => {
-        if (props.state.tree.reduction) props.nextReductionStage()
-        else props.queueReduction(createReduction("app2", props.state.tree))
+        if (treeState.reduction) dis(nextReductionStage())
+        else dis(queueReduction(createReduction("app2", treeState)))
       }}
-      className={props.className}
     >
-      <TreeGraph layout={props.state.visual.treeLayout} tree={props.state.tree.nodes} />
+      <TreeGraph />
     </animated.svg>
   )
-})`
-  background: ${(props: BoardProps) => props.state.visual.theme.background};
-  height: 100%;
-  width: 100%;
-  flex-grow: 3;
-  padding: 0px;
-`)
+}

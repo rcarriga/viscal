@@ -2,7 +2,6 @@ import randomcolor from "randomcolor"
 import { createSelector } from "reselect"
 import { reduceObj } from "../../util"
 import { AnimationSettings } from "../visual"
-import { useBoard } from "./base"
 import { BoardState, NodeID, TreeState, Color, Theme, DimensionSettings, TreeNode, ReductionStage } from ".."
 
 type VarColors = { [bindingID in NodeID]: Color }
@@ -51,11 +50,6 @@ type StyleOverride = {
   transparent?: boolean
   highlighted?: boolean
   selected?: boolean
-}
-
-export const useStyles = (): NodeStyles => {
-  const board = useBoard()
-  return stylesSelector(board)
 }
 
 const createStyles = (state: StylesState): NodeStyles => {
@@ -218,7 +212,7 @@ const createApplStyle = (
   }
 }
 
-const stylesSelector = createSelector(
+export const stylesSelector = createSelector(
   (state: BoardState) => ({
     tree: state.tree,
     colors: colorsSelector(state),

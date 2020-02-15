@@ -12,7 +12,7 @@ import {
   NodeID,
   REDUCTION_STAGES
 } from "./types"
-import { reduceTree, mapTree } from "./util"
+import { reduceTree, partialMapTree } from "./util"
 
 export const tree = (state = initialTreeState, action: BoardAction): TreeState => {
   switch (action.type) {
@@ -140,7 +140,7 @@ const replaceNodes = (reduction: ReductionStage, state: TreeState): TreeState =>
 }
 
 const replaceChild = (oldChild: NodeID, newChild: NodeID, rootID: NodeID, tree: Tree): Tree => {
-  return mapTree(
+  return partialMapTree(
     tree,
     (node, nodeID) => {
       switch (node.type) {

@@ -1,4 +1,4 @@
-import { VarIndex, Substitutions, NodeID, VarName, ReductionStage } from "./types"
+import { VarIndex, NodeID, VarName, ReductionStage } from "./types"
 
 interface NormalOrderReductionAction {
   type: "NORMAL_ORDER_REDUCTION"

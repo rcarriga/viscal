@@ -1,37 +1,42 @@
+import { mapTree, useTreeState, NodeID, REDUCTION_STAGES } from "board/state"
 import React from "react"
-import { Tree, useCoords, TreeLayout, useStyles } from "../../state"
-import { Abs } from "./abstraction"
-import { Appl } from "./application"
-import { Var } from "./variable"
+import Abs from "./abstraction"
+import Appl from "./application"
+import Var from "./variable"
 
-interface TreeGraphProps {
-  tree: Tree
-  layout: TreeLayout
-}
-
-export const TreeGraph = (props: TreeGraphProps) => {
-  const coords = useCoords()
-  const styles = useStyles()
-  return (
-    <g>
-      {Object.keys(coords)
-        .sort((a, b) => coords[a].x - coords[b].x || coords[b].w - coords[a].w)
-        .map(coordID => {
-          const baseCoord = coords[coordID]
-          const coord = { ...baseCoord, x: baseCoord.x + props.layout.startX, y: baseCoord.y + props.layout.startY }
-          const style = styles[coordID]
-          if (!style) return null
-          switch (style.type) {
-            case "VAR_STYLE":
-              return <Var key={coord.nodeID} id={coordID} coord={coord} style={style} />
-            case "ABS_STYLE":
-              return <Abs key={coord.nodeID} id={coordID} coord={coord} style={style} />
-            case "APPL_STYLE":
-              return <Appl key={coord.nodeID} id={coordID} coord={coord} style={style} />
+const TreeGraph = () => {
+  const treeState = useTreeState()
+  if (!treeState.root) return null
+  const drawTree = (root: NodeID) =>
+    Object.values(
+      mapTree(
+        treeState.nodes,
+        (node, nodeID) => {
+          switch (node.type) {
+            case "VARIABLE":
+              return <Var key={nodeID} id={nodeID} />
+            case "ABSTRACTION":
+              return <Abs key={nodeID} id={nodeID} />
+            case "APPLICATION":
+              return <Appl key={nodeID} id={nodeID} />
             default:
-              return null
           }
-        })}
-    </g>
-  )
+        },
+        root
+      )
+    )
+
+  const drawReduction = () => {
+    const reduction = treeState.reduction
+    if (reduction && REDUCTION_STAGES.indexOf(reduction.type) < 5)
+      return Object.values(reduction.substitutions).reduce(
+        (drawn: any[], sub) => [...drawn, ...drawTree(sub[reduction.consumed])],
+        []
+      )
+    return []
+  }
+
+  return <g>{[...drawReduction(), ...drawTree(treeState.root)]}</g>
 }
+
+export default TreeGraph

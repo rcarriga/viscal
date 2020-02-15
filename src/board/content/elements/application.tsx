@@ -1,31 +1,32 @@
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { useSpring, animated } from "react-spring"
-import { useDimensions, useEvents, ApplStyle } from "../../state"
+import { useDimensions, useEvents, ApplStyle, useStyle, useCoord } from "../../state"
 import { ExprProps, RawExprProps, useMoveTracker } from "./base"
 
-interface ApplProps extends ExprProps {
-  style: ApplStyle
-}
-
-export const Appl = (props: ApplProps) => {
+const Appl = (props: ExprProps) => {
   const dimensions = useDimensions()
   const events = useEvents()
+  const style = useStyle(props.id)
+  const coord = useCoord(props.id)
+  if (!style || !coord || style.type !== "APPL_STYLE" ) return null
   return (
     <RawAppl
-      events={events}
-      height={props.coord.h}
       id={props.id}
-      nodeID={props.coord.nodeID}
+      events={events}
+      height={coord.h}
+      nodeID={coord.nodeID}
       radius={dimensions.circleRadius}
-      style={props.style}
-      width={props.coord.w}
-      x={props.coord.x}
-      y={props.coord.y}
+      style={style}
+      width={coord.w}
+      x={coord.x}
+      y={coord.y}
     >
       {props.children}
     </RawAppl>
   )
 }
+
+export default Appl
 
 interface RawApplProps extends RawExprProps {
   radius: number
@@ -48,7 +49,7 @@ const RawAppl = (props: RawApplProps) => {
     d: boxPath,
     fill: props.style.fill,
     ...props.style.stroke,
-    ...useMoveTracker(props)
+    ...useMoveTracker()
   })
 
   return (

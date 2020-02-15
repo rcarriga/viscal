@@ -1,6 +1,6 @@
-import { Slider, Typography } from "@material-ui/core"
+import { Slider } from "@material-ui/core"
+
 import React from "react"
-import styled from "styled-components"
 
 interface SliderControlProps {
   title: string
@@ -14,29 +14,15 @@ export const SliderControl = (props: SliderControlProps) => {
   return (
     <SliderPanel>
       <SliderTitle>{props.title}</SliderTitle>
-      <SliderX
-        onChange={props.onChange}
-        value={props.value}
-        max={props.max}
-        min={props.min}
-      ></SliderX>
+      <Slider onChange={props.onChange} value={props.value} max={props.max} min={props.min}></Slider>
     </SliderPanel>
   )
 }
 
 interface SliderTitleProps {
-  text: string
-  fontSize: number
+  children: React.ReactNode[] | React.ReactNode
 }
 
-const SliderTitle = styled(Typography)``
+const SliderTitle = (props: SliderTitleProps) => <div className="has-text-dark is-4">{props.children}</div>
 
-const SliderPanel = styled.div.attrs(props => props)`
-  display: block;
-  justify-content: center;
-  text-align: center;
-`
-
-const SliderX = styled(Slider)`
-  width: 80%;
-`
+const SliderPanel = (props: any) => <div className="container">{props.children}</div>
