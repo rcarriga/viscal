@@ -1,7 +1,7 @@
 import React from "react"
 import { Provider } from "react-redux"
 import { classes, style } from "typestyle"
-import { BoardContent } from "./content"
+import BoardContent from "./content"
 import { BoardControl } from "./control"
 import store from "./state"
 
@@ -9,26 +9,24 @@ export const Board = () => (
   <Provider store={store}>
     <div
       className={classes(
-        "columns",
         style({
           width: "100%",
-          height: "90%"
+          height: "100%",
+          position: "relative",
+          display: "flex",
+          justifyContent: "flex-end"
         })
       )}
     >
       <div
-        className={classes(
-          "column",
-          style({
-            borderRight: "2px grey solid"
-          })
-        )}
+        className={style({
+          position: "absolute",
+          margin: "20px"
+        })}
       >
-        <BoardContent />
-      </div>
-      <div className="column is-narrow">
         <BoardControl />
       </div>
+      <BoardContent />
     </div>
   </Provider>
 )

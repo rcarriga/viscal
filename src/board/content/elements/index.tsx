@@ -1,42 +1,49 @@
-import { mapTree, useTreeState, NodeID, REDUCTION_STAGES } from "board/state"
+import { useCoords, useStyles, useHighlighted, useSelected, useReduction } from "board/state"
+import { mapObj } from "board/util"
 import React from "react"
 import Abs from "./abstraction"
 import Appl from "./application"
 import Var from "./variable"
 
 const TreeGraph = () => {
-  const treeState = useTreeState()
-  if (!treeState.root) return null
-  const drawTree = (root: NodeID) =>
-    Object.values(
-      mapTree(
-        treeState.nodes,
-        (node, nodeID) => {
-          switch (node.type) {
-            case "VARIABLE":
-              return <Var key={nodeID} id={nodeID} />
-            case "ABSTRACTION":
-              return <Abs key={nodeID} id={nodeID} />
-            case "APPLICATION":
-              return <Appl key={nodeID} id={nodeID} />
-            default:
+  const coords = useCoords()
+  const styles = useStyles()
+  const highlighted = useHighlighted()
+  const selected = useSelected()
+  const reduction = useReduction()
+  return (
+    <g>
+      {Object.keys(coords)
+        .sort((a, b) => {
+          const nodeID = coords[a].nodeID
+          if (nodeID === highlighted || nodeID === selected) return 1
+          if (reduction) {
+            if (
+              nodeID === reduction.consumed ||
+              Object.values(reduction.substitutions)
+                .map(sub => sub[reduction.consumed])
+                .indexOf(nodeID) !== -1
+            )
+              return 1
           }
-        },
-        root
-      )
-    )
-
-  const drawReduction = () => {
-    const reduction = treeState.reduction
-    if (reduction && REDUCTION_STAGES.indexOf(reduction.type) < 5)
-      return Object.values(reduction.substitutions).reduce(
-        (drawn: any[], sub) => [...drawn, ...drawTree(sub[reduction.consumed])],
-        []
-      )
-    return []
-  }
-
-  return <g>{[...drawReduction(), ...drawTree(treeState.root)]}</g>
+          return coords[a].x - coords[b].x || coords[b].w - coords[a].w
+        })
+        .map(coordID => {
+          const style = styles[coordID]
+          if (!style) return null
+          switch (style.type) {
+            case "VAR_STYLE":
+              return <Var key={coordID} id={coordID} />
+            case "ABS_STYLE":
+              return <Abs key={coordID} id={coordID} />
+            case "APPL_STYLE":
+              return <Appl key={coordID} id={coordID} />
+            default:
+              return null
+          }
+        })}
+    </g>
+  )
 }
 
 export default TreeGraph

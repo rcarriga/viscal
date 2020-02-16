@@ -1,3 +1,7 @@
+import ExpansionPanel from "@material-ui/core/ExpansionPanel"
+import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails"
+import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary"
+import MenuIcon from "@material-ui/icons/Menu"
 import React from "react"
 
 import { connectState, ControlProps } from "./base"
@@ -42,11 +46,13 @@ export const BoardControl = connectState((props: ControlProps) => {
 
 const ControlPanel = (props: any) => {
   return (
-    <div className="card">
-      <div className="card-content">
+    <ExpansionPanel>
+      <ExpansionPanelSummary expandIcon={<MenuIcon />} aria-controls="panel1a-content" id="panel1a-header">
         <div className="subtitle handle">Controls</div>
-        {props.children}
-      </div>
-    </div>
+      </ExpansionPanelSummary>
+      <ExpansionPanelDetails>
+        <div className="container">{props.children}</div>
+      </ExpansionPanelDetails>
+    </ExpansionPanel>
   )
 }
