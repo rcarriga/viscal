@@ -3,31 +3,55 @@ import {
   NodeID,
   Substitutions,
   Tree,
+  TreeNode,
   Substitution,
   ReductionStage,
   REDUCTION_STAGES,
-  searchTree
-} from "../../state"
-import { generateID } from "../util"
+  searchTree,
+  Application
+} from "board/state"
+export interface LambdaReducer {
+  name: string
+  description: string
+  reduce: (tree: TreeState) => ReductionStage | undefined
+}
 
 export const createReduction = (parentID: NodeID, tree: TreeState): ReductionStage | undefined => {
   const parentNode = tree.nodes[parentID]
-  if (!parentNode) return undefined
-  const [abs, consumed] = parentNode.children(tree.nodes)
-  const directParent = searchTree(tree.nodes, node => node.directChildren[0] === abs, parentID)
-  if (!directParent) return undefined // Should not be possible
+  if (!parentNode || parentNode.type !== "APPLICATION") return undefined
+  const abs = parentNode.left
+  const consumed = parentNode.right
   if (!abs || !consumed || !tree.nodes[abs] || !tree.nodes[consumed]) return undefined
+  const visibleParent = getVisibleParent(abs, tree)
+  if (!visibleParent) return undefined
   const child = tree.nodes[abs].children(tree.nodes)[0]
   if (tree.nodes[parentID])
     return {
       type: REDUCTION_STAGES[0],
-      visibleParent: parentID,
-      parentApplication: directParent,
+      visibleParent: visibleParent,
+      parentApplication: parentID,
       abs,
       child,
       consumed,
-      substitutions: createSubstitutions(abs, consumed, tree)
+      substitutions: createSubstitutions(abs, consumed, tree),
+      reducer: ""
     }
+}
+
+export const isRedex = (node: TreeNode, tree: Tree): node is Application => {
+  return !(
+    node.type !== "APPLICATION" ||
+    !node.left ||
+    !node.right ||
+    !tree[node.left] ||
+    !tree[node.right] ||
+    tree[node.left].type !== "ABSTRACTION"
+  )
+}
+
+const getVisibleParent = (nodeID: NodeID, state: TreeState): NodeID | undefined => {
+  const parentID = searchTree(state.nodes, node => node.children(state.nodes).indexOf(nodeID) !== -1, state.root || "")
+  return parentID
 }
 
 const createSubstitutions = (absID: NodeID, consumedID: NodeID, tree: TreeState): Substitutions => {
@@ -51,4 +75,8 @@ const getRemoved = (binderID: NodeID, tree: TreeState): NodeID[] => {
     const node = nodes[nodeID]
     return node.type === "VARIABLE" && node.binder(tree) === binderID
   })
+}
+
+const generateID = (): NodeID => {
+  return "_" + (Number(String(Math.random()).slice(2)) + Date.now() + Math.round(performance.now())).toString(36)
 }

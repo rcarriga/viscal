@@ -1,5 +1,5 @@
-import React  from "react"
-import { useSpring, animated } from "react-spring"
+import React from "react"
+import { useSpring, useTransition, animated } from "react-spring"
 
 import { useEvents, VarStyle, useStyle, useCoord } from "../../state"
 import { RawExprProps, useMoveTracker, ExprProps } from "./base"
@@ -8,7 +8,7 @@ const Var = (props: ExprProps) => {
   const events = useEvents()
   const style = useStyle(props.id)
   const coord = useCoord(props.id)
-  if (!style || !coord || style.type !== "VAR_STYLE" ) return null
+  if (!style || !coord || style.type !== "VAR_STYLE") return null
   return (
     <RawVar
       events={events}

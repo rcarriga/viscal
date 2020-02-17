@@ -37,10 +37,13 @@ export const searchTree = (
  * @param f - Function to apply to each node
  * @return Tree with mapped nodes
  */
-export const mapTree = <A>(tree: Tree, f: (node: TreeNode, nodeID: NodeID) => A, rootID: NodeID): {[nodeID in NodeID]: A} => {
+export const mapTree = <A>(
+  tree: Tree,
+  f: (node: TreeNode, nodeID: NodeID) => A,
+  rootID: NodeID
+): { [nodeID in NodeID]: A } => {
   return reduceTree(tree, (tree, node, nodeID) => ({ ...tree, [nodeID]: f(node, nodeID) }), {}, rootID)
 }
-
 
 /**
  * Apply a function to nodes in a tree.
@@ -63,8 +66,7 @@ export const partialMapTree = (tree: Tree, f: (node: TreeNode, nodeID: NodeID) =
  * @param tree - Tree to reduce
  * @param f - Function to receive each node along with the accumulator
  * @param accum - Initial accumulator value
- * @param node - k
- * @param nodeID - k
+ * @param rootID - Node to begin from
  * @return Final accumulator
  */
 export const reduceTree = <A>(
@@ -89,4 +91,3 @@ export const reduceTree = <A>(
       return accum
   }
 }
-

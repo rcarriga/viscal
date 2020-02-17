@@ -13,7 +13,9 @@ const constructCoords = (tree: TreeState, settings: DimensionSettings): Coords =
     const coordOffsets = tree.reduction ? calculateCoordOffsets(settings, tree.reduction, tree) : {}
 
     const coords = fillCoords(root, dimensions, tree.nodes, settings, coordOffsets)
-    return tree.reduction ? moveReplacements(coords, tree.reduction, settings) : coords
+    const afterReduction = tree.reduction ? moveReplacements(coords, tree.reduction, settings) : coords
+    if (tree.nodes[root].type === "APPLICATION") delete afterReduction[root]
+    return afterReduction
   } else return {}
 }
 

@@ -46,7 +46,7 @@ type StylesState = {
   selected?: NodeID
 }
 
-type StyleOverride = {
+type StyleSettings = {
   transparent?: boolean
   highlighted?: boolean
   selected?: boolean
@@ -70,7 +70,7 @@ const createStyles = (state: StylesState): NodeStyles => {
           reduction,
           { highlighted: true },
           state,
-          overrideNewNodes(reduction, { highlighted: true }, state, initStyles)
+          overrideReplacement(reduction, { highlighted: true }, state, initStyles)
         )
       )
     default:
@@ -78,14 +78,14 @@ const createStyles = (state: StylesState): NodeStyles => {
         reduction,
         { highlighted: true },
         state,
-        overrideNewNodes(reduction, { highlighted: true }, state, initStyles)
+        overrideReplacement(reduction, { highlighted: true }, state, initStyles)
       )
   }
 }
 
 const overrideUnbinded = (
   reduction: ReductionStage,
-  override: StyleOverride,
+  override: StyleSettings,
   state: StylesState,
   styles: NodeStyles
 ): NodeStyles =>
@@ -94,39 +94,35 @@ const overrideUnbinded = (
     return style ? { ...styles, [unbindedVar]: style } : styles
   })
 
-const overrideNewNodes = (
+const overrideReplacement = (
   reduction: ReductionStage,
-  override: StyleOverride,
+  override: StyleSettings,
   state: StylesState,
   styles: NodeStyles
 ): NodeStyles =>
-  reduceObj(reduction.substitutions, styles, (styles: NodeStyles, substitution) =>
-    reduceObj(substitution, styles, (styles, newNodeID) => {
-      if (state.tree.nodes[newNodeID]) {
-        const style = createStyle(newNodeID, state, override)
-        return style ? { ...styles, [newNodeID]: style } : styles
-      }
-      return styles
-    })
-  )
+  reduceObj(reduction.substitutions, styles, (styles: NodeStyles, substitution) => {
+    const newNodeID = substitution[reduction.consumed]
+    if (state.tree.nodes[newNodeID]) {
+      const style = createStyle(newNodeID, state, override)
+      return style ? { ...styles, [newNodeID]: style } : styles
+    }
+    return styles
+  })
 
 const overrideConsumed = (
   reduction: ReductionStage,
-  override: StyleOverride,
+  override: StyleSettings,
   state: StylesState,
   styles: NodeStyles
-): NodeStyles =>
-  reduceObj(reduction.substitutions, styles, (styles: NodeStyles, substitution) =>
-    reduceObj(substitution, styles, (styles, _, newNodeID) => {
-      if (state.tree.nodes[newNodeID]) {
-        const style = createStyle(newNodeID, state, override)
-        return style ? { ...styles, [newNodeID]: style } : styles
-      }
-      return styles
-    })
-  )
+): NodeStyles => {
+  if (state.tree.nodes[reduction.consumed]) {
+    const style = createStyle(reduction.consumed, state, override)
+    return style ? { ...styles, [reduction.consumed]: style } : styles
+  }
+  return styles
+}
 
-const createStyle = (nodeID: NodeID, state: StylesState, overrides: StyleOverride): NodeStyle | undefined => {
+const createStyle = (nodeID: NodeID, state: StylesState, overrides: StyleSettings): NodeStyle | undefined => {
   const styleID = state.copies[nodeID] || nodeID
   const node = state.tree.nodes[styleID]
   const binder = node && node.type === "VARIABLE" ? node.binder(state.tree) || styleID : styleID
@@ -147,7 +143,7 @@ const createStyle = (nodeID: NodeID, state: StylesState, overrides: StyleOverrid
 const createVarStyle = (
   nodeID: NodeID,
   state: StylesState,
-  { transparent, selected, highlighted }: StyleOverride
+  { transparent, selected, highlighted }: StyleSettings
 ): VarStyle => {
   const node = state.tree.nodes[nodeID]
   const theme = state.theme
@@ -172,7 +168,7 @@ const createVarStyle = (
 const createAbsStyle = (
   nodeID: NodeID,
   state: StylesState,
-  { transparent, selected, highlighted }: StyleOverride
+  { transparent, selected, highlighted }: StyleSettings
 ): AbsStyle => {
   const theme = state.theme
   return {
@@ -197,7 +193,7 @@ const createAbsStyle = (
 const createApplStyle = (
   nodeID: NodeID,
   state: StylesState,
-  { transparent, selected, highlighted }: StyleOverride
+  { transparent, selected, highlighted }: StyleSettings
 ): ApplStyle => {
   const theme = state.theme
   return {

@@ -22,9 +22,9 @@ export type ThemeElement = keyof Theme
 
 const defaultDimensions = {
   circleRadius: 32,
-  heightMargin: 20,
+  heightMargin: 40,
   strokeWidth: 4,
-  widthMargin: 32
+  widthMargin: 50
 }
 
 export type DimensionSettings = typeof defaultDimensions

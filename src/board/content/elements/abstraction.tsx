@@ -8,7 +8,7 @@ const Abs = (props: ExprProps) => {
   const events = useEvents()
   const style = useStyle(props.id)
   const coord = useCoord(props.id)
-  if (!style || !coord || style.type !== "ABS_STYLE" ) return null
+  if (!style || !coord || style.type !== "ABS_STYLE") return null
   return (
     <RawAbs
       id={props.id}
@@ -78,6 +78,7 @@ const RawAbs = (props: RawAbsProps) => {
         data-nodeid={props.nodeID}
         onClick={() => props.events.click(props.id)}
         onMouseOver={() => props.events.highlight(props.id)}
+        onMouseLeave={() => props.events.clearHighlight(props.id)}
       />
       <animated.path
         {...inAnimate}

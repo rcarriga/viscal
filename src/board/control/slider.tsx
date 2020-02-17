@@ -6,7 +6,7 @@ interface SliderControlProps {
   title: string
   max: number
   min: number
-  onChange: any
+  onChange: (newValue: number) => void
   value: number
 }
 
@@ -14,7 +14,12 @@ export const SliderControl = (props: SliderControlProps) => {
   return (
     <SliderPanel>
       <SliderTitle>{props.title}</SliderTitle>
-      <Slider onChange={props.onChange} value={props.value} max={props.max} min={props.min}></Slider>
+      <Slider
+        onChange={(_: any, value) => props.onChange(typeof value === "number" ? value : value[0])}
+        value={props.value}
+        max={props.max}
+        min={props.min}
+      ></Slider>
     </SliderPanel>
   )
 }

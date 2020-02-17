@@ -12,20 +12,20 @@ interface NullExpression extends BaseExpression {
   readonly type: "NULL"
 }
 
-interface Variable extends BaseExpression {
+export interface Variable extends BaseExpression {
   readonly type: "VARIABLE"
   readonly index: VarIndex
   readonly name: VarName
   readonly binder: (tree: TreeState) => NodeID | undefined
 }
 
-interface Abstraction extends BaseExpression {
+export interface Abstraction extends BaseExpression {
   readonly type: "ABSTRACTION"
   readonly child?: NodeID
   readonly variableName: VarName
 }
 
-interface Application extends BaseExpression {
+export interface Application extends BaseExpression {
   readonly type: "APPLICATION"
   readonly left?: NodeID
   readonly right?: NodeID
@@ -59,7 +59,10 @@ export interface ReductionStage {
   child: NodeID
   consumed: NodeID
   substitutions: Substitutions
+  reducer: LambdaReducerID
 }
+
+export type LambdaReducerID = string | number
 
 export interface TreeState {
   readonly root: NodeID

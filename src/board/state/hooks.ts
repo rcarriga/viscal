@@ -25,6 +25,10 @@ export const useStyle = (nodeID: NodeID): NodeStyle | undefined => useStyles()[n
 
 export const useCoords = () => coordsSelector(useBoard())
 
+export const useHighlighted = () => useVisualState().highlighted
+
+export const useSelected = () => useVisualState().selected
+
 export const useCoord = (nodeID: NodeID): NodeCoord | undefined => {
   const baseCoord = useCoords()[nodeID]
   const layout = useLayout()
