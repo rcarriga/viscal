@@ -2,7 +2,7 @@ import React from "react"
 import { Provider } from "react-redux"
 import { classes, style } from "typestyle"
 import BoardContent from "./content"
-import { BoardControl } from "./control"
+import BoardControl from "./control"
 import store from "./state"
 
 export const Board = () => (

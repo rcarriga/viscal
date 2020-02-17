@@ -1,4 +1,4 @@
-import { Slider } from "@material-ui/core"
+import { Slider as _Slider } from "@material-ui/core"
 
 import React from "react"
 
@@ -10,19 +10,21 @@ interface SliderControlProps {
   value: number
 }
 
-export const SliderControl = (props: SliderControlProps) => {
+const Slider = (props: SliderControlProps) => {
   return (
     <SliderPanel>
       <SliderTitle>{props.title}</SliderTitle>
-      <Slider
+      <_Slider
         onChange={(_: any, value) => props.onChange(typeof value === "number" ? value : value[0])}
         value={props.value}
         max={props.max}
         min={props.min}
-      ></Slider>
+      ></_Slider>
     </SliderPanel>
   )
 }
+
+export default Slider
 
 interface SliderTitleProps {
   children: React.ReactNode[] | React.ReactNode

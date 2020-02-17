@@ -45,6 +45,11 @@ interface SetStopped {
   nodeID: NodeID
 }
 
+interface SetExpression {
+  type: "SET_EXPRESSION"
+  expr: string
+}
+
 export const setSelected = (nodeID?: string): VisualAction => ({
   type: "SET_SELECTED",
   nodeID
@@ -89,6 +94,11 @@ export const setStopped = (nodeID: NodeID): VisualAction => ({
   nodeID
 })
 
+export const setExpression = (expr: string): VisualAction => ({
+  type: "SET_EXPRESSION",
+  expr
+})
+
 export type VisualAction =
   | SetSelected
   | SetHighlighted
@@ -98,3 +108,4 @@ export type VisualAction =
   | AdjustLayout
   | SetMoving
   | SetStopped
+  | SetExpression

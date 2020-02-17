@@ -1,3 +1,4 @@
-import TitleBar from "./titleBar"
+import Slider from "./slider"
+import TitleBar from "./titlebar"
 
-export { TitleBar }
+export { TitleBar, Slider }

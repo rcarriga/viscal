@@ -38,7 +38,7 @@ export const createReduction = (parentID: NodeID, tree: TreeState): ReductionSta
     }
 }
 
-export const isRedex = (node: TreeNode, tree: Tree): node is Application => {
+export const isRedex = (node: TreeNode, tree: Tree): boolean => {
   return !(
     node.type !== "APPLICATION" ||
     !node.left ||

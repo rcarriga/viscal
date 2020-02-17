@@ -29,6 +29,8 @@ export const useHighlighted = () => useVisualState().highlighted
 
 export const useSelected = () => useVisualState().selected
 
+export const useExpression = () => useVisualState().expression
+
 export const useCoord = (nodeID: NodeID): NodeCoord | undefined => {
   const baseCoord = useCoords()[nodeID]
   const layout = useLayout()

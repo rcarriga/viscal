@@ -1,4 +1,4 @@
-import TitleBar from "components/titleBar"
+import TitleBar from "components/titlebar"
 import React from "react"
 import "./App.css"
 import { style } from "typestyle"

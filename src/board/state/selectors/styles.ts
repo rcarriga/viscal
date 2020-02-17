@@ -148,9 +148,10 @@ const createVarStyle = (
   const node = state.tree.nodes[nodeID]
   const theme = state.theme
   const binder = node && node.type === "VARIABLE" ? node.binder(state.tree) || nodeID : nodeID
+  const color = transparent ? theme.transparent : state.colors[binder] || theme.unbinded
   return {
     type: "VAR_STYLE",
-    fill: transparent ? theme.transparent : state.colors[binder] || theme.unbinded,
+    fill: color,
     animation: state.animation,
     stroke: {
       stroke: transparent
@@ -159,7 +160,9 @@ const createVarStyle = (
         ? theme.selectedStroke
         : highlighted
         ? theme.highlightedStroke
-        : theme.varStroke,
+        : node && node.type === "VARIABLE"
+        ? theme.varStroke
+        : color,
       strokeWidth: state.dimensions.strokeWidth
     }
   }

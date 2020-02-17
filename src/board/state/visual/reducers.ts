@@ -61,6 +61,11 @@ export const visual = (state = initialVisualState, action: VisualAction): Visual
           moving: remove(action.nodeID, state.animation.moving)
         }
       }
+    case "SET_EXPRESSION":
+      return {
+        ...state,
+        expression: action.expr
+      }
     default:
       return state
   }
