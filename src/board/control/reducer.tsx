@@ -5,7 +5,7 @@ import FastRewindIcon from "@material-ui/icons/FastRewind"
 import PlayArrowIcon from "@material-ui/icons/PlayArrow"
 
 import reducers from "board/calculus"
-import { useDispatch, queueReduction, useTreeState } from "board/state"
+import { useDispatch, queueReduction, useTreeState, nextReductionStage } from "board/state"
 import React, { useState } from "react"
 import { style, classes } from "typestyle"
 
@@ -49,7 +49,7 @@ const ReducerControl = () => {
         <IconButton onClick={() => dis(queueReduction(currentReducer.reduce(tree)))}>
           <PlayArrowIcon />
         </IconButton>
-        <IconButton>
+        <IconButton onClick={() => dis(nextReductionStage())}>
           <FastForwardIcon />
         </IconButton>
       </div>
