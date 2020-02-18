@@ -35,16 +35,6 @@ interface AdjustLayout {
   value: number
 }
 
-interface SetMoving {
-  type: "SET_MOVING"
-  nodeID: NodeID
-}
-
-interface SetStopped {
-  type: "SET_STOPPED"
-  nodeID: NodeID
-}
-
 interface SetExpression {
   type: "SET_EXPRESSION"
   expr: string
@@ -84,16 +74,6 @@ export const adjustLayout = (parameter: Layout, value: number): VisualAction => 
   value
 })
 
-export const setMoving = (nodeID: NodeID): VisualAction => ({
-  type: "SET_MOVING",
-  nodeID
-})
-
-export const setStopped = (nodeID: NodeID): VisualAction => ({
-  type: "SET_STOPPED",
-  nodeID
-})
-
 export const setExpression = (expr: string): VisualAction => ({
   type: "SET_EXPRESSION",
   expr
@@ -106,6 +86,4 @@ export type VisualAction =
   | SetDimension
   | SetLayout
   | AdjustLayout
-  | SetMoving
-  | SetStopped
   | SetExpression

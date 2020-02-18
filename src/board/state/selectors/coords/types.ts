@@ -1,4 +1,4 @@
-import { NodeID } from "../.."
+import { NodeID, TreeNode } from "../.."
 
 export type CoordID = string
 
@@ -9,6 +9,7 @@ export interface NodeDimension {
 
 export interface NodeCoord extends NodeDimension {
   readonly nodeID: NodeID
+  readonly type: TreeNode["type"]
   readonly x: number
   readonly y: number
 }

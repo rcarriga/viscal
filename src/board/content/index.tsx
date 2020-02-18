@@ -6,8 +6,6 @@ import {
   setSelected,
   setHighlighted,
   setEvent,
-  setMoving,
-  setStopped,
   nextReductionStage,
   NodeID,
   useTreeState,
@@ -75,16 +73,6 @@ const usePopTree = (dis: any, root?: NodeID) => {
       dis(
         setEvent("clearHighlight", () => {
           dis(setHighlighted(undefined))
-        })
-      )
-      dis(
-        setEvent("move", (nodeID: NodeID) => {
-          dis(setMoving(nodeID))
-        })
-      )
-      dis(
-        setEvent("rest", (nodeID: NodeID) => {
-          dis(setStopped(nodeID))
         })
       )
     }

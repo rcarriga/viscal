@@ -1,7 +1,7 @@
 import React from "react"
-import { useSpring, animated } from "react-spring"
+import { animated } from "react-spring"
 import { useDimensions, useEvents, AbsStyle, useStyle, useCoord } from "../../state"
-import { ExprProps, RawExprProps, useMoveTracker } from "./base"
+import { ExprProps, RawExprProps, useMotion } from "./base"
 
 const Abs = (props: ExprProps) => {
   const dimensions = useDimensions()
@@ -15,11 +15,12 @@ const Abs = (props: ExprProps) => {
       events={events}
       height={coord.h}
       heightMargin={dimensions.heightMargin}
-      nodeID={coord.nodeID}
       radius={dimensions.circleRadius}
       style={style}
       width={coord.w}
       widthMargin={dimensions.widthMargin}
+      rest={props.rest}
+      start={props.start}
       x={coord.x}
       y={coord.y}
     />
@@ -55,48 +56,40 @@ const RawAbs = (props: RawAbsProps) => {
         l${-boxWidth},0
         l0,${props.height}`
 
-  const commonAnimateConf = useMoveTracker()
-  const outAnimate = useSpring({
-    d: outPath,
-    fill: props.style.output.fill,
-    ...props.style.output.stroke,
-    ...commonAnimateConf
-  })
-  const inAnimate = useSpring({
-    d: inPath,
-    fill: props.style.input.fill,
-    ...props.style.input.stroke,
-    ...commonAnimateConf
-  })
-  const boxAnimate = useSpring({ d: boxPath, fill: props.style.fill, ...props.style.stroke, ...commonAnimateConf })
+  const outAnimate = useMotion(
+    {
+      d: outPath,
+      fill: props.style.output.fill,
+      ...props.style.output.stroke
+    },
+    props.rest,
+    props.start
+  )
+  const inAnimate = useMotion(
+    {
+      d: inPath,
+      fill: props.style.input.fill,
+      ...props.style.input.stroke
+    },
+    props.rest,
+    props.start
+  )
+  const boxAnimate = useMotion({ d: boxPath, fill: props.style.fill, ...props.style.stroke }, props.rest, props.start)
 
   return (
     <animated.g id={props.id}>
       <animated.path
         {...outAnimate}
-        className={props.className}
-        data-nodeid={props.nodeID}
         onClick={() => props.events.click(props.id)}
         onMouseOver={() => props.events.highlight(props.id)}
         onMouseLeave={() => props.events.clearHighlight(props.id)}
       />
       <animated.path
         {...inAnimate}
-        data-nodeid={props.nodeID}
-        x={props.x}
-        y={props.y}
         onMouseOver={() => props.events.highlight(props.id)}
         onMouseLeave={() => props.events.clearHighlight(props.id)}
       />
-      <animated.path
-        {...boxAnimate}
-        className={props.className}
-        x={props.x}
-        y={props.y}
-        data-nodeid={props.nodeID}
-        onClick={() => props.events.click(props.id)}
-        pointerEvents="painted"
-      />
+      <animated.path {...boxAnimate} onClick={() => props.events.click(props.id)} pointerEvents="painted" />
     </animated.g>
   )
 }

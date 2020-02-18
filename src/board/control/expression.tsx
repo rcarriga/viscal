@@ -22,7 +22,7 @@ const ExpressionControl = () => {
                 <input
                   className="input is-medium"
                   value={input}
-                  onInput={e => setInput(e.currentTarget.value)}
+                  onChange={e => setInput(e.currentTarget.value)}
                   type="text"
                   placeholder="Enter a lambda expression"
                 />

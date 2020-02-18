@@ -1,8 +1,8 @@
 import React from "react"
-import { useSpring, useTransition, animated } from "react-spring"
+import { animated } from "react-spring"
 
 import { useEvents, VarStyle, useStyle, useCoord } from "../../state"
-import { RawExprProps, useMoveTracker, ExprProps } from "./base"
+import { RawExprProps, useMotion, ExprProps } from "./base"
 
 const Var = (props: ExprProps) => {
   const events = useEvents()
@@ -13,9 +13,10 @@ const Var = (props: ExprProps) => {
     <RawVar
       events={events}
       id={props.id}
-      nodeID={coord.nodeID}
       radius={coord.w / 2}
       style={style}
+      rest={props.rest}
+      start={props.start}
       x={coord.x}
       y={coord.y}
     />
@@ -34,17 +35,19 @@ const RawVar = (props: RawVarProps) => {
       a${props.radius},${props.radius} 0 1,0 ${props.radius * 2},0
       a${props.radius},${props.radius} 0 1,0 -${props.radius * 2},0`
 
-  const animate = useSpring({
-    d: path,
-    fill: props.style.fill,
-    ...props.style.stroke,
-    ...useMoveTracker()
-  })
+  const animate = useMotion(
+    {
+      d: path,
+      fill: props.style.fill,
+      ...props.style.stroke
+    },
+    props.rest,
+    props.start
+  )
   return (
     <animated.path
       {...animate}
       id={props.id}
-      data-nodeid={props.nodeID}
       onClick={() => props.events.click(props.id)}
       onMouseOver={() => props.events.highlight(props.id)}
       onMouseLeave={() => props.events.clearHighlight(props.id)}

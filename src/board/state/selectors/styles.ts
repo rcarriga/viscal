@@ -218,7 +218,7 @@ export const stylesSelector = createSelector(
     copies: state.tree.reduction ? constructCopyMap(state.tree.reduction) : {},
     theme: state.visual.theme,
     dimensions: state.visual.dimensions,
-    animation: state.visual.animation,
+    animation: state.visual.animation.settings,
     selected: state.visual.selected,
     highlighted: state.visual.highlighted
   }),

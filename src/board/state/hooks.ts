@@ -1,35 +1,37 @@
-import { useSelector, useDispatch as _useDispatch } from "react-redux"
+import { useSelector as _useSelector, TypedUseSelectorHook, useDispatch as _useDispatch } from "react-redux"
 import { coordsSelector, stylesSelector, BoardState, BoardAction, NodeID, NodeStyle, NodeCoord } from "."
 
-export const useBoard = () => useSelector((state: BoardState) => state)
+const useSelector: TypedUseSelectorHook<BoardState> = _useSelector
 
-export const useTreeState = () => useBoard().tree
+export const useBoard = () => useSelector(state => state)
 
-export const useTree = () => useTreeState().nodes
+export const useTreeState = () => useSelector(state => state.tree)
 
-export const useReduction = () => useTreeState().reduction
+export const useTree = () => useSelector(state => state.tree.nodes)
 
-export const useVisualState = () => useBoard().visual
+export const useReduction = () => useSelector(state => state.tree.reduction)
 
-export const useLayout = () => useVisualState().treeLayout
+export const useVisualState = () => useSelector(state => state.visual)
 
-export const useEvents = () => useVisualState().events
+export const useLayout = () => useSelector(state => state.visual.treeLayout)
 
-export const useDimensions = () => useVisualState().dimensions
+export const useEvents = () => useSelector(state => state.visual.events)
 
-export const useTheme = () => useVisualState().theme
+export const useDimensions = () => useSelector(state => state.visual.dimensions)
 
-export const useStyles = () => stylesSelector(useBoard())
+export const useTheme = () => useSelector(state => state.visual.theme)
+
+export const useStyles = () => useSelector(state => stylesSelector(state))
 
 export const useStyle = (nodeID: NodeID): NodeStyle | undefined => useStyles()[nodeID]
 
-export const useCoords = () => coordsSelector(useBoard())
+export const useCoords = () => useSelector(state => coordsSelector(state))
 
-export const useHighlighted = () => useVisualState().highlighted
+export const useHighlighted = () => useSelector(state => state.visual.highlighted)
 
-export const useSelected = () => useVisualState().selected
+export const useSelected = () => useSelector(state => state.visual.selected)
 
-export const useExpression = () => useVisualState().expression
+export const useExpression = () => useSelector(state => state.visual.expression)
 
 export const useCoord = (nodeID: NodeID): NodeCoord | undefined => {
   const baseCoord = useCoords()[nodeID]

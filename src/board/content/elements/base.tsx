@@ -1,24 +1,24 @@
-import { NodeEvents, NodeID } from "../../state"
+import { NodeEvents } from "board/state"
+import { useState } from "react"
+import { useSpring } from "react-spring"
 
 export interface ExprProps {
   id: string
-  children?: any
+  rest: (symbol: symbol) => void
+  start: (symbol: symbol) => void
 }
-export interface RawExprProps {
-  id: string
-  nodeID: NodeID
+
+export interface RawExprProps extends ExprProps {
   x: number
   y: number
   events: NodeEvents
-  className?: string
-  children?: any
 }
 
-export const useMoveTracker = () => {
-  return {
-    // onRest: (current: any) => {
-    //   console.log(current)
-    //   // if (current === prev) props.events.rest(props.id)
-    // }
-  }
+export const useMotion = (props: any, rest: (symbol: symbol) => void, start: (symbol: symbol) => void) => {
+  const [sym] = useState(Symbol(""))
+  return useSpring({
+    to: props,
+    onRest: () => rest(sym),
+    onStart: () => start(sym)
+  })
 }

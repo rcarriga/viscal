@@ -127,7 +127,10 @@ const fillCoords = (
 ): Coords => {
   const root = tree[rootID]
   if (root) {
-    const coord = addOffset({ nodeID: rootID, ...dimensions[rootID], x: baseX, y: baseY }, offsets[rootID])
+    const coord = addOffset(
+      { nodeID: rootID, type: root.type, ...dimensions[rootID], x: baseX, y: baseY },
+      offsets[rootID]
+    )
     return root.children(tree).reduce(
       (current, nodeID) => {
         const childCoord = fillCoords(nodeID, dimensions, tree, settings, offsets, current.baseX, baseY)

@@ -1,4 +1,4 @@
-import Button from "@material-ui/core/Button"
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import IconButton from "@material-ui/core/IconButton"
 import FastForwardIcon from "@material-ui/icons/FastForward"
 import FastRewindIcon from "@material-ui/icons/FastRewind"
@@ -7,7 +7,7 @@ import PlayArrowIcon from "@material-ui/icons/PlayArrow"
 import reducers from "board/calculus"
 import { useDispatch, queueReduction, useTreeState, nextReductionStage } from "board/state"
 import React, { useState } from "react"
-import { style, classes } from "typestyle"
+import { style } from "typestyle"
 
 const ReducerControl = () => {
   const [currentReducer, setReducer] = useState(reducers.normal)

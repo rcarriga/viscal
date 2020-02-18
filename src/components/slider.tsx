@@ -1,4 +1,4 @@
-import { Slider as _Slider } from "@material-ui/core"
+import { Slider as MaterialSlider } from "@material-ui/core"
 
 import React from "react"
 
@@ -14,12 +14,12 @@ const Slider = (props: SliderControlProps) => {
   return (
     <SliderPanel>
       <SliderTitle>{props.title}</SliderTitle>
-      <_Slider
+      <MaterialSlider
         onChange={(_: any, value) => props.onChange(typeof value === "number" ? value : value[0])}
         value={props.value}
         max={props.max}
         min={props.min}
-      ></_Slider>
+      ></MaterialSlider>
     </SliderPanel>
   )
 }

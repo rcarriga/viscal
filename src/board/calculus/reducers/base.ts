@@ -7,8 +7,7 @@ import {
   Substitution,
   ReductionStage,
   REDUCTION_STAGES,
-  searchTree,
-  Application
+  searchTree
 } from "board/state"
 export interface LambdaReducer {
   name: string

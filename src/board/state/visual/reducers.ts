@@ -45,22 +45,6 @@ export const visual = (state = initialVisualState, action: VisualAction): Visual
           [action.dimension]: action.value
         }
       }
-    case "SET_MOVING":
-      return {
-        ...state,
-        animation: {
-          ...state.animation,
-          moving: add(action.nodeID, state.animation.moving)
-        }
-      }
-    case "SET_STOPPED":
-      return {
-        ...state,
-        animation: {
-          ...state.animation,
-          moving: remove(action.nodeID, state.animation.moving)
-        }
-      }
     case "SET_EXPRESSION":
       return {
         ...state,
@@ -69,16 +53,4 @@ export const visual = (state = initialVisualState, action: VisualAction): Visual
     default:
       return state
   }
-}
-
-const remove = <A>(elem: A, set: Set<A>): Set<A> => {
-  const newSet = new Set(set)
-  newSet.delete(elem)
-  return newSet
-}
-
-const add = <A>(elem: A, set: Set<A>): Set<A> => {
-  const newSet = new Set(set)
-  newSet.add(elem)
-  return newSet
 }

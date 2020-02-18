@@ -1,28 +1,27 @@
 import React from "react"
-import { useSpring, animated } from "react-spring"
+import { animated } from "react-spring"
 import { useDimensions, useEvents, ApplStyle, useStyle, useCoord } from "../../state"
-import { ExprProps, RawExprProps, useMoveTracker } from "./base"
+import { ExprProps, RawExprProps, useMotion } from "./base"
 
 const Appl = (props: ExprProps) => {
   const dimensions = useDimensions()
   const events = useEvents()
   const style = useStyle(props.id)
   const coord = useCoord(props.id)
-  if (!style || !coord || style.type !== "APPL_STYLE" ) return null
+  if (!style || !coord || style.type !== "APPL_STYLE") return null
   return (
     <RawAppl
       id={props.id}
       events={events}
       height={coord.h}
-      nodeID={coord.nodeID}
       radius={dimensions.circleRadius}
+      rest={props.rest}
+      start={props.start}
       style={style}
       width={coord.w}
       x={coord.x}
       y={coord.y}
-    >
-      {props.children}
-    </RawAppl>
+    />
   )
 }
 
@@ -45,20 +44,15 @@ const RawAppl = (props: RawApplProps) => {
           l${-boxWidth},0
           l0,${props.height}`
 
-  const boxAnimate = useSpring({
-    d: boxPath,
-    fill: props.style.fill,
-    ...props.style.stroke,
-    ...useMoveTracker()
-  })
-
-  return (
-    <animated.path
-      {...boxAnimate}
-      className={props.className}
-      data-nodeid={props.nodeID}
-      pointerEvents="painted"
-      onClick={() => props.events.click(props.id)}
-    />
+  const boxAnimate = useMotion(
+    {
+      d: boxPath,
+      fill: props.style.fill,
+      ...props.style.stroke
+    },
+    props.rest,
+    props.start
   )
+
+  return <animated.path {...boxAnimate} pointerEvents="painted" onClick={() => props.events.click(props.id)} />
 }
