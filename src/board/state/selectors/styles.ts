@@ -213,9 +213,9 @@ const createApplStyle = (
 
 export const stylesSelector = createSelector(
   (state: BoardState) => ({
-    tree: state.tree,
+    tree: state.tree.present,
     colors: colorsSelector(state),
-    copies: state.tree.reduction ? constructCopyMap(state.tree.reduction) : {},
+    copies: state.tree.present.reduction ? constructCopyMap(state.tree.present.reduction) : {},
     theme: state.visual.theme,
     dimensions: state.visual.dimensions,
     animation: state.visual.animation.settings,
@@ -258,4 +258,4 @@ const createColor = (nodeID: NodeID, node: TreeNode, tree: TreeState): Color => 
   }
 }
 
-const colorsSelector = createSelector((state: BoardState) => state.tree, createColors)
+const colorsSelector = createSelector((state: BoardState) => state.tree.present, createColors)

@@ -1,5 +1,7 @@
 import { combineReducers } from "redux"
+import undoable from "redux-undo"
 import { tree } from "./tree/reducers"
 import { visual } from "./visual/reducers"
 
-export const board = combineReducers({ tree, visual })
+const board = combineReducers({ tree: undoable(tree), visual })
+export default board

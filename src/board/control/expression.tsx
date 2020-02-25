@@ -1,7 +1,6 @@
 import Button from "@material-ui/core/Button"
 import { useExpression, useDispatch, setExpression } from "board/state"
 import React, { useState } from "react"
-import { classes, style } from "typestyle"
 
 const ExpressionControl = () => {
   const dis = useDispatch()
@@ -14,7 +13,7 @@ const ExpressionControl = () => {
         𝝺 Change Expression
       </Button>
       <div className="thisisaclass">
-        <div className={classes("modal", active ? "is-active" : "")}>
+        <div className={`modal ${active ? "is-active" : ""}`}>
           <div className="modal-background" onClick={toggle} />
           <div className="modal-content">
             <div className="card is-background-light">
@@ -27,9 +26,7 @@ const ExpressionControl = () => {
                   placeholder="Enter a lambda expression"
                 />
                 <Button
-                  className={style({
-                    margin: "10px"
-                  })}
+                  style={{ margin: "10px" }}
                   onClick={() => {
                     toggle()
                     dis(setExpression(input))

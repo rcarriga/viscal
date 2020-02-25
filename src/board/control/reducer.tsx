@@ -7,7 +7,6 @@ import PlayArrowIcon from "@material-ui/icons/PlayArrow"
 import reducers from "board/calculus"
 import { useDispatch, queueReduction, useTreeState, nextReductionStage } from "board/state"
 import React, { useState } from "react"
-import { style } from "typestyle"
 
 const ReducerControl = () => {
   const [currentReducer, setReducer] = useState(reducers.normal)
@@ -16,8 +15,8 @@ const ReducerControl = () => {
   return (
     <div>
       <div className="subtitle">Reduction</div>
-      <div className={style({ display: "flex" })}>
-        <strong className={style({ marginRight: "5px" })}>Method: </strong>
+      <div style={{ display: "flex" }}>
+        <strong style={{ marginRight: "5px" }}>Method: </strong>
         <div className="dropdown is-hoverable">
           <div className="dropdown-trigger">
             <a className="has-text-dark">{currentReducer.name}</a>
@@ -36,12 +35,12 @@ const ReducerControl = () => {
         </div>
       </div>
       <div
-        className={style({
+        style={{
           display: "flex",
           justifyContent: "center",
           margin: "20px",
           marginBottom: "10px"
-        })}
+        }}
       >
         <IconButton>
           <FastRewindIcon />

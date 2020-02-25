@@ -1,15 +1,15 @@
 import { useSelector as _useSelector, TypedUseSelectorHook, useDispatch as _useDispatch } from "react-redux"
-import { coordsSelector, stylesSelector, BoardState, BoardAction, NodeID, NodeStyle, NodeCoord } from "."
+import { BoardState, coordsSelector, stylesSelector, BoardAction, NodeID, NodeStyle, NodeCoord } from "."
 
 const useSelector: TypedUseSelectorHook<BoardState> = _useSelector
 
 export const useBoard = () => useSelector(state => state)
 
-export const useTreeState = () => useSelector(state => state.tree)
+export const useTreeState = () => useSelector(state => state.tree.present)
 
-export const useTree = () => useSelector(state => state.tree.nodes)
+export const useTree = () => useSelector(state => state.tree.present.nodes)
 
-export const useReduction = () => useSelector(state => state.tree.reduction)
+export const useReduction = () => useSelector(state => state.tree.present.reduction)
 
 export const useVisualState = () => useSelector(state => state.visual)
 

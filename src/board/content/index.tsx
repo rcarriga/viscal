@@ -13,7 +13,6 @@ import {
 } from "board/state"
 import React, { useEffect } from "react"
 import { animated } from "react-spring"
-import { style, classes } from "typestyle"
 import TreeGraph from "./elements"
 
 const BoardContent = () => {
@@ -24,13 +23,11 @@ const BoardContent = () => {
     <animated.svg
       id="board-content"
       pointerEvents="all"
-      className={classes(
-        "has-background-light",
-        style({
-          width: "100%",
-          height: "100%"
-        })
-      )}
+      className="has-background-light"
+      style={{
+        width: "100%",
+        height: "100%"
+      }}
       onClick={() => {
         if (treeState.reduction) dis(nextReductionStage())
       }}

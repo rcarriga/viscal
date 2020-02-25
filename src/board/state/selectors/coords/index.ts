@@ -20,9 +20,9 @@ const constructCoords = (tree: TreeState, settings: DimensionSettings): Coords =
 }
 
 export const coordsSelector = createSelector(
-  (state: BoardState) => state.tree,
+  (state: BoardState) => state.tree.present,
   (state: BoardState) => state.visual.dimensions,
-  (state: BoardState) => state.tree.reduction,
+  (state: BoardState) => state.tree.present.reduction,
   constructCoords
 )
 
