@@ -1,5 +1,5 @@
 import { NodeID } from "../tree"
-import { EventHandler, NodeEvent, DimensionSetting, Layout } from "./types"
+import { EventHandler, NodeEvent, DimensionSetting, Layout, AnimationMode } from "./types"
 
 interface SetSelected {
   type: "SET_SELECTED"
@@ -38,6 +38,11 @@ interface AdjustLayout {
 interface SetExpression {
   type: "SET_EXPRESSION"
   expr: string
+}
+
+interface SetMode {
+  type: "SET_MODE"
+  mode: AnimationMode
 }
 
 export const setSelected = (nodeID?: string): VisualAction => ({
@@ -79,6 +84,11 @@ export const setExpression = (expr: string): VisualAction => ({
   expr
 })
 
+export const setMode = (mode: AnimationMode): VisualAction => ({
+  type: "SET_MODE",
+  mode
+})
+
 export type VisualAction =
   | SetSelected
   | SetHighlighted
@@ -87,3 +97,4 @@ export type VisualAction =
   | SetLayout
   | AdjustLayout
   | SetExpression
+  | SetMode

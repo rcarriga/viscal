@@ -1,5 +1,19 @@
-import { useCoords, useHighlighted, useSelected, useReduction, useDispatch, nextReductionStage } from "board/state"
+import reducers from "board/calculus"
+import {
+  useMode,
+  useCoords,
+  useHighlighted,
+  useSelected,
+  useReduction,
+  useDispatch,
+  nextReductionStage,
+  queueReduction,
+  useTreeState,
+  setMode,
+  REDUCTION_STAGES
+} from "board/state"
 import React, { useRef, Ref, useState } from "react"
+import { ActionCreators } from "redux-undo"
 import Abs from "./abstraction"
 import Appl from "./application"
 import Var from "./variable"
@@ -7,7 +21,8 @@ import Var from "./variable"
 const Graph = () => {
   const coords = useCoords()
   const keys = useOrderedKeys()
-  const { start, rest } = useMotionTrackers()
+  const onStop = useAnimationControl()
+  const { start, rest } = useMotionTrackers(onStop)
   return (
     <g>
       {keys.map(coordID => {
@@ -28,22 +43,56 @@ const Graph = () => {
 
 export default Graph
 
-const useMotionTrackers = () => {
-  const ref: Ref<Set<symbol>> = useRef(new Set([]))
+const useAnimationControl = () => {
   const dis = useDispatch()
-  const [moving, setMoving] = useState(false)
+  const tree = useTreeState()
+  const reduction = useReduction()
+  const mode = useMode()
+  return () => {
+    switch (mode) {
+      case "PLAY":
+        if (reduction) dis(nextReductionStage())
+        else {
+          const next = reducers.normal.reduce(tree)
+          if (next) dis(queueReduction(next))
+          else dis(setMode("STOP"))
+        }
+        break
+      case "FORWARD":
+        if (!reduction) dis(queueReduction(reducers.normal.reduce(tree)))
+        else {
+          dis(nextReductionStage())
+          if (reduction.type === REDUCTION_STAGES[REDUCTION_STAGES.length - 1]) dis(setMode("STOP"))
+        }
+
+        break
+      case "REVERSE":
+        dis(ActionCreators.undo())
+        if (reduction && reduction.type === REDUCTION_STAGES[0]) dis(setMode("STOP"))
+        break
+      case "STOP":
+      default:
+    }
+  }
+}
+
+const useMotionTrackers = (onStop: () => void) => {
+  const movingSet: Ref<Set<symbol>> = useRef(new Set([]))
+  const isMoving = useRef(false)
   const start = (sym: symbol) => {
-    if (ref.current) {
-      ref.current.add(sym)
-      if (!moving) setMoving(true)
+    if (movingSet.current) {
+      movingSet.current.add(sym)
+      if (!isMoving.current) {
+        isMoving.current = true
+      }
     }
   }
   const rest = (sym: symbol) => {
-    if (ref.current) {
-      ref.current.delete(sym)
-      if (moving && ref.current.size === 0) {
-        dis(nextReductionStage())
-        setMoving(false)
+    if (movingSet.current) {
+      movingSet.current.delete(sym)
+      if (movingSet.current.size === 0) {
+        isMoving.current = false
+        onStop()
       }
     }
   }

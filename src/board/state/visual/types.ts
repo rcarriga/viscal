@@ -59,12 +59,16 @@ export type EventHandler = (nodeID: NodeID) => void
 
 export interface AnimationSettings {}
 
+export type AnimationMode = "STOP" | "PLAY" | "FORWARD" | "REVERSE"
+
 export interface AnimationState {
   settings: AnimationSettings
+  mode: AnimationMode
 }
 
 const defaultAnimationState: AnimationState = {
-  settings: {}
+  settings: {},
+  mode: "STOP"
 }
 
 export interface VisualState {

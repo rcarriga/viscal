@@ -7,6 +7,7 @@ const DimensionControl = () => {
   const dis = useDispatch()
   return (
     <div>
+      <div className="title is-5">Dimensions</div>
       <Slider
         title="Circle Radius"
         onChange={(newValue: number) => dis(setDimension("circleRadius", newValue))}

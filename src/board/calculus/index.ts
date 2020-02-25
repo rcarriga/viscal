@@ -1,3 +1,3 @@
-import Reducers from "./reducers"
+import reducers from "./reducers"
 
-export default Reducers
+export default reducers

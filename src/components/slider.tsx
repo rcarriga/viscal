@@ -30,6 +30,6 @@ interface SliderTitleProps {
   children: React.ReactNode[] | React.ReactNode
 }
 
-const SliderTitle = (props: SliderTitleProps) => <div className="has-text-dark is-4">{props.children}</div>
+const SliderTitle = (props: SliderTitleProps) => <div className="has-text-dark">{props.children}</div>
 
 const SliderPanel = (props: any) => <div className="container">{props.children}</div>

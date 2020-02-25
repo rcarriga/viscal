@@ -18,6 +18,10 @@ export const useMotion = (props: any, rest: (symbol: symbol) => void, start: (sy
   const [sym] = useState(Symbol(""))
   return useSpring({
     to: props,
+    config: {
+      tension: 500,
+      clamp: true
+    },
     onRest: () => rest(sym),
     onStart: () => start(sym)
   })

@@ -13,7 +13,7 @@ import {
 } from "board/state"
 import React, { useEffect } from "react"
 import { animated } from "react-spring"
-import TreeGraph from "./elements"
+import Graph from "./elements"
 
 const BoardContent = () => {
   const treeState = useTreeState()
@@ -32,7 +32,7 @@ const BoardContent = () => {
         if (treeState.reduction) dis(nextReductionStage())
       }}
     >
-      <TreeGraph />
+      <Graph />
     </animated.svg>
   )
 }

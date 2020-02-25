@@ -50,6 +50,14 @@ export const visual = (state = initialVisualState, action: VisualAction): Visual
         ...state,
         expression: action.expr
       }
+    case "SET_MODE":
+      return {
+        ...state,
+        animation: {
+          ...state.animation,
+          mode: action.mode
+        }
+      }
     default:
       return state
   }
