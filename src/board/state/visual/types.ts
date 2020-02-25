@@ -1,4 +1,3 @@
-import { Set } from "immutable"
 import { NodeID } from "../tree"
 
 export type Color = string
@@ -62,12 +61,10 @@ export interface AnimationSettings {}
 
 export interface AnimationState {
   settings: AnimationSettings
-  moving: Set<symbol>
 }
 
 const defaultAnimationState: AnimationState = {
-  settings: {},
-  moving: Set()
+  settings: {}
 }
 
 export interface VisualState {
