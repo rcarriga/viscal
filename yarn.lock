@@ -2436,6 +2436,11 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^13.0.0"
 
+"@masala/parser@^0.8.1":
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/@masala/parser/-/parser-0.8.1.tgz#d2c687be46330b52c51b6612de80ea413e76f805"
+  integrity sha512-weGIfhwdWaa2W1Og6YsC038jmPZS30fFlbEvOlviuJQ7Wj4OdP1wtLqWB7JalfQur5tPkm8ffMTq3DXKpRbnxQ==
+
 "@material-ui/core@^4.8.3":
   version "4.8.3"
   resolved "https://registry.yarnpkg.com/@material-ui/core/-/core-4.8.3.tgz#858f758b26d8417eb39310f07fb9d7a72beb8b03"
