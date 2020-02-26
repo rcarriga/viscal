@@ -1,3 +1,4 @@
 import reducers from "./reducers"
 
-export default reducers
+export { parseExpression } from "./parser"
+export { reducers }

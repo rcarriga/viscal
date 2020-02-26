@@ -1,4 +1,4 @@
-import reducers from "board/calculus"
+import { reducers } from "board/calculus"
 import {
   useMode,
   useCoords,
@@ -12,7 +12,7 @@ import {
   setMode,
   REDUCTION_STAGES
 } from "board/state"
-import React, { useRef, Ref, useState } from "react"
+import React, { useRef, Ref } from "react"
 import { ActionCreators } from "redux-undo"
 import Abs from "./abstraction"
 import Appl from "./application"

@@ -1,18 +1,26 @@
 import Button from "@material-ui/core/Button"
-import { useExpression, useDispatch, setExpression } from "board/state"
-import React, { useState } from "react"
+import { parseExpression } from "board/calculus"
+import { useDispatch, clearTree } from "board/state"
+import React, { useState, useEffect } from "react"
+import { ActionCreators } from "redux-undo"
 
 const ExpressionControl = () => {
   const dis = useDispatch()
   const [active, setActive] = useState(false)
-  const [input, setInput] = useState(useExpression())
+  const [input, setInput] = useState("")
+  const [expr, setExpr] = useState("(\\a.a) (\\a b. a b) c")
   const toggle = () => setActive(!active)
+  useEffect(() => {
+    dis(clearTree())
+    dis(ActionCreators.clearHistory())
+    parseExpression(expr, dis)
+  }, [dis, expr])
   return (
     <div>
       <Button variant="outlined" onClick={() => setActive(!active)}>
         𝝺 Change Expression
       </Button>
-      <div className="thisisaclass">
+      <div>
         <div className={`modal ${active ? "is-active" : ""}`}>
           <div className="modal-background" onClick={toggle} />
           <div className="modal-content">
@@ -29,7 +37,7 @@ const ExpressionControl = () => {
                   style={{ margin: "10px" }}
                   onClick={() => {
                     toggle()
-                    dis(setExpression(input))
+                    setExpr(input)
                   }}
                   color="primary"
                   variant="contained"

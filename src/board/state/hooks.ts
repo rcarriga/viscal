@@ -41,4 +41,5 @@ export const useCoord = (nodeID: NodeID): NodeCoord | undefined => {
   return baseCoord ? { ...baseCoord, x: baseCoord.x + layout.startX, y: baseCoord.y + layout.startY } : undefined
 }
 
-export const useDispatch: () => (action: BoardAction) => void = _useDispatch
+export type Dispatcher = (action: BoardAction) => void
+export const useDispatch: () => Dispatcher = _useDispatch

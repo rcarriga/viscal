@@ -1,8 +1,7 @@
 import { VarIndex, NodeID, VarName, ReductionStage } from "./types"
 
-interface NormalOrderReductionAction {
-  type: "NORMAL_ORDER_REDUCTION"
-  nodeID: NodeID
+interface ClearTree {
+  type: "CLEAR_TREE"
 }
 
 interface SetRoot {
@@ -42,7 +41,7 @@ interface NextReductionStage {
 }
 
 export type TreeAction =
-  | NormalOrderReductionAction
+  | ClearTree
   | SetRoot
   | AddVariable
   | AddAbstraction
@@ -50,8 +49,8 @@ export type TreeAction =
   | QueueReduction
   | NextReductionStage
 
-export const normalOrderReduce = (nodeID: NodeID): TreeAction => {
-  return { type: "NORMAL_ORDER_REDUCTION", nodeID }
+export const clearTree = (): TreeAction => {
+  return { type: "CLEAR_TREE" }
 }
 
 export const setRoot = (nodeID: NodeID): TreeAction => {

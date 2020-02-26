@@ -11,7 +11,7 @@ import {
   useTreeState,
   useDispatch
 } from "board/state"
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { animated } from "react-spring"
 import Graph from "./elements"
 
@@ -40,20 +40,10 @@ const BoardContent = () => {
 export default BoardContent
 
 const usePopTree = (dis: any, root?: NodeID) => {
+  const [used, setUsed] = useState(false)
   useEffect(() => {
-    if (!root) {
-      dis(addApplication("app2", "app1", "var1"))
-      dis(addApplication("app1", "abs1", "abs2"))
-      dis(addAbstraction("abs1", "a", "var2"))
-      dis(addVariable("var2", 0, "b"))
-      dis(addAbstraction("abs2", "n", "abs3"))
-      dis(addAbstraction("abs3", "e", "app3"))
-      dis(addApplication("app3", "var3", "var4"))
-      dis(addVariable("var3", 1, "c"))
-      dis(addVariable("var4", 0, "d"))
-      dis(addVariable("var1", undefined, "a"))
-
-      dis(setRoot("app2"))
+    if (!used) {
+      setUsed(true)
       dis(
         setEvent("click", nodeID => {
           dis(setEvent("select", undefined))
@@ -73,5 +63,5 @@ const usePopTree = (dis: any, root?: NodeID) => {
         })
       )
     }
-  })
+  }, [used, dis])
 }

@@ -9,6 +9,7 @@ import {
   REDUCTION_STAGES,
   searchTree
 } from "board/state"
+import { generateID } from "../util"
 export interface LambdaReducer {
   name: string
   description: string
@@ -74,8 +75,4 @@ const getRemoved = (binderID: NodeID, tree: TreeState): NodeID[] => {
     const node = nodes[nodeID]
     return node.type === "VARIABLE" && node.binder(tree) === binderID
   })
-}
-
-const generateID = (): NodeID => {
-  return "_" + (Number(String(Math.random()).slice(2)) + Date.now() + Math.round(performance.now())).toString(36)
 }

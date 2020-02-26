@@ -5,7 +5,7 @@ import FastRewindIcon from "@material-ui/icons/FastRewind"
 import PauseIcon from "@material-ui/icons/PauseSharp"
 import PlayArrowIcon from "@material-ui/icons/PlayArrow"
 
-import reducers from "board/calculus"
+import { reducers } from "board/calculus"
 import { useDispatch, useMode, setMode } from "board/state"
 import React, { useState } from "react"
 
