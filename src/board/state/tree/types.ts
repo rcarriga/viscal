@@ -3,7 +3,10 @@ export type RefID = string
 export type VarName = string
 export type VarIndex = number | undefined
 
+export type NodeType = "NULL" | "VARIABLE" | "ABSTRACTION" | "APPLICATION"
+
 interface BaseExpression {
+  readonly type: NodeType
   readonly children: (tree: Tree) => NodeID[]
   readonly directChildren: NodeID[]
 }

@@ -1,46 +1,81 @@
-import { NodeID, Tree, DimensionSettings, TreeNode } from "../.."
-import { ReductionStage, TreeState } from "../../tree"
-import { NodeDimension, DimensionOffsets, DimensionOffset, NodeDimensions } from "./types"
+import {
+  NodeDimension,
+  DimensionOffsets,
+  DimensionOffset,
+  NodeDimensions,
+  ReductionStage,
+  TreeState,
+  NodeID,
+  Tree,
+  DimensionSettings,
+  TreeNode,
+  NodeJoins
+} from "board/state"
+import { reduceObj } from "board/util"
 
-export const getDimensions = (
+export const constructDimensions = (
   state: TreeState,
   settings: DimensionSettings,
-  reduction?: ReductionStage
+  joins: NodeJoins
 ): NodeDimensions => {
-  const dimensionOffsets = reduction ? calculateDimensionOffsets(settings, reduction, state) : {}
+  const dimensionOffsets = calculateDimensionOffsets(settings, joins, state.reduction)
   return calculateDimensions(state.root, state.nodes, settings, dimensionOffsets)
 }
 
 const calculateDimensionOffsets = (
   settings: DimensionSettings,
-  reduction: ReductionStage,
-  state: TreeState
+  joins: NodeJoins,
+  reduction?: ReductionStage
 ): DimensionOffsets => {
-  const wOffset = settings.circleRadius + settings.widthMargin
-  switch (reduction.type) {
-    case "SUBSTITUTE":
-      return {
-        [reduction.visibleParent]: {
-          w: -wOffset
-        }
-      }
-    case "SHIFT_ABS":
-      return {
-        [reduction.visibleParent]: {
-          w: -wOffset
-        },
-        [reduction.abs]: { w: -wOffset }
-      }
-    case "SHIFT_PARENT":
-      return {
-        [reduction.visibleParent]: {
-          w: -(wOffset + (reduction.visibleParent === reduction.parentApplication ? wOffset * 2 : 0))
-        },
-        [reduction.abs]: { w: -wOffset }
-      }
-    default:
-      return {}
+  const joinOffsets = (): DimensionOffsets => {
+    const maxDistances = Object.keys(joins).reduce((distances: { [nodeID in NodeID]: number }, nodeID) => {
+      const join = joins[nodeID]
+      const distance = distances[join.jointTo] || 0
+      return { ...distances, [join.jointTo]: Math.max(distance, join.distance) }
+    }, {})
+    return reduceObj(joins, {}, (offsets, join, nodeID) => ({
+      ...offsets,
+      [join.jointTo]: { w: -(settings.circleRadius + settings.widthMargin) },
+      ...(maxDistances[join.jointTo] > join.distance
+        ? { [nodeID]: { w: -(settings.circleRadius + settings.widthMargin) } }
+        : {})
+    }))
   }
+
+  const reductionOffsets = (reduction: ReductionStage): DimensionOffsets => {
+    const wOffset = settings.circleRadius + settings.widthMargin
+    switch (reduction.type) {
+      case "SUBSTITUTE":
+        return {
+          [reduction.visibleParent]: {
+            w: -wOffset
+          }
+        }
+      case "SHIFT_ABS":
+        return {
+          [reduction.visibleParent]: {
+            w: -wOffset
+          }
+        }
+      case "SHIFT_PARENT":
+        return {
+          [reduction.visibleParent]: {
+            w: -(wOffset + (reduction.visibleParent === reduction.parentApplication ? wOffset * 2 : 0))
+          }
+        }
+      default:
+        return {}
+    }
+  }
+  const jOffsets = joinOffsets()
+
+  if (!reduction) return jOffsets
+  const redOffsets = reductionOffsets(reduction)
+  const keys = Array.from(new Set([...Object.keys(jOffsets), ...Object.keys(redOffsets)]).values())
+  return keys.reduce(
+    (offsets, nodeID) => ({ ...offsets, [nodeID]: addOffsets(jOffsets[nodeID], redOffsets[nodeID]) }),
+    {}
+  )
 }
 
 const calculateDimensions = (
@@ -48,13 +83,13 @@ const calculateDimensions = (
   tree: Tree,
   settings: DimensionSettings,
   offsets: DimensionOffsets,
-  coords: NodeDimensions = {}
+  dimensions: NodeDimensions = {}
 ): NodeDimensions => {
   const root = tree[rootID]
   if (root) {
     const children = root.children(tree)
     const childDimensions = children
-      .map(childID => calculateDimensions(childID, tree, settings, offsets, coords))
+      .map(childID => calculateDimensions(childID, tree, settings, offsets, dimensions))
       .reduce((prev, cur) => ({ ...prev, ...cur }), {})
     return {
       ...childDimensions,
@@ -67,7 +102,7 @@ const calculateDimensions = (
       )
     }
   }
-  return coords
+  return dimensions
 }
 
 const elementWidth = (
@@ -88,7 +123,7 @@ const elementWidth = (
     case "ABSTRACTION":
       return sumChildren() + settings.circleRadius * 2 + settings.widthMargin
     case "APPLICATION":
-      return sumChildren() + settings.circleRadius + settings.widthMargin
+      return sumChildren() + settings.widthMargin * 2
     default:
       return 0
   }
@@ -112,10 +147,14 @@ const elementHeight = (
   }
 }
 
-const addOffset = (coord: NodeDimension, offset?: DimensionOffset): NodeDimension =>
+const addOffsets = (...offsets: (DimensionOffset | undefined)[]): DimensionOffset => {
+  return offsets.reduce(addOffset, {})
+}
+
+const addOffset = <A extends NodeDimension | DimensionOffset>(coord: A, offset?: DimensionOffset): A =>
   offset
-    ? {
-        w: coord.w + (offset.w || 0),
-        h: coord.h + (offset.h || 0)
-      }
+    ? ({
+        w: (coord.w || 0) + (offset.w || 0),
+        h: (coord.h || 0) + (offset.h || 0)
+      } as A)
     : coord

@@ -1,19 +1,22 @@
 import { createSelector } from "reselect"
 import { DimensionSettings, BoardState, NodeID, Tree, TreeState, ReductionStage } from "../.."
 import { reduceObj } from "../../../util"
-import { getDimensions } from "./dimensions"
-import { Coords, CoordOffsets, NodeCoord, CoordOffset, NodeDimensions } from "./types"
+import { constructDimensions } from "./dimensions"
+import { constructJoins } from "./joins"
+import { Coords, CoordOffsets, NodeCoord, CoordOffset, NodeDimensions, NodeJoins } from "./types"
 
 export * from "./types"
 
 const constructCoords = (tree: TreeState, settings: DimensionSettings): Coords => {
   const root = tree.root
   if (root) {
-    const dimensions = getDimensions(tree, settings, tree.reduction)
-    const coordOffsets = tree.reduction ? calculateCoordOffsets(settings, tree.reduction, tree) : {}
+    const joins = constructJoins(tree)
+
+    const dimensions = constructDimensions(tree, settings, joins)
+    const coordOffsets = calculateCoordOffsets(settings, joins, tree)
 
     const coords = fillCoords(root, dimensions, tree.nodes, settings, coordOffsets)
-    const afterReduction = tree.reduction ? moveReplacements(coords, tree.reduction, settings) : coords
+    const afterReduction = tree.reduction ? addOverrides(coords, tree.reduction, settings) : coords
     if (tree.nodes[root].type === "APPLICATION") delete afterReduction[root]
     return afterReduction
   } else return {}
@@ -26,18 +29,17 @@ export const coordsSelector = createSelector(
   constructCoords
 )
 
-const moveReplacements = (coords: Coords, reduction: ReductionStage, settings: DimensionSettings): Coords =>
+const addOverrides = (coords: Coords, reduction: ReductionStage, settings: DimensionSettings): Coords =>
   reduceObj(reduction.substitutions, coords, (coords, substitution, unbindedVar) =>
-    reduceObj(substitution, coords, (coords, replacement, renamedTerm) => {
-      if (coords[renamedTerm]) {
+    reduceObj(substitution, coords, (coords, replacement, toReplace) => {
+      if (coords[toReplace]) {
         const yOffset = settings.heightMargin * 2 + settings.circleRadius * 4
         switch (reduction.type) {
-          case "SELECT":
           case "CONSUME":
             return {
               ...coords,
               [replacement]: {
-                ...coords[renamedTerm],
+                ...coords[toReplace],
                 nodeID: replacement
               }
             }
@@ -45,8 +47,8 @@ const moveReplacements = (coords: Coords, reduction: ReductionStage, settings: D
             return {
               ...coords,
               [replacement]: {
-                ...coords[renamedTerm],
-                y: coords[renamedTerm].y - yOffset,
+                ...coords[toReplace],
+                y: coords[toReplace].y - yOffset,
                 nodeID: replacement
               }
             }
@@ -55,9 +57,9 @@ const moveReplacements = (coords: Coords, reduction: ReductionStage, settings: D
             return {
               ...coords,
               [replacement]: {
-                ...coords[renamedTerm],
-                y: coords[renamedTerm].y - yOffset,
-                x: coords[unbindedVar].x - (coords[reduction.consumed].x - coords[renamedTerm].x),
+                ...coords[toReplace],
+                y: coords[toReplace].y - yOffset,
+                x: coords[unbindedVar].x - (coords[reduction.consumed].x - coords[toReplace].x),
                 nodeID: replacement
               }
             }
@@ -69,51 +71,33 @@ const moveReplacements = (coords: Coords, reduction: ReductionStage, settings: D
     })
   )
 
-const calculateCoordOffsets = (
-  settings: DimensionSettings,
-  reduction: ReductionStage,
-  state: TreeState
-): CoordOffsets => {
-  const xOffset = settings.widthMargin + settings.circleRadius
-  const afterConsumed = state.nodes[reduction.visibleParent].children(state.nodes)[2]
-  const newChild = state.nodes[reduction.abs] ? state.nodes[reduction.abs].directChildren[0] : ""
-  switch (reduction.type) {
-    case "CONSUME":
-    case "LIFT":
-    case "HOVER":
-    case "UNBIND":
-      return {
-        [reduction.consumed]: { x: -xOffset },
-        ...(afterConsumed ? { [afterConsumed]: { x: xOffset } } : {})
-      }
-    case "SUBSTITUTE":
-      return {
-        [reduction.consumed]: { x: -xOffset }
-      }
-    case "SHIFT_ABS":
-      return {
-        [reduction.consumed]: {
-          x: -xOffset
-        },
-        [newChild]: {
-          x: -xOffset
-        }
-      }
-    case "SHIFT_PARENT":
-      return {
-        [reduction.consumed]: {
-          x: -xOffset
-        },
-        [newChild]: {
-          x: -xOffset
-        },
-        [reduction.abs]: {
-          x: reduction.visibleParent === reduction.parentApplication ? -xOffset : 0
-        }
-      }
-    default:
-      return {}
+const calculateCoordOffsets = (settings: DimensionSettings, joins: NodeJoins, state: TreeState): CoordOffsets => {
+  const reductionOffsets = (reduction: ReductionStage) => {
+    const xOffset = settings.widthMargin + settings.circleRadius
+    const afterConsumed = state.nodes[reduction.visibleParent].children(state.nodes)[2]
+    return {
+      [reduction.consumed]: { x: -xOffset },
+      ...(afterConsumed ? { [afterConsumed]: { x: xOffset } } : {})
+    }
   }
+
+  const joinOffsets = (): CoordOffsets =>
+    Object.keys(joins).reduce(
+      (offsets, nodeID) => ({
+        ...offsets,
+        [nodeID]: { x: -(settings.circleRadius + settings.widthMargin) }
+      }),
+      {}
+    )
+
+  const jOffsets = joinOffsets()
+  if (!state.reduction) return jOffsets
+  const redOffsets = reductionOffsets(state.reduction)
+  const keys = Array.from(new Set([...Object.keys(jOffsets), ...Object.keys(redOffsets)]).values())
+  return keys.reduce(
+    (offsets, nodeID) => ({ ...offsets, [nodeID]: addOffsets(jOffsets[nodeID], redOffsets[nodeID]) }),
+    {}
+  )
 }
 
 const fillCoords = (
@@ -150,11 +134,15 @@ const fillCoords = (
   return {}
 }
 
-const addOffset = (coord: NodeCoord, offset?: CoordOffset): NodeCoord =>
+const addOffsets = (...offsets: (CoordOffset | undefined)[]): CoordOffset => {
+  return offsets.reduce(addOffset, {})
+}
+
+const addOffset = <A extends NodeCoord | CoordOffset>(coord: A, offset?: CoordOffset): A =>
   offset
-    ? {
+    ? ({
         ...coord,
-        x: coord.x + (offset.x || 0),
-        y: coord.y + (offset.y || 0)
-      }
+        x: (coord.x || 0) + (offset.x || 0),
+        y: (coord.y || 0) + (offset.y || 0)
+      } as A)
     : coord

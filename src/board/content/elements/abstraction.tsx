@@ -42,19 +42,20 @@ const RawAbs = (props: RawAbsProps) => {
   const boxWidth = props.width - props.radius
   const circleTopPoint = props.y - props.radius
   const inputX = props.x + boxWidth + props.radius
-  const outPath = `M${props.x + props.radius},${circleTopPoint}
+  const outPath = `M${props.x + 2 + props.radius},${circleTopPoint}
         a1,1 0 0,0 0,${props.radius * 2}`
-  const inPath = `M${inputX},${circleTopPoint}
+  const inPath = `M${inputX + 2},${circleTopPoint}
         a1,1 0 0,0 0,${props.radius * 2}
         l0,${-props.radius * 2}`
+  const circleBuffer = props.height / 2 - props.radius
   const boxPath = `M${props.x + props.radius},${circleTopPoint + props.radius * 2}
-        l0,${props.height / 2 - props.radius}
-        l${boxWidth},0
-        l0,${-props.height / 2 + props.radius}
+        l${props.heightMargin},${circleBuffer}
+        l${boxWidth - props.heightMargin * 2},0
+        l${props.heightMargin},${-circleBuffer}
         a1,1 0 1,1 0,${-props.radius * 2}
-        l0,${-props.height / 2 + props.radius}
-        l${-boxWidth},0
-        l0,${props.height}`
+        l${-props.heightMargin},${-circleBuffer}
+        l${props.heightMargin * 2 - boxWidth},0
+        l${-props.heightMargin},${circleBuffer}`
 
   const outAnimate = useMotion(
     {
@@ -89,7 +90,7 @@ const RawAbs = (props: RawAbsProps) => {
         onMouseOver={() => props.events.highlight(props.id)}
         onMouseLeave={() => props.events.clearHighlight(props.id)}
       />
-      <animated.path {...boxAnimate} onClick={() => props.events.click(props.id)} pointerEvents="painted" />
+      <animated.path {...boxAnimate} onClick={() => props.events.click(props.id)} pointerEvents="stroke" />
     </animated.g>
   )
 }

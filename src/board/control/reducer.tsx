@@ -16,6 +16,31 @@ const ReducerControl = () => {
   return (
     <div>
       <div className="title is-5">Reduction</div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          margin: "20px",
+          marginBottom: "10px"
+        }}
+      >
+        <IconButton onClick={() => dis(setMode("REVERSE"))}>
+          <FastRewindIcon />
+        </IconButton>
+        {mode !== "STOP" ? (
+          <IconButton onClick={() => dis(setMode("STOP"))}>
+            <PauseIcon />
+          </IconButton>
+        ) : (
+          <IconButton onClick={() => dis(setMode("PLAY"))}>
+            <PlayArrowIcon />
+          </IconButton>
+        )}
+        <IconButton onClick={() => dis(setMode("FORWARD"))}>
+          <FastForwardIcon />
+        </IconButton>
+      </div>
       <div>
         <div className="has-text-dark" style={{ marginBottom: 5 }}>
           Method
@@ -41,30 +66,6 @@ const ReducerControl = () => {
             </div>
           </div>
         </div>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          margin: "20px",
-          marginBottom: "10px"
-        }}
-      >
-        <IconButton onClick={() => dis(setMode("REVERSE"))}>
-          <FastRewindIcon />
-        </IconButton>
-        {mode === "PLAY" ? (
-          <IconButton onClick={() => dis(setMode("STOP"))}>
-            <PauseIcon />
-          </IconButton>
-        ) : (
-          <IconButton onClick={() => dis(setMode("PLAY"))}>
-            <PlayArrowIcon />
-          </IconButton>
-        )}
-        <IconButton onClick={() => dis(setMode("FORWARD"))}>
-          <FastForwardIcon />
-        </IconButton>
       </div>
     </div>
   )

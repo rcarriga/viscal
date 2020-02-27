@@ -7,8 +7,8 @@ import { ActionCreators } from "redux-undo"
 const ExpressionControl = () => {
   const dis = useDispatch()
   const [active, setActive] = useState(false)
-  const [input, setInput] = useState("")
-  const [expr, setExpr] = useState("(\\a.a) (\\a b. a b) c")
+  const [expr, setExpr] = useState("(\\a b c. a (b c))")
+  const [input, setInput] = useState(expr)
   const toggle = () => setActive(!active)
   useEffect(() => {
     dis(clearTree())

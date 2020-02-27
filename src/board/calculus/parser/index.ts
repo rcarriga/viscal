@@ -107,7 +107,5 @@ const whitespace = () =>
 
 const parse = (expression: string) => {
   const stream = Streams.ofString(expression)
-  const res = expr().parse(stream)
-  console.log(res.value)
-  return res
+  return expr().parse(stream)
 }

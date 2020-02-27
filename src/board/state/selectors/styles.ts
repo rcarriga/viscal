@@ -9,6 +9,7 @@ type VarColors = { [bindingID in NodeID]: Color }
 interface StrokeStyle {
   stroke: string
   strokeWidth: number
+  strokeLinecap?: string
 }
 
 interface BaseNodeStyle {
@@ -156,13 +157,13 @@ const createVarStyle = (
     stroke: {
       stroke: transparent
         ? theme.transparent
+        : node && node.type !== "VARIABLE"
+        ? theme.transparent
         : selected
         ? theme.selectedStroke
         : highlighted
         ? theme.highlightedStroke
-        : node && node.type === "VARIABLE"
-        ? theme.varStroke
-        : color,
+        : theme.varStroke,
       strokeWidth: state.dimensions.strokeWidth
     }
   }
@@ -186,7 +187,8 @@ const createAbsStyle = (
         : highlighted
         ? theme.highlightedStroke
         : theme.stroke,
-      strokeWidth: state.dimensions.strokeWidth
+      strokeWidth: state.dimensions.strokeWidth,
+      strokeLinecap: "square"
     },
     input: createVarStyle(nodeID, state, { transparent, selected, highlighted }),
     output: createVarStyle("", state, { transparent, selected, highlighted })
