@@ -37,7 +37,7 @@ interface RawApplProps extends RawExprProps {
 const RawAppl = (props: RawApplProps) => {
   const boxWidth = props.width - props.radius
   const circleTopPoint = props.y - props.radius
-  const boxPath = `M${props.x + props.radius},${circleTopPoint + props.radius * 2}
+  const boxPath = `M${props.x},${circleTopPoint + props.radius * 2}
           l0,${props.height / 2 - props.radius}
           l${boxWidth},0
           l0,${-props.height}

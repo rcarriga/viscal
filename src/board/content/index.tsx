@@ -1,24 +1,13 @@
-import {
-  addVariable,
-  addAbstraction,
-  addApplication,
-  setRoot,
-  setSelected,
-  setHighlighted,
-  setEvent,
-  nextReductionStage,
-  NodeID,
-  useTreeState,
-  useDispatch
-} from "board/state"
+import { setSelected, setHighlighted, setEvent, nextReductionStage, useTreeState, useDispatch } from "board/state"
 import React, { useEffect, useState } from "react"
 import { animated } from "react-spring"
 import Graph from "./elements"
+import Tooltip from "./tooltip"
 
 const BoardContent = () => {
   const treeState = useTreeState()
   const dis = useDispatch()
-  usePopTree(dis, treeState.root)
+  usePopTree(dis)
   return (
     <animated.svg
       id="board-content"
@@ -32,6 +21,7 @@ const BoardContent = () => {
         if (treeState.reduction) dis(nextReductionStage())
       }}
     >
+      <Tooltip />
       <Graph />
     </animated.svg>
   )
@@ -39,7 +29,7 @@ const BoardContent = () => {
 
 export default BoardContent
 
-const usePopTree = (dis: any, root?: NodeID) => {
+const usePopTree = (dis: any) => {
   const [used, setUsed] = useState(false)
   useEffect(() => {
     if (!used) {

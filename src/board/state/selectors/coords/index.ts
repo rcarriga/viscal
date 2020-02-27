@@ -17,7 +17,7 @@ const constructCoords = (tree: TreeState, settings: DimensionSettings): Coords =
 
     const coords = fillCoords(root, dimensions, tree.nodes, settings, coordOffsets)
     const afterReduction = tree.reduction ? addOverrides(coords, tree.reduction, settings) : coords
-    if (tree.nodes[root].type === "APPLICATION") delete afterReduction[root]
+    // if (tree.nodes[root].type === "APPLICATION") delete afterReduction[root]
     return afterReduction
   } else return {}
 }
@@ -124,7 +124,7 @@ const fillCoords = (
         }
       },
       {
-        baseX: coord.x + settings.circleRadius + settings.widthMargin,
+        baseX: coord.x + settings.widthMargin + (root.type === "ABSTRACTION" ? settings.circleRadius : 0),
         coords: {
           [rootID]: coord
         }
