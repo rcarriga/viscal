@@ -1,5 +1,7 @@
-import { NodeID, TreeState, reduceTree } from "board/state"
-import { NodeJoins } from "./types"
+import { NodeID, TreeState, reduceTree, BoardState } from "board/state"
+import { createSelector } from "reselect"
+
+export type NodeJoins = { [nodeID in NodeID]: { distance: number; jointTo: NodeID } }
 
 export const constructJoins = (state: TreeState) => {
   const joins = reduceTree(
@@ -43,3 +45,5 @@ export const constructJoins = (state: TreeState) => {
   console.log(joins)
   return joins
 }
+
+export const joinsSelector = createSelector((state: BoardState) => state.tree.present, constructJoins)

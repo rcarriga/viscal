@@ -92,13 +92,3 @@ export const reduceTree = <A>(
   }
 }
 
-// export const stringifyTree = (tree: Tree, rootID: NodeID): string => {
-//   const root = tree[rootID]
-//   switch (root.type) {
-//     case "VARIABLE":
-//       return root.name
-//     case "ABSTRACTION":
-//     default:
-//       return ""
-//   }
-// }

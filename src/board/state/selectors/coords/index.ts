@@ -1,23 +1,29 @@
+import {
+  DimensionSettings,
+  BoardState,
+  NodeID,
+  Tree,
+  TreeState,
+  ReductionStage,
+  joinsSelector,
+  NodeJoins
+} from "board/state"
+import { reduceObj } from "board/util"
 import { createSelector } from "reselect"
-import { DimensionSettings, BoardState, NodeID, Tree, TreeState, ReductionStage } from "../.."
-import { reduceObj } from "../../../util"
 import { constructDimensions } from "./dimensions"
-import { constructJoins } from "./joins"
-import { Coords, CoordOffsets, NodeCoord, CoordOffset, NodeDimensions, NodeJoins } from "./types"
+import { Coords, CoordOffsets, NodeCoord, CoordOffset, NodeDimensions } from "./types"
 
 export * from "./types"
 
-const constructCoords = (tree: TreeState, settings: DimensionSettings): Coords => {
+const constructCoords = (tree: TreeState, settings: DimensionSettings, joins: NodeJoins): Coords => {
   const root = tree.root
   if (root) {
-    const joins = constructJoins(tree)
-
     const dimensions = constructDimensions(tree, settings, joins)
     const coordOffsets = calculateCoordOffsets(settings, joins, tree)
 
     const coords = fillCoords(root, dimensions, tree.nodes, settings, coordOffsets)
     const afterReduction = tree.reduction ? addOverrides(coords, tree.reduction, settings) : coords
-    // if (tree.nodes[root].type === "APPLICATION") delete afterReduction[root]
+    if (tree.nodes[root].type === "APPLICATION") delete afterReduction[root]
     return afterReduction
   } else return {}
 }
@@ -25,7 +31,7 @@ const constructCoords = (tree: TreeState, settings: DimensionSettings): Coords =
 export const coordsSelector = createSelector(
   (state: BoardState) => state.tree.present,
   (state: BoardState) => state.visual.dimensions,
-  (state: BoardState) => state.tree.present.reduction,
+  (state: BoardState) => joinsSelector(state),
   constructCoords
 )
 

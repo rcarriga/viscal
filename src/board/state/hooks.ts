@@ -1,5 +1,5 @@
 import { useSelector as _useSelector, TypedUseSelectorHook, useDispatch as _useDispatch } from "react-redux"
-import { BoardState, coordsSelector, stylesSelector, BoardAction, NodeID, NodeStyle, NodeCoord } from "."
+import { BoardState, coordsSelector, stylesSelector, BoardAction, NodeID, NodeStyle, NodeCoord, joinsSelector } from "."
 
 const useSelector: TypedUseSelectorHook<BoardState> = _useSelector
 
@@ -26,6 +26,8 @@ export const useStyles = () => useSelector(state => stylesSelector(state))
 export const useStyle = (nodeID: NodeID): NodeStyle | undefined => useStyles()[nodeID]
 
 export const useCoords = () => useSelector(state => coordsSelector(state))
+
+export const useJoins = () => useSelector(state => joinsSelector(state))
 
 export const useHighlighted = () => useSelector(state => state.visual.highlighted)
 
