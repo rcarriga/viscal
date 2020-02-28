@@ -94,6 +94,24 @@ const addReplacementNodes = (reduction: ReductionStage, tree: Tree): Tree =>
     const indexOffset = calcOffset(0, reduction.child) || 0
 
     const getSub = (nodeID: NodeID) => substitution[nodeID] || nodeID
+    const getBoundOutside = (tree: Tree, rootID: NodeID, abstractions = 0): NodeID[] => {
+      const root = tree[rootID]
+      if (!root) return []
+      switch (root.type) {
+        case "VARIABLE":
+          return !root.index || abstractions <= root.index ? [rootID] : []
+        case "ABSTRACTION":
+          if (!root.child) return []
+          return getBoundOutside(tree, root.child, abstractions + 1)
+        case "APPLICATION":
+          return root.children(tree).flatMap(childID => getBoundOutside(tree, childID, abstractions))
+        default:
+          return []
+      }
+    }
+
+    const boundOutside = new Set(...getBoundOutside(tree, reduction.consumed))
+
     const subTree = reduceTree(
       tree,
       (tree, node, nodeID) => {
@@ -102,7 +120,7 @@ const addReplacementNodes = (reduction: ReductionStage, tree: Tree): Tree =>
             case "VARIABLE":
               return createVar(
                 getSub(nodeID),
-                node.index !== undefined ? node.index + indexOffset : undefined,
+                node.index !== undefined ? node.index + (boundOutside.has(nodeID) ? indexOffset : 0) : undefined,
                 node.name
               )
             case "ABSTRACTION":
