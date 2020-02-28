@@ -1,4 +1,12 @@
-import { setSelected, setHighlighted, setEvent, nextReductionStage, useTreeState, useDispatch } from "board/state"
+import {
+  setSelected,
+  adjustLayout,
+  setHighlighted,
+  setEvent,
+  nextReductionStage,
+  useTreeState,
+  useDispatch
+} from "board/state"
 import React, { useEffect, useState } from "react"
 import { animated } from "react-spring"
 import Graph from "./elements"
@@ -20,14 +28,17 @@ const BoardContent = () => {
       onClick={() => {
         if (treeState.reduction) dis(nextReductionStage())
       }}
+      onWheel={e => {
+        dis(adjustLayout("startX", e.deltaY * 10))
+      }}
     >
       <filter id="goo">
         <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
         <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo" />
         <feComposite in="SourceGraphic" in2="goo" operator="atop" />
       </filter>
-      <Tooltip />
       <Graph />
+      <Tooltip />
     </animated.svg>
   )
 }
