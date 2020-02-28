@@ -47,19 +47,20 @@ const RawAbs = (props: RawAbsProps) => {
   const inPath = `M${inputX},${circleTopPoint}
         a1,1 0 0,0 0,${props.radius * 2}
         l0,${-props.radius * 2}`
-  const circleBuffer = props.height / 2 - props.radius - 5
+  const bufferOffset = 1
+  const circleBuffer = props.height / 2 - props.radius - bufferOffset
   const boxPath = `M${props.x + props.radius},${circleTopPoint + props.radius * 2}
-        l0,${5}
+        l0,${bufferOffset}
         l${props.heightMargin},${circleBuffer}
         l${boxWidth - props.heightMargin * 2},0
         l${props.heightMargin},${-circleBuffer}
-        l0,${-5}
+        l0,${-bufferOffset}
         a1,1 0 1,1 0,${-props.radius * 2}
-        l0,${-5}
+        l0,${-bufferOffset}
         l${-props.heightMargin},${-circleBuffer}
         l${props.heightMargin * 2 - boxWidth},0
         l${-props.heightMargin},${circleBuffer}
-        l0,${5 + props.radius * 2}`
+        l0,${bufferOffset + props.radius * 2}`
 
   const outAnimate = useMotion(
     {
