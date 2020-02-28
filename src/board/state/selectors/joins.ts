@@ -3,8 +3,8 @@ import { createSelector } from "reselect"
 
 export type NodeJoins = { [nodeID in NodeID]: { distance: number; jointTo: NodeID } }
 
-export const constructJoins = (state: TreeState) => {
-  const joins = reduceTree(
+export const constructJoins = (state: TreeState) =>
+  reduceTree(
     state.nodes,
     (overrideState: { joins: NodeJoins; parentID: NodeID }, node, nodeID) => {
       switch (node.type) {
@@ -42,8 +42,5 @@ export const constructJoins = (state: TreeState) => {
     { joins: {}, parentID: "" },
     state.root
   ).joins
-  console.log(joins)
-  return joins
-}
 
 export const joinsSelector = createSelector((state: BoardState) => state.tree.present, constructJoins)

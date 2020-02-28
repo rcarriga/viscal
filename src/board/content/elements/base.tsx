@@ -14,7 +14,11 @@ export interface RawExprProps extends ExprProps {
   events: NodeEvents
 }
 
-export const useMotion = (props: any, rest: (symbol: symbol) => void, start: (symbol: symbol) => void) => {
+export const useMotion = (
+  props: any,
+  rest: (symbol: symbol) => void = () => {},
+  start: (symbol: symbol) => void = () => {}
+) => {
   const [sym] = useState(Symbol(""))
   return useSpring({
     to: props,

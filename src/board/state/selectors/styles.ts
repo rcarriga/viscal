@@ -188,7 +188,7 @@ const createAbsStyle = (
         ? theme.highlightedStroke
         : theme.stroke,
       strokeWidth: state.dimensions.strokeWidth,
-      strokeLinecap: "square"
+      strokeLinecap: "round"
     },
     input: createVarStyle(nodeID, state, { transparent, selected, highlighted }),
     output: createVarStyle("", state, { transparent, selected, highlighted })

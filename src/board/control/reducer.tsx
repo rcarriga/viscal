@@ -15,13 +15,12 @@ const ReducerControl = () => {
   const mode = useMode()
   return (
     <div>
-      <div className="title is-5">Reduction</div>
+      <div className="menu-label">Reduction</div>
 
       <div
         style={{
           display: "flex",
           justifyContent: "center",
-          margin: "20px",
           marginBottom: "10px"
         }}
       >
@@ -42,9 +41,6 @@ const ReducerControl = () => {
         </IconButton>
       </div>
       <div>
-        <div className="has-text-dark" style={{ marginBottom: 5 }}>
-          Method
-        </div>
         <div className="dropdown is-hoverable" style={{ width: "100%" }}>
           <div className="dropdown-trigger" style={{ width: "100%" }}>
             <button style={{ width: "100%" }} className="button has-text-dark">
@@ -56,7 +52,7 @@ const ReducerControl = () => {
               {Object.values(reducers).map(reducer => (
                 <a
                   key={reducer.name}
-                  style={{ width: "100%", textAlign: "center" }}
+                  style={{ height: "100%", width: "100%", textAlign: "center" }}
                   className="dropdown-item has-text-grey"
                   onClick={() => setReducer(reducer)}
                 >

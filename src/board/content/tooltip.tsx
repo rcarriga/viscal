@@ -1,40 +1,35 @@
 import {
-  NodeCoord,
   useSelected,
   NodeID,
   useHighlighted,
   useCoord,
   Variable,
   Abstraction,
-  TreeNode,
-  TreeState,
   NodeJoins,
   Tree,
   useJoins,
-  useTree
+  useTree,
+  useTextTree
 } from "board/state"
-import { reduceObj } from "board/util"
-import React, { useState } from "react"
+import React from "react"
 import { useSpring, animated, config } from "react-spring"
 
 const Tooltip = () => {
   const selected = useSelected()
-  const tree = useTree()
-  const joins = useJoins()
   const highlighted = useHighlighted()
-  const nodeID = selected || highlighted
-  const coord = useCoord(nodeID || "")
-  const node = useTree()[nodeID || ""]
+  const nodeID = selected || highlighted || ""
+  const text = useTextTree(nodeID)
+  const coord = useCoord(nodeID)
+  const node = useTree()[nodeID]
   const style = useSpring({
     opacity: nodeID && coord ? 1 : 0,
     config: config.gentle
   })
   const description = () => {
     if (nodeID && node) {
-      const text = stringifyTree(tree, nodeID, joins)
       switch (node.type) {
         case "VARIABLE":
-          return <VarDescription node={node} text={text} />
+          return <VarDescription node={node} />
         case "ABSTRACTION":
           return <AbsDescription node={node} text={text} />
         default:
@@ -58,11 +53,12 @@ const Tooltip = () => {
   ) : null
 }
 
-const VarDescription = ({ node, text }: { node: Variable; text: string }) => {
+const VarDescription = ({ node }: { node: Variable }) => {
   return (
     <div className="">
       <DescriptionTitle name="Variable" />
       <DescriptionRow name={"Name"} value={node.name} />
+      <DescriptionRow name={"DrBruijn Index"} value={node.index} />
     </div>
   )
 }
@@ -77,7 +73,7 @@ const AbsDescription = ({ node, text }: { node: Abstraction; text: string }) => 
   )
 }
 
-const DescriptionRow = ({ name, value }: { name: string; value: string }) => (
+const DescriptionRow = ({ name, value }: { name: string; value: any }) => (
   <div className="">
     <div style={{ display: "flex" }}>
       <strong style={{ marginRight: 10 }}>{name}:</strong>
@@ -94,41 +90,3 @@ const DescriptionTitle = ({ name }: { name: string }) => (
 )
 
 export default Tooltip
-
-const stringifyTree = (tree: Tree, rootID: NodeID, joins: NodeJoins): string => {
-  const furthestJoins = reduceObj(joins, {} as { [nodeID in NodeID]: NodeID }, (furthestJoins, join, nodeID) => {
-    const furthest: NodeID = furthestJoins[join.jointTo]
-    if (furthest && joins[furthest].distance > join.distance) return furthestJoins
-    return { ...furthestJoins, [join.jointTo]: nodeID }
-  })
-  const joinNames = (tree: Tree, end: NodeID, start?: NodeID): NodeID[] => {
-    if (!start) return []
-    const node = tree[start || ""]
-    switch (node.type) {
-      case "ABSTRACTION":
-        return [node.variableName, ...(start === end ? [] : joinNames(tree, end, node.child))]
-      default:
-        return []
-    }
-  }
-  const root = tree[rootID]
-  if (!root) return ""
-  switch (root.type) {
-    case "VARIABLE":
-      return root.name
-    case "ABSTRACTION": {
-      const furthest = furthestJoins[rootID]
-      const nextNodes = tree[furthest] ? tree[furthest].children(tree) : root.children(tree)
-      const names = joinNames(tree, furthest, rootID)
-      return `\\${names.join(" ")}. ${nextNodes.map(nextNode => stringifyTree(tree, nextNode, joins)).join(" ")}`
-    }
-    case "APPLICATION": {
-      return root
-        .children(tree)
-        .map(nodeID => stringifyTree(tree, nodeID, joins))
-        .join(" ")
-    }
-    default:
-      return ""
-  }
-}

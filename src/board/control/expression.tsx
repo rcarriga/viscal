@@ -1,14 +1,14 @@
-import Button from "@material-ui/core/Button"
 import { parseExpression } from "board/calculus"
-import { useDispatch, clearTree } from "board/state"
+import { useDispatch, clearTree, useTextTree } from "board/state"
 import React, { useState, useEffect } from "react"
 import { ActionCreators } from "redux-undo"
 
 const ExpressionControl = () => {
   const dis = useDispatch()
   const [active, setActive] = useState(false)
-  const [expr, setExpr] = useState("(\\a b c. a (b c))")
+  const [expr, setExpr] = useState("(\\a b c. a (b c)) (\\a.a) b")
   const [input, setInput] = useState(expr)
+  const text = useTextTree()
   const toggle = () => setActive(!active)
   useEffect(() => {
     dis(clearTree())
@@ -17,15 +17,22 @@ const ExpressionControl = () => {
   }, [dis, expr])
   return (
     <div>
-      <Button variant="outlined" onClick={() => setActive(!active)}>
-        𝝺 Change Expression
-      </Button>
+      <div className="menu-label">Expression</div>
+      <div>
+        <div className="tag is-light is-info is-medium" style={{ marginBottom: 20, width: "100%" }}>
+          {text.length > 30 ? `${text.substr(0, 30)}...` : text}
+        </div>
+      </div>
+      <button className="button" style={{ width: "100%" }} onClick={() => setActive(!active)}>
+        𝝺 Change
+      </button>
       <div>
         <div className={`modal ${active ? "is-active" : ""}`}>
           <div className="modal-background" onClick={toggle} />
           <div className="modal-content">
             <div className="card is-background-light">
               <div className="card-content">
+                <div className="subtitle "></div>
                 <input
                   className="input is-medium"
                   value={input}
@@ -33,17 +40,16 @@ const ExpressionControl = () => {
                   type="text"
                   placeholder="Enter a lambda expression"
                 />
-                <Button
+                <button
+                  className="button is-primary"
                   style={{ margin: "10px" }}
                   onClick={() => {
                     toggle()
                     setExpr(input)
                   }}
-                  color="primary"
-                  variant="contained"
                 >
                   OK
-                </Button>
+                </button>
               </div>
             </div>
           </div>

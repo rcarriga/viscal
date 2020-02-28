@@ -57,6 +57,12 @@ const RawAbs = (props: RawAbsProps) => {
         l${props.heightMargin * 2 - boxWidth},0
         l${-props.heightMargin},${circleBuffer}`
 
+  const surroundAnimate = useMotion({
+    x: props.x,
+    y: props.y - props.radius,
+    height: props.radius * 2 + 5,
+    width: props.radius * 2 + 5
+  })
   const outAnimate = useMotion(
     {
       d: outPath,
@@ -79,17 +85,26 @@ const RawAbs = (props: RawAbsProps) => {
 
   return (
     <animated.g id={props.id}>
-      <animated.path
-        {...outAnimate}
-        onClick={() => props.events.click(props.id)}
-        onMouseOver={() => props.events.highlight(props.id)}
-        onMouseLeave={() => props.events.clearHighlight(props.id)}
-      />
-      <animated.path
-        {...inAnimate}
-        onMouseOver={() => props.events.highlight(props.id)}
-        onMouseLeave={() => props.events.clearHighlight(props.id)}
-      />
+      <animated.g {...surroundAnimate} style={{ filter: "url(#goo))" }}>
+        <animated.path
+          {...outAnimate}
+          onClick={e => {
+            e.stopPropagation()
+            props.events.click(props.id)
+          }}
+          onMouseOver={() => props.events.highlight(props.id)}
+          onMouseLeave={() => props.events.clearHighlight(props.id)}
+        />
+        <animated.path
+          {...inAnimate}
+          onClick={e => {
+            e.stopPropagation()
+            props.events.click(props.id)
+          }}
+          onMouseOver={() => props.events.highlight(props.id)}
+          onMouseLeave={() => props.events.clearHighlight(props.id)}
+        />
+      </animated.g>
       <animated.path {...boxAnimate} onClick={() => props.events.click(props.id)} pointerEvents="stroke" />
     </animated.g>
   )

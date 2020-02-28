@@ -1,3 +1,4 @@
+import { textTreeSelector } from "board/state/selectors/text"
 import { useSelector as _useSelector, TypedUseSelectorHook, useDispatch as _useDispatch } from "react-redux"
 import { BoardState, coordsSelector, stylesSelector, BoardAction, NodeID, NodeStyle, NodeCoord, joinsSelector } from "."
 
@@ -28,6 +29,9 @@ export const useStyle = (nodeID: NodeID): NodeStyle | undefined => useStyles()[n
 export const useCoords = () => useSelector(state => coordsSelector(state))
 
 export const useJoins = () => useSelector(state => joinsSelector(state))
+
+export const useTextTree = (rootID?: NodeID) =>
+  useSelector(state => textTreeSelector(state)(rootID || state.tree.present.root))
 
 export const useHighlighted = () => useSelector(state => state.visual.highlighted)
 

@@ -20,10 +20,9 @@ export default BoardControl
 
 const ControlPanel = (props: any) => {
   return (
-    <div className="card">
+    <div className="card" style={{ minWidth: 220 }}>
       <div className="card-content">
-        <div className="subtitle handle">Controls</div>
-        {props.children}
+        <div className="menu">{props.children}</div>
       </div>
     </div>
   )

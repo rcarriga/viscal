@@ -21,6 +21,11 @@ const BoardContent = () => {
         if (treeState.reduction) dis(nextReductionStage())
       }}
     >
+      <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+        <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo" />
+        <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+      </filter>
       <Tooltip />
       <Graph />
     </animated.svg>
@@ -36,8 +41,6 @@ const usePopTree = (dis: any) => {
       setUsed(true)
       dis(
         setEvent("click", nodeID => {
-          dis(setEvent("select", undefined))
-          dis(setEvent("clearSelect", undefined))
           dis(setSelected(nodeID))
         })
       )
