@@ -5,7 +5,7 @@ import { Board } from "./board"
 
 const App: React.FC = () => {
   return (
-    <div style={{ height: "100%", width: "100%" }}>
+    <div style={{ overflow: "hidden", width: "100vw", height: "100vh" }}>
       <TitleBar />
       <Board />
     </div>
