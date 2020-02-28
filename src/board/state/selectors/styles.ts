@@ -163,6 +163,8 @@ const createVarStyle = (
         ? theme.selectedStroke
         : highlighted
         ? theme.highlightedStroke
+        : !node
+        ? color
         : theme.varStroke,
       strokeWidth: state.dimensions.strokeWidth
     }

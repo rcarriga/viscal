@@ -23,7 +23,7 @@ export const useMotion = (
   return useSpring({
     to: props,
     config: {
-      tension: 100,
+      tension: 500,
       clamp: true
     },
     onRest: () => rest(sym),

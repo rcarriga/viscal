@@ -1,16 +1,4 @@
-import {
-  useSelected,
-  NodeID,
-  useHighlighted,
-  useCoord,
-  Variable,
-  Abstraction,
-  NodeJoins,
-  Tree,
-  useJoins,
-  useTree,
-  useTextTree
-} from "board/state"
+import { useSelected, useHighlighted, useCoord, Variable, Abstraction, useTree, useTextTree } from "board/state"
 import React from "react"
 import { useSpring, animated, config } from "react-spring"
 

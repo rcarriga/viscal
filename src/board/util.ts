@@ -1,5 +1,3 @@
-import { Tree, NodeID, NodeJoins } from "board/state"
-
 export const isString = (str: string | undefined): str is string => !!str // Allows typechecking
 
 export const reduceObj = <A, O>(obj: O, initial: A, f: (accum: A, value: O[keyof O], key: keyof O, obj: O) => A): A => {
