@@ -61,7 +61,8 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
 const removeReduced = (state: TreeState, reduction: ReductionStage): TreeState => {
   const newChild = state.nodes[reduction.abs].directChildren[0]
   const replaceRoot = state.root === reduction.parentApplication
-  const childReplaced = replaceChild(reduction.parentApplication, newChild, reduction.visibleParent, state.nodes)
+  const replaceFrom = reduction.visibleParent === reduction.parentApplication ? state.root : reduction.visibleParent
+  const childReplaced = replaceChild(reduction.parentApplication, newChild, replaceFrom, state.nodes)
   const newTree = filterObj(childReplaced, [...Object.keys(reduction.substitutions), reduction.abs, reduction.consumed])
   return {
     ...state,
