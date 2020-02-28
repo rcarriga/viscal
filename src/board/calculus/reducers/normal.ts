@@ -5,9 +5,13 @@ const reduce = (state: TreeState, rootID?: NodeID): ReductionStage | undefined =
   if (rootID) {
     const root = state.nodes[rootID]
     if (isRedex(root, state.nodes)) return createReduction(rootID, state)
-    const leftID = root.type === "APPLICATION" && root.left
+    const [leftID, rightID] = root.type === "APPLICATION" ? [root.left, root.right] : []
     if (leftID) {
-      return reduce(state, leftID)
+      const leftReduction = reduce(state, leftID)
+      if (leftReduction) return leftReduction
+      if (rightID) {
+        return reduce(state, rightID)
+      }
     }
   }
 }
