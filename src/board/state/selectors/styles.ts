@@ -158,7 +158,7 @@ const createVarStyle = (
       stroke: transparent
         ? theme.transparent
         : node && node.type !== "VARIABLE"
-        ? theme.transparent
+        ? color
         : selected
         ? theme.selectedStroke
         : highlighted
@@ -188,7 +188,7 @@ const createAbsStyle = (
         ? theme.highlightedStroke
         : theme.stroke,
       strokeWidth: state.dimensions.strokeWidth,
-      strokeLinecap: "round"
+      strokeLinecap: "square"
     },
     input: createVarStyle(nodeID, state, { transparent, selected, highlighted }),
     output: createVarStyle("", state, { transparent, selected, highlighted })

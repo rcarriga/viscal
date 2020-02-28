@@ -44,21 +44,13 @@ const RawVar = (props: RawVarProps) => {
     props.rest,
     props.start
   )
-  const surroundAnimate = useMotion({
-    x: props.x,
-    y: props.y - props.radius,
-    height: props.radius * 2 + 5,
-    width: props.radius * 2 + 5
-  })
   return (
-    <animated.g style={{ filter: "url(#goo)" }} {...surroundAnimate}>
-      <animated.path
-        {...animate}
-        id={props.id}
-        onClick={() => props.events.click(props.id)}
-        onMouseOver={() => props.events.highlight(props.id)}
-        onMouseLeave={() => props.events.clearHighlight(props.id)}
-      />
-    </animated.g>
+    <animated.path
+      {...animate}
+      id={props.id}
+      onClick={() => props.events.click(props.id)}
+      onMouseOver={() => props.events.highlight(props.id)}
+      onMouseLeave={() => props.events.clearHighlight(props.id)}
+    />
   )
 }
