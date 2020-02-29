@@ -1,5 +1,5 @@
-.App {
-  height: 100px;
-  text-align: center;
+.root {
+  font-family: "Roboto", sans-serif;
+  width: 100vw;
+  height: 100vh;
 }
-

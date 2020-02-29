@@ -10,11 +10,12 @@ module.exports = {
     "react-app",
     "plugin:react/recommended",
     "standard",
+    "prettier",
     "prettier/@typescript-eslint",
-    "plugin:prettier/recommended"
+    "prettier/react"
   ],
   globals: {
-    Atomics: "readonly",
+    etomics: "readonly",
     SharedArrayBuffer: "readonly"
   },
   parser: "@typescript-eslint/parser",
@@ -25,27 +26,15 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: "module"
   },
-  plugins: [
-    "react",
-    "@typescript-eslint",
-    "immutable",
-    "import"
-  ],
+  plugins: ["react", "@typescript-eslint", "import"],
   rules: {
-    "import/order": ["error", {"alphabetize": {"order": "asc"}}],
-    "max-len": ["error", {"code": 100}],
+    "import/order": ["error", { alphabetize: { order: "asc" } }],
+    "import/no-unresolved": [0],
     "@typescript-eslint/no-unused-vars": ["error"],
-    "quotes": ["error", "double"],
-    "linebreak-style": ["error", "unix"],
-    "object-curly-spacing": ["error", "always"],
-    "semi": ["error", "never"],
-    "immutable/no-let": 2,
-    "immutable/no-this": 2,
-    "immutable/no-mutation": 2,
     "no-var": "error",
     "no-undef": "error",
     "no-param-reassign": "error",
     "default-case": "error",
-    "one-var": ["error", "never"],
+    "one-var": ["error", "never"]
   }
 }

@@ -1,8 +1,7 @@
-import { NodeID, VarIndex } from "./types"
+import { VarIndex, NodeID, VarName, ReductionStage } from "./types"
 
-interface NormalOrderReductionAction {
-  type: "NORMAL_ORDER_REDUCTION"
-  nodeID: NodeID
+interface ClearTree {
+  type: "CLEAR_TREE"
 }
 
 interface SetRoot {
@@ -17,7 +16,7 @@ interface AddExpression {
 interface AddVariable extends AddExpression {
   type: "ADD_VARIABLE"
   index: VarIndex
-  name: string
+  name: VarName
 }
 
 interface AddAbstraction extends AddExpression {
@@ -28,52 +27,62 @@ interface AddAbstraction extends AddExpression {
 
 interface AddApplication extends AddExpression {
   type: "ADD_APPLICATION"
-  left: NodeID
-  right: NodeID
+  left?: NodeID
+  right?: NodeID
+}
+
+interface QueueReduction {
+  type: "QUEUE_REDUCTION"
+  reduction?: ReductionStage
+}
+
+interface NextReductionStage {
+  type: "NEXT_REDUCTION_STAGE"
 }
 
 export type TreeAction =
-  | NormalOrderReductionAction
+  | ClearTree
   | SetRoot
   | AddVariable
   | AddAbstraction
   | AddApplication
+  | QueueReduction
+  | NextReductionStage
 
-export const normalOrderReduce = (nodeID: NodeID): TreeAction => {
-  return { type: "NORMAL_ORDER_REDUCTION", nodeID }
+export const clearTree = (): TreeAction => {
+  return { type: "CLEAR_TREE" }
 }
 
 export const setRoot = (nodeID: NodeID): TreeAction => {
-  return { type: "SET_ROOT", nodeID: nodeID }
+  return { type: "SET_ROOT", nodeID }
 }
 
-export const addVariable = (nodeID: NodeID, index: VarIndex, name: string): TreeAction => {
-  return {
-    type: "ADD_VARIABLE",
-    nodeID,
-    index,
-    name
-  }
-}
+export const addVariable = (nodeID: NodeID, index: VarIndex, name: VarName): TreeAction => ({
+  type: "ADD_VARIABLE",
+  nodeID,
+  index,
+  name
+})
 
-export const addAbstraction = (
-  nodeID: NodeID,
-  variableName: string,
-  child?: NodeID
-): TreeAction => {
-  return {
-    type: "ADD_ABSTRACTION",
-    nodeID,
-    variableName,
-    child
-  }
-}
+export const addAbstraction = (nodeID: NodeID, variableName: VarName, child?: NodeID): TreeAction => ({
+  type: "ADD_ABSTRACTION",
+  nodeID,
+  variableName,
+  child
+})
 
-export const addApplication = (nodeID: NodeID, left: NodeID, right: NodeID): TreeAction => {
-  return {
-    type: "ADD_APPLICATION",
-    nodeID,
-    left,
-    right
-  }
-}
+export const addApplication = (nodeID: NodeID, left?: NodeID, right?: NodeID): TreeAction => ({
+  type: "ADD_APPLICATION",
+  nodeID,
+  left,
+  right
+})
+
+export const queueReduction = (reduction?: ReductionStage): TreeAction => ({
+  type: "QUEUE_REDUCTION",
+  reduction
+})
+
+export const nextReductionStage = (): TreeAction => ({
+  type: "NEXT_REDUCTION_STAGE"
+})

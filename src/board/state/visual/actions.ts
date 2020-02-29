@@ -1,5 +1,13 @@
 import { NodeID } from "../tree"
-import { MouseEventHandler, NodeEvent, NodeDimension, Layout } from "./types"
+import {
+  EventHandler,
+  NodeEvent,
+  DimensionSetting,
+  Layout,
+  AnimationMode,
+  AnimationSettings,
+  AnimationSetting
+} from "./types"
 
 interface SetSelected {
   type: "SET_SELECTED"
@@ -13,20 +21,47 @@ interface SetHighlighted {
 
 interface SetDimension {
   type: "SET_NODE_DIMENSION"
-  dimension: NodeDimension
+  dimension: DimensionSetting
   value: number
 }
 
 interface SetEvent {
   type: "SET_EVENT"
   event: NodeEvent
-  handler?: MouseEventHandler
+  handler?: EventHandler
 }
 
 interface SetLayout {
   type: "SET_TREE_LAYOUT"
   parameter: Layout
   value: number
+}
+
+interface AdjustLayout {
+  type: "ADJUST_TREE_LAYOUT"
+  parameter: Layout
+  value: number
+}
+
+interface SetExpression {
+  type: "SET_EXPRESSION"
+  expr: string
+}
+
+interface SetMode {
+  type: "SET_MODE"
+  mode: AnimationMode
+}
+
+interface SetAnimationEnabled {
+  type: "SET_ANIMATION_ENABLED"
+  value: boolean
+}
+
+interface SetAnimationSetting {
+  type: "SET_ANIMATION_SETTING"
+  setting: keyof AnimationSettings
+  value: any
 }
 
 export const setSelected = (nodeID?: string): VisualAction => ({
@@ -39,13 +74,13 @@ export const setHighlighted = (variableName?: string): VisualAction => ({
   variableName
 })
 
-export const setEvent = (event: NodeEvent, handler?: MouseEventHandler): VisualAction => ({
+export const setEvent = (event: NodeEvent, handler?: EventHandler): VisualAction => ({
   type: "SET_EVENT",
   event,
   handler
 })
 
-export const setDimension = (dimension: NodeDimension, value: number): VisualAction => ({
+export const setDimension = (dimension: DimensionSetting, value: number): VisualAction => ({
   type: "SET_NODE_DIMENSION",
   dimension,
   value
@@ -57,4 +92,44 @@ export const setLayout = (parameter: Layout, value: number): VisualAction => ({
   value
 })
 
-export type VisualAction = SetSelected | SetHighlighted | SetEvent | SetDimension | SetLayout
+export const adjustLayout = (parameter: Layout, value: number): VisualAction => ({
+  type: "ADJUST_TREE_LAYOUT",
+  parameter,
+  value
+})
+
+export const setExpression = (expr: string): VisualAction => ({
+  type: "SET_EXPRESSION",
+  expr
+})
+
+export const setMode = (mode: AnimationMode): VisualAction => ({
+  type: "SET_MODE",
+  mode
+})
+
+export const setAnimationSetting = <A extends AnimationSettings, K extends AnimationSetting>(
+  setting: K,
+  value: A[K]
+): VisualAction => ({
+  type: "SET_ANIMATION_SETTING",
+  setting,
+  value
+})
+
+export const setAnimationEnabled = (value: boolean): VisualAction => ({
+  type: "SET_ANIMATION_ENABLED",
+  value
+})
+
+export type VisualAction =
+  | SetSelected
+  | SetHighlighted
+  | SetEvent
+  | SetDimension
+  | SetLayout
+  | AdjustLayout
+  | SetExpression
+  | SetMode
+  | SetAnimationSetting
+  | SetAnimationEnabled

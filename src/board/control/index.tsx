@@ -1,47 +1,29 @@
-import { Drawer } from "@material-ui/core"
-import { StylesProvider } from "@material-ui/core/styles"
 import React from "react"
-import styled from "styled-components"
 
-import { connectState, ControlProps } from "./base"
-import { ExpressionControl } from "./expression"
-import { SliderControl } from "./slider"
+import DimensionControl from "./dimension"
+import ExpressionControl from "./expression"
+import ReducerControl from "./reducer"
 
-export const BoardControl = connectState((props: ControlProps) => {
+const BoardControl = () => {
   return (
-    <StylesProvider injectFirst>
-      <ControlPanel variant="permanent">
-        <ExpressionControl
-          value=""
-          onChange={console.log}
-          placeHolder="Write a lambda expression here."
-        />
-        <SliderControl
-          title="Circle Radius"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>, newValue: number) =>
-            props.setDimension("circleRadius", newValue)
-          }
-          min={15}
-          max={50}
-          value={props.state.dimensions.circleRadius}
-        ></SliderControl>
-        <SliderControl
-          title="Margins"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>, newValue: number) => {
-            props.setDimension("widthMargin", newValue)
-          }}
-          min={15}
-          max={50}
-          value={props.state.dimensions.widthMargin}
-        ></SliderControl>
-      </ControlPanel>
-    </StylesProvider>
+    <ControlPanel>
+      <ExpressionControl />
+      <hr className="dropdown-divider" />
+      <DimensionControl />
+      <hr className="dropdown-divider" />
+      <ReducerControl />
+    </ControlPanel>
   )
-})
+}
 
-const ControlPanel = styled(Drawer)`
-  padding: 20px;
-  justify-content: center;
-  display: flex;
-  flex-shrink: 0;
-`
+export default BoardControl
+
+const ControlPanel = (props: any) => {
+  return (
+    <div className="card" style={{ minWidth: 220 }}>
+      <div className="card-content">
+        <div className="menu">{props.children}</div>
+      </div>
+    </div>
+  )
+}

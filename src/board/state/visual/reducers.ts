@@ -29,12 +29,52 @@ export const visual = (state = initialVisualState, action: VisualAction): Visual
           [action.parameter]: action.value
         }
       }
+    case "ADJUST_TREE_LAYOUT":
+      return {
+        ...state,
+        treeLayout: {
+          ...state.treeLayout,
+          [action.parameter]: state.treeLayout[action.parameter] + action.value
+        }
+      }
     case "SET_NODE_DIMENSION":
       return {
         ...state,
         dimensions: {
           ...state.dimensions,
           [action.dimension]: action.value
+        }
+      }
+    case "SET_EXPRESSION":
+      return {
+        ...state,
+        expression: action.expr
+      }
+    case "SET_MODE":
+      return {
+        ...state,
+        animation: {
+          ...state.animation,
+          mode: action.mode
+        }
+      }
+    case "SET_ANIMATION_SETTING":
+      return {
+        ...state,
+        animation: {
+          ...state.animation,
+          settings: {
+            ...state.animation.settings,
+            [action.setting]: action.value
+          }
+        }
+      }
+    case "SET_ANIMATION_ENABLED":
+      return {
+        ...state,
+        animation: {
+          ...state.animation,
+          enabled: action.value
         }
       }
     default:
