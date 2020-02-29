@@ -41,6 +41,10 @@ export const useExpression = () => useSelector(state => state.visual.expression)
 
 export const useMode = () => useSelector(state => state.visual.animation.mode)
 
+export const useAnimationSettings = () => useSelector(state => state.visual.animation.settings)
+
+export const useAnimationEnabled = () => useSelector(state => state.visual.animation.enabled)
+
 export const useCoord = (nodeID: NodeID): NodeCoord | undefined => {
   const baseCoord = useCoords()[nodeID]
   const layout = useLayout()

@@ -58,6 +58,25 @@ export const visual = (state = initialVisualState, action: VisualAction): Visual
           mode: action.mode
         }
       }
+    case "SET_ANIMATION_SETTING":
+      return {
+        ...state,
+        animation: {
+          ...state.animation,
+          settings: {
+            ...state.animation.settings,
+            [action.setting]: action.value
+          }
+        }
+      }
+    case "SET_ANIMATION_ENABLED":
+      return {
+        ...state,
+        animation: {
+          ...state.animation,
+          enabled: action.value
+        }
+      }
     default:
       return state
   }

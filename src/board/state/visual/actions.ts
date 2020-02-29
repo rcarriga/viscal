@@ -1,5 +1,13 @@
 import { NodeID } from "../tree"
-import { EventHandler, NodeEvent, DimensionSetting, Layout, AnimationMode } from "./types"
+import {
+  EventHandler,
+  NodeEvent,
+  DimensionSetting,
+  Layout,
+  AnimationMode,
+  AnimationSettings,
+  AnimationSetting
+} from "./types"
 
 interface SetSelected {
   type: "SET_SELECTED"
@@ -43,6 +51,17 @@ interface SetExpression {
 interface SetMode {
   type: "SET_MODE"
   mode: AnimationMode
+}
+
+interface SetAnimationEnabled {
+  type: "SET_ANIMATION_ENABLED"
+  value: boolean
+}
+
+interface SetAnimationSetting {
+  type: "SET_ANIMATION_SETTING"
+  setting: keyof AnimationSettings
+  value: any
 }
 
 export const setSelected = (nodeID?: string): VisualAction => ({
@@ -89,6 +108,20 @@ export const setMode = (mode: AnimationMode): VisualAction => ({
   mode
 })
 
+export const setAnimationSetting = <A extends AnimationSettings, K extends AnimationSetting>(
+  setting: K,
+  value: A[K]
+): VisualAction => ({
+  type: "SET_ANIMATION_SETTING",
+  setting,
+  value
+})
+
+export const setAnimationEnabled = (value: boolean): VisualAction => ({
+  type: "SET_ANIMATION_ENABLED",
+  value
+})
+
 export type VisualAction =
   | SetSelected
   | SetHighlighted
@@ -98,3 +131,5 @@ export type VisualAction =
   | AdjustLayout
   | SetExpression
   | SetMode
+  | SetAnimationSetting
+  | SetAnimationEnabled

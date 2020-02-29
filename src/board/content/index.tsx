@@ -4,6 +4,7 @@ import {
   setHighlighted,
   setEvent,
   nextReductionStage,
+  setAnimationEnabled,
   useTreeState,
   useDispatch
 } from "board/state"
@@ -29,7 +30,9 @@ const BoardContent = () => {
         if (treeState.reduction) dis(nextReductionStage())
       }}
       onWheel={e => {
+        dis(setAnimationEnabled(false))
         dis(adjustLayout("startX", e.deltaY * 10))
+        dis(setAnimationEnabled(true))
       }}
     >
       <filter id="goo">

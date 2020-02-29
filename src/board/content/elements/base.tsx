@@ -1,4 +1,4 @@
-import { NodeEvents } from "board/state"
+import { NodeEvents, useAnimationSettings, useAnimationEnabled } from "board/state"
 import { useState } from "react"
 import { useSpring } from "react-spring"
 
@@ -20,12 +20,12 @@ export const useMotion = (
   start: (symbol: symbol) => void = () => {}
 ) => {
   const [sym] = useState(Symbol(""))
+  const config = useAnimationSettings()
+  const enabled = useAnimationEnabled()
   return useSpring({
     to: props,
-    config: {
-      tension: 500,
-      clamp: true
-    },
+    immediate: !enabled,
+    config,
     onRest: () => rest(sym),
     onStart: () => start(sym)
   })

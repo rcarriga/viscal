@@ -1,3 +1,4 @@
+import { SpringConfig } from "react-spring"
 import { NodeID } from "../tree"
 
 export type Color = string
@@ -57,17 +58,24 @@ export type Layout = keyof TreeLayout
 
 export type EventHandler = (nodeID: NodeID) => void
 
-export interface AnimationSettings {}
+export type AnimationSetting = keyof AnimationSettings
+
+export type AnimationSettings = SpringConfig
 
 export type AnimationMode = "STOP" | "PLAY" | "FORWARD" | "REVERSE"
 
 export interface AnimationState {
   settings: AnimationSettings
+  enabled: boolean
   mode: AnimationMode
 }
 
 const defaultAnimationState: AnimationState = {
-  settings: {},
+  settings: {
+    tension: 500,
+    clamp: true
+  },
+  enabled: true,
   mode: "STOP"
 }
 
