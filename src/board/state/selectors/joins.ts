@@ -1,46 +1,58 @@
-import { NodeID, TreeState, reduceTree, BoardState } from "board/state"
+import { NodeID, TreeState, Tree, BoardState, ReductionStage } from "board/state"
+import { NodeType } from "board/state/tree"
 import { createSelector } from "reselect"
 
-export type NodeJoins = { [nodeID in NodeID]: { distance: number; jointTo: NodeID } }
+export type NodeJoins = { [nodeID in NodeID]: { distance: number; jointTo: NodeID; type: NodeType } }
 
-export const constructJoins = (state: TreeState) =>
-  reduceTree(
-    state.nodes,
-    (overrideState: { joins: NodeJoins; parentID: NodeID }, node, nodeID) => {
-      switch (node.type) {
-        case "ABSTRACTION": {
-          const { parentID, joins } = overrideState
-          const parentNode = state.nodes[parentID]
-          const newJoins = () => {
-            switch (parentNode ? parentNode.type : undefined) {
-              case "ABSTRACTION": {
-                const parentJoin = joins[parentID]
-                if (state.reduction) {
-                  const reductionAbs = state.reduction.abs
-                  const reductionChild = state.reduction.child
-                  if (reductionAbs === parentID && reductionChild !== nodeID) return joins
-                }
-                return {
-                  ...joins,
-                  [nodeID]: {
-                    jointTo: parentJoin ? joins[parentID].jointTo : parentID,
-                    distance: parentJoin ? parentJoin.distance + 1 : 1
-                  }
-                }
-              }
-              default:
-                return joins
-            }
-          }
-          return { parentID: nodeID, joins: newJoins() }
-        }
-        default:
-          break
-      }
-      return { ...overrideState, parentID: nodeID }
-    },
-    { joins: {}, parentID: "" },
-    state.root
-  ).joins
+const constructJoins = (state: TreeState) => ({
+  ...abstractionJoins(state.nodes, state.root, state.reduction),
+  ...applicationJoins(state.nodes, state.root)
+})
+
+const abstractionJoins = (
+  tree: Tree,
+  rootID: NodeID = "",
+  reduction?: ReductionStage,
+  joins: NodeJoins = {},
+  parentID: NodeID = ""
+): NodeJoins => {
+  const parentNode = tree[parentID]
+  const root = tree[rootID]
+  if (!root || root.type !== "ABSTRACTION") return joins
+  if (!parentNode || parentNode.type !== "ABSTRACTION")
+    return abstractionJoins(tree, root.child, reduction, joins, rootID)
+  const parentJoin = joins[parentID]
+  if (reduction) {
+    const reductionAbs = reduction.abs
+    const reductionChild = reduction.child
+    if (reductionAbs === parentID && reductionChild !== rootID) return joins
+  }
+  const newJoins = {
+    ...joins,
+    [rootID]: {
+      jointTo: parentJoin ? parentJoin.jointTo : parentID,
+      distance: parentJoin ? parentJoin.distance + 1 : 1,
+      type: root.type
+    }
+  }
+  return abstractionJoins(tree, root.child, reduction, newJoins, rootID)
+}
+
+const applicationJoins = (tree: Tree, rootID: NodeID = "", joins: NodeJoins = {}, parentID: NodeID = ""): NodeJoins => {
+  const parentNode = tree[parentID]
+  const root = tree[rootID]
+  if (!root || root.type !== "APPLICATION") return joins
+  if (!parentNode || parentNode.type !== "APPLICATION") return applicationJoins(tree, root.right, joins, rootID)
+  const parentJoin = joins[parentID]
+  const newJoins = {
+    ...joins,
+    [rootID]: {
+      jointTo: parentJoin ? parentJoin.jointTo : parentID,
+      distance: parentJoin ? parentJoin.distance + 1 : 1,
+      type: root.type
+    }
+  }
+  return applicationJoins(tree, root.right, newJoins, rootID)
+}
 
 export const joinsSelector = createSelector((state: BoardState) => state.tree.present, constructJoins)

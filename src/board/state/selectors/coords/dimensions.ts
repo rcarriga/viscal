@@ -33,13 +33,24 @@ const calculateDimensionOffsets = (
       const distance = distances[join.jointTo] || 0
       return { ...distances, [join.jointTo]: Math.max(distance, join.distance) }
     }, {})
-    return reduceObj(joins, {}, (offsets, join, nodeID) => ({
-      ...offsets,
-      [join.jointTo]: { w: -(settings.circleRadius + settings.widthMargin) },
-      ...(maxDistances[join.jointTo] > join.distance
-        ? { [nodeID]: { w: -(settings.circleRadius + settings.widthMargin) } }
-        : {})
-    }))
+    return reduceObj(joins, {}, (offsets, join, nodeID) => {
+      switch (join.type) {
+        case "ABSTRACTION":
+          return {
+            ...offsets,
+            [join.jointTo]: { w: -(settings.circleRadius + settings.widthMargin) },
+            ...(maxDistances[join.jointTo] > join.distance
+              ? { [nodeID]: { w: -(settings.circleRadius + settings.widthMargin) } }
+              : {})
+          }
+        default:
+          return {
+            ...offsets,
+            [join.jointTo]: { w: -settings.widthMargin },
+            ...(maxDistances[join.jointTo] > join.distance ? { [nodeID]: { w: -settings.widthMargin } } : {})
+          }
+      }
+    })
   }
 
   const reductionOffsets = (reduction: ReductionStage): DimensionOffsets => {
@@ -123,7 +134,7 @@ const elementWidth = (
     case "ABSTRACTION":
       return sumChildren() + settings.circleRadius * 2 + settings.widthMargin
     case "APPLICATION":
-      return sumChildren() + settings.widthMargin * 2
+      return sumChildren() + settings.widthMargin
     default:
       return 0
   }

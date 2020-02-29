@@ -31,7 +31,8 @@ const BoardContent = () => {
       }}
       onWheel={e => {
         dis(setAnimationEnabled(false))
-        dis(adjustLayout("startX", e.deltaY * 10))
+        if (e.deltaX) dis(adjustLayout("startX", e.deltaX * -10))
+        else dis(adjustLayout("startX", e.deltaY * 10))
         dis(setAnimationEnabled(true))
       }}
     >

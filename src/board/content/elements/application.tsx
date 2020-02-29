@@ -35,14 +35,15 @@ interface RawApplProps extends RawExprProps {
 }
 
 const RawAppl = (props: RawApplProps) => {
-  const boxWidth = props.width - props.radius
-  const circleTopPoint = props.y - props.radius
-  const boxPath = `M${props.x},${circleTopPoint + props.radius * 2}
-          l0,${props.height / 2 - props.radius}
-          l${boxWidth},0
-          l0,${-props.height}
-          l${-boxWidth},0
-          l0,${props.height}`
+  const boxWidth = props.width
+  const offsetWidth = props.height / 2
+  const boxPath = `M${props.x},${props.y}
+          l${offsetWidth},${props.height / 2}
+          l${boxWidth - offsetWidth * 2},0
+          l${offsetWidth},${-props.height / 2}
+          l${-offsetWidth},${-props.height / 2}
+          l${offsetWidth * 2 - boxWidth},0
+          l${-offsetWidth},${props.height / 2}`
 
   const boxAnimate = useMotion(
     {
@@ -54,5 +55,12 @@ const RawAppl = (props: RawApplProps) => {
     props.start
   )
 
-  return <animated.path {...boxAnimate} pointerEvents="painted" onClick={() => props.events.click(props.id)} />
+  return (
+    <animated.path
+      {...boxAnimate}
+      strokeLinecap="round"
+      pointerEvents="painted"
+      onClick={() => props.events.click(props.id)}
+    />
+  )
 }

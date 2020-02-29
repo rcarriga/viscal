@@ -91,7 +91,9 @@ const calculateCoordOffsets = (settings: DimensionSettings, joins: NodeJoins, st
     Object.keys(joins).reduce(
       (offsets, nodeID) => ({
         ...offsets,
-        [nodeID]: { x: -(settings.circleRadius + settings.widthMargin) }
+        ...(joins[nodeID].type === "ABSTRACTION"
+          ? { [nodeID]: { x: -(settings.circleRadius + settings.widthMargin) } }
+          : {})
       }),
       {}
     )
