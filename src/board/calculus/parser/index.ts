@@ -1,12 +1,13 @@
-import { F, C, Streams, TupleParser, SingleParser, Option } from "@masala/parser"
 import { Dispatcher, addVariable, addAbstraction, addApplication, NodeID, setRoot } from "board/state"
+import P, { Parser } from "parsimmon"
 import { generateID } from "../util"
 
 type Indices = { [name: string]: number }
 
 export const parseExpression = (expression: string, dis: Dispatcher) => {
-  const expr = parse(expression).value
+  const expr = parse(expression)
   if (!expr) return
+  console.log(expr)
   const incrementIndex = (indices: Indices) =>
     Object.keys(indices).reduce((newIndex, key) => ({ ...newIndex, [key]: indices[key] + 1 }), {})
   const fillState = (expr: ParsedExpr | undefined, indices: { [name: string]: number }, nextID: NodeID) => {
@@ -42,70 +43,41 @@ type ParsedAbs = { type: "ABS"; varName: string; child?: ParsedExpr }
 type ParsedAppl = { type: "APPL"; left: ParsedExpr; right: ParsedExpr }
 type ParsedExpr = ParsedVar | ParsedAbs | ParsedAppl
 
-const expr = (): SingleParser<ParsedExpr> => {
-  return nonApp()
-    .rep()
-    .map(res => {
-      const exprs = res.array()
+const parens = <T>(parser: Parser<T>): Parser<T> =>
+  P.string("(")
+    .then(trim(parser))
+    .skip(P.string(")"))
+
+const trim = <T>(parser: Parser<T>): Parser<T> => P.optWhitespace.then(parser).skip(P.optWhitespace)
+
+const varName: Parser<string> = trim(P.regexp(/[a-z]+/))
+
+const expr = (): Parser<ParsedExpr> =>
+  nonApp()
+    .atLeast(1)
+    .map(exprs => {
       return exprs.slice(1).reduce((left, right) => ({ type: "APPL", left, right }), exprs[0])
     })
-}
 
-const nonApp = (): SingleParser<ParsedExpr> => {
-  return F.try(parens(F.lazy(expr)).single()).or(F.try(F.lazy(abstraction)).or(F.try(F.lazy(variable))))
-}
+const nonApp = (): Parser<ParsedExpr> => trim(P.alt(parens(P.lazy(expr)), P.lazy(abstraction), P.lazy(variable)))
 
-const abstraction = (): SingleParser<ParsedAbs> => {
-  return trim(
-    C.char("\\")
-      .drop()
-      .then(varName().rep())
-      .then(C.char(".").drop())
-      .then(F.lazy(expr).opt())
-      .map(parsed => {
-        const parsedVals = parsed.array()
-        const child: Option<ParsedExpr> = parsedVals.pop()
-        const names: string[] = parsedVals
-        const buildAbs = (expr: ParsedExpr | undefined, varName: string): ParsedAbs => ({
-          type: "ABS",
-          varName,
-          child: expr
-        })
-        return names
-          .slice(0, names.length - 1)
-          .reverse()
-          .reduce(buildAbs, buildAbs(child.orElse(undefined), names[names.length - 1]))
+const variable = (): Parser<ParsedVar> => varName.map(res => ({ type: "VAR", varName: res }))
+
+const abstraction = (): Parser<ParsedAbs> =>
+  P.string("\\").then(
+    P.seqMap(varName.atLeast(1), P.string("."), P.lazy(expr), (names: string[], _: string, child: ParsedExpr) => {
+      const buildAbs = (expr: ParsedExpr | undefined, varName: string): ParsedAbs => ({
+        type: "ABS",
+        varName,
+        child: expr
       })
-  ).single()
-}
-
-const variable = (): SingleParser<ParsedVar> => varName().map(res => ({ type: "VAR", varName: res }))
-
-const varName = (): SingleParser<string> => {
-  return trim(C.lowerCase().rep()).map(chars => chars.join())
-}
-
-const parens = <T>(parser: TupleParser<T> | SingleParser<T>): TupleParser<T> => {
-  return trim(
-    C.char("(")
-      .drop()
-      .then(trim(parser))
-      .then(C.char(")").drop())
+      return names
+        .slice(0, names.length - 1)
+        .reverse()
+        .reduce(buildAbs, buildAbs(child, names[names.length - 1]))
+    })
   )
-}
-
-const trim = <T>(parser: TupleParser<T> | SingleParser<T>): TupleParser<T> => {
-  return whitespace()
-    .then(parser)
-    .then(whitespace())
-}
-
-const whitespace = () =>
-  C.char(" ")
-    .optrep()
-    .drop()
 
 const parse = (expression: string) => {
-  const stream = Streams.ofString(expression)
-  return expr().parse(stream)
+  return expr().tryParse(expression)
 }

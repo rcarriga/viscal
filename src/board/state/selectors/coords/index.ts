@@ -126,6 +126,7 @@ const fillCoords = (
     return root.children(tree).reduce(
       (current, nodeID) => {
         const childCoord = fillCoords(nodeID, dimensions, tree, settings, offsets, current.baseX, baseY)
+        if (!childCoord[nodeID]) return current
         return {
           baseX: childCoord[nodeID].x + childCoord[nodeID].w + settings.widthMargin,
           coords: { ...current.coords, ...childCoord }
