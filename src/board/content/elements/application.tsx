@@ -59,8 +59,10 @@ const RawAppl = (props: RawApplProps) => {
     <animated.path
       {...boxAnimate}
       strokeLinecap="round"
-      pointerEvents="painted"
+      pointerEvents="stroke"
       onClick={() => props.events.click(props.id)}
+      onMouseOver={() => props.events.highlight(props.id)}
+      onMouseLeave={() => props.events.clearHighlight(props.id)}
     />
   )
 }

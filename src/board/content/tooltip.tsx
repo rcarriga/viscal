@@ -20,6 +20,8 @@ const Tooltip = () => {
           return <VarDescription node={node} />
         case "ABSTRACTION":
           return <AbsDescription node={node} text={text} />
+        case "APPLICATION":
+          return <ApplDescription text={text} />
         default:
       }
     }
@@ -61,14 +63,24 @@ const AbsDescription = ({ node, text }: { node: Abstraction; text: string }) => 
   )
 }
 
-const DescriptionRow = ({ name, value }: { name: string; value: any }) => (
-  <div className="">
-    <div style={{ display: "flex" }}>
-      <strong style={{ marginRight: 10 }}>{name}:</strong>
-      <div className="">{value}</div>
+const ApplDescription = ({ text }: { text: string }) => {
+  return (
+    <div className="">
+      <DescriptionTitle name="Application" />
+      <DescriptionRow name={"Text"} value={text} />
     </div>
-  </div>
-)
+  )
+}
+
+const DescriptionRow = ({ name, value }: { name: string; value: any }) =>
+  value !== undefined ? (
+    <div className="">
+      <div style={{ display: "flex" }}>
+        <strong style={{ marginRight: 10 }}>{name}:</strong>
+        <div className="">{value}</div>
+      </div>
+    </div>
+  ) : null
 
 const DescriptionTitle = ({ name }: { name: string }) => (
   <div className="subtitle">
