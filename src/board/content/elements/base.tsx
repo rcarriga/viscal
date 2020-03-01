@@ -1,4 +1,4 @@
-import { NodeEvents, useAnimationSettings, useAnimationEnabled } from "board/state"
+import { NodeEvents, useAnimationSettings } from "board/state"
 import { useState } from "react"
 import { useSpring } from "react-spring"
 
