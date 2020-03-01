@@ -25,6 +25,11 @@ interface SetDimension {
   value: number
 }
 
+interface UpdateDimensions {
+  type: "UPDATE_DIMENSIONS"
+  dimensions: { [setting in DimensionSetting]: number }
+}
+
 interface SetEvent {
   type: "SET_EVENT"
   event: NodeEvent
@@ -122,11 +127,17 @@ export const setAnimationEnabled = (value: boolean): VisualAction => ({
   value
 })
 
+export const updateDimensions = (dimensions: { [dimension in DimensionSetting]: number }): VisualAction => ({
+  type: "UPDATE_DIMENSIONS",
+  dimensions
+})
+
 export type VisualAction =
   | SetSelected
   | SetHighlighted
   | SetEvent
   | SetDimension
+  | UpdateDimensions
   | SetLayout
   | AdjustLayout
   | SetExpression
