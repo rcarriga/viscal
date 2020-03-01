@@ -1,17 +1,21 @@
+import AnimationControl from "board/control/animation"
 import React from "react"
 
-import DimensionControl from "./dimension"
 import ExpressionControl from "./expression"
 import ReducerControl from "./reducer"
+import ScaleControl from "./scale"
 
 const BoardControl = () => {
   return (
     <ControlPanel>
       <ExpressionControl />
       <hr className="dropdown-divider" />
-      <DimensionControl />
+      <ScaleControl />
+      <hr className="dropdown-divider" />
+      <AnimationControl />
       <hr className="dropdown-divider" />
       <ReducerControl />
+      <hr className="dropdown-divider" />
     </ControlPanel>
   )
 }

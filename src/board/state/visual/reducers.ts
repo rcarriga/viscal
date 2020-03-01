@@ -77,6 +77,14 @@ export const visual = (state = initialVisualState, action: VisualAction): Visual
           enabled: action.value
         }
       }
+    case "UPDATE_DIMENSIONS":
+      return {
+        ...state,
+        dimensions: {
+          ...state.dimensions,
+          ...action.dimensions
+        }
+      }
     default:
       return state
   }

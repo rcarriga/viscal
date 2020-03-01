@@ -48,7 +48,7 @@ export type NodeEvents = { [event in keyof typeof defaultEvents]: EventHandler }
 export type NodeEvent = keyof NodeEvents
 
 const defaultTreeLayout = {
-  startX: 400,
+  startX: 100,
   startY: 400
 }
 

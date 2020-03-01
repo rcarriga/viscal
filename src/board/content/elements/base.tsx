@@ -21,12 +21,10 @@ export const useMotion = (
 ) => {
   const [sym] = useState(Symbol(""))
   const config = useAnimationSettings()
-  const enabled = useAnimationEnabled()
-  const spring = useSpring({
+  return useSpring({
     to: props,
     config,
     onRest: () => rest(sym),
     onStart: () => start(sym)
   })
-  return enabled ? spring : props
 }

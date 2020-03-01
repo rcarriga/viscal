@@ -3,7 +3,7 @@ import { Slider as MaterialSlider } from "@material-ui/core"
 import React from "react"
 
 interface SliderControlProps {
-  title: string
+  title?: string
   max: number
   min: number
   onChange: (newValue: number) => void
@@ -13,7 +13,7 @@ interface SliderControlProps {
 const Slider = (props: SliderControlProps) => {
   return (
     <SliderPanel>
-      <SliderTitle>{props.title}</SliderTitle>
+      {props.title ? <SliderTitle>{props.title}</SliderTitle> : null}
       <MaterialSlider
         onChange={(_: any, value) => props.onChange(typeof value === "number" ? value : value[0])}
         value={props.value}
