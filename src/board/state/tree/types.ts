@@ -51,6 +51,7 @@ export const REDUCTION_STAGES = [
   "SUBSTITUTE",
   "SHIFT_ABS",
   "SHIFT_PARENT",
+  "FADE",
   "REMOVE"
 ] as const
 
