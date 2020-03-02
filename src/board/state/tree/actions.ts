@@ -40,6 +40,12 @@ interface NextReductionStage {
   type: "NEXT_REDUCTION_STAGE"
 }
 
+interface SetConstant {
+  type: "SET_CONSTANT"
+  name: string
+  text: string
+}
+
 export type TreeAction =
   | ClearTree
   | SetRoot
@@ -48,6 +54,7 @@ export type TreeAction =
   | AddApplication
   | QueueReduction
   | NextReductionStage
+  | SetConstant
 
 export const clearTree = (): TreeAction => {
   return { type: "CLEAR_TREE" }
@@ -85,4 +92,10 @@ export const queueReduction = (reduction?: ReductionStage): TreeAction => ({
 
 export const nextReductionStage = (): TreeAction => ({
   type: "NEXT_REDUCTION_STAGE"
+})
+
+export const setConstant = (name: string, text: string): TreeAction => ({
+  type: "SET_CONSTANT",
+  name,
+  text
 })
