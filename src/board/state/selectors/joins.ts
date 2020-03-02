@@ -18,9 +18,9 @@ const abstractionJoins = (
 ): NodeJoins => {
   const parentNode = tree[parentID]
   const root = tree[rootID]
-  if (!root || root.type !== "ABSTRACTION") return joins
-  if (!parentNode || parentNode.type !== "ABSTRACTION")
-    return abstractionJoins(tree, root.child, reduction, joins, rootID)
+  if (!root) return joins
+  if (!parentNode || parentNode.type !== "ABSTRACTION" || root.type !== "ABSTRACTION")
+    return root.directChildren.reduce((joins, child) => abstractionJoins(tree, child, reduction, joins, rootID), joins)
   const parentJoin = joins[parentID]
   if (reduction) {
     const reductionAbs = reduction.abs
@@ -41,8 +41,9 @@ const abstractionJoins = (
 const applicationJoins = (tree: Tree, rootID: NodeID = "", joins: NodeJoins = {}, parentID: NodeID = ""): NodeJoins => {
   const parentNode = tree[parentID]
   const root = tree[rootID]
-  if (!root || root.type !== "APPLICATION") return joins
-  if (!parentNode || parentNode.type !== "APPLICATION") return applicationJoins(tree, root.right, joins, rootID)
+  if (!root) return joins
+  if (!parentNode || parentNode.type !== "APPLICATION" || root.type !== "APPLICATION")
+    return root.directChildren.reduce((joins, child) => applicationJoins(tree, child, joins, rootID), joins)
   const parentJoin = joins[parentID]
   const newJoins = {
     ...joins,
@@ -52,7 +53,10 @@ const applicationJoins = (tree: Tree, rootID: NodeID = "", joins: NodeJoins = {}
       type: root.type
     }
   }
-  return applicationJoins(tree, root.right, newJoins, rootID)
+  return {
+    ...applicationJoins(tree, root.left, newJoins),
+    ...applicationJoins(tree, root.right, newJoins, rootID)
+  }
 }
 
 export const joinsSelector = createSelector((state: BoardState) => state.tree.present, constructJoins)

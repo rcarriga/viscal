@@ -1,3 +1,4 @@
+import { reduceTree } from "board/state/tree"
 import randomcolor from "randomcolor"
 import { createSelector } from "reselect"
 import { reduceObj } from "../../util"
@@ -74,6 +75,18 @@ const createStyles = (state: StylesState): NodeStyles => {
           overrideReplacement(reduction, { highlighted: true }, state, initStyles)
         )
       )
+    case "FADE":
+      return overrideRemoved(
+        reduction,
+        { transparent: true },
+        state,
+        overrideReplaced(
+          reduction,
+          { transparent: true },
+          state,
+          overrideReplacement(reduction, { highlighted: true }, state, initStyles)
+        )
+      )
     default:
       return overrideConsumed(
         reduction,
@@ -110,6 +123,22 @@ const overrideReplacement = (
     return styles
   })
 
+const overrideReplaced = (
+  reduction: ReductionStage,
+  override: StyleSettings,
+  state: StylesState,
+  styles: NodeStyles
+): NodeStyles =>
+  reduceTree(
+    state.tree.nodes,
+    (styles, _, nodeID) => {
+      const style = createStyle(nodeID, state, override)
+      return style ? { ...styles, [nodeID]: style } : styles
+    },
+    styles,
+    reduction.consumed
+  )
+
 const overrideConsumed = (
   reduction: ReductionStage,
   override: StyleSettings,
@@ -121,6 +150,21 @@ const overrideConsumed = (
     return style ? { ...styles, [reduction.consumed]: style } : styles
   }
   return styles
+}
+
+const overrideRemoved = (
+  reduction: ReductionStage,
+  override: StyleSettings,
+  state: StylesState,
+  styles: NodeStyles
+): NodeStyles => {
+  const absStyle = createStyle(reduction.abs, state, override)
+  const applStyle = createStyle(reduction.parentApplication, state, override)
+  return {
+    ...styles,
+    ...(absStyle ? { [reduction.abs]: absStyle } : {}),
+    ...(applStyle ? { [reduction.parentApplication]: applStyle } : {})
+  }
 }
 
 const createStyle = (nodeID: NodeID, state: StylesState, overrides: StyleSettings): NodeStyle | undefined => {
@@ -208,7 +252,13 @@ const createApplStyle = (
     fill: theme.transparent,
     animation: state.animation,
     stroke: {
-      stroke: selected ? state.theme.selectedStroke : highlighted ? state.theme.highlightedStroke : state.theme.stroke,
+      stroke: transparent
+        ? theme.transparent
+        : selected
+        ? state.theme.selectedStroke
+        : highlighted
+        ? state.theme.highlightedStroke
+        : state.theme.stroke,
       strokeWidth: state.dimensions.strokeWidth
     },
     output: createVarStyle("", state, { transparent, selected, highlighted })

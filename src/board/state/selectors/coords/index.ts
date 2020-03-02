@@ -133,7 +133,7 @@ const fillCoords = (
         }
       },
       {
-        baseX: coord.x + settings.widthMargin + (root.type === "ABSTRACTION" ? settings.circleRadius : 0),
+        baseX: coord.x + settings.widthMargin + settings.circleRadius,
         coords: {
           [rootID]: coord
         }

@@ -58,7 +58,7 @@ const createSubstitutions = (absID: NodeID, consumedID: NodeID, tree: TreeState)
   const removed = getRemoved(absID, tree)
   return removed
     .map((nodeID, index) => ({ [nodeID]: index === -1 ? {} : createCopyIDs(consumedID, tree.nodes) }))
-    .reduce((prev, cur) => ({ ...prev, ...cur }))
+    .reduce((prev, cur) => ({ ...prev, ...cur }), {})
 }
 
 const createCopyIDs = (nodeID: NodeID, tree: Tree): Substitution => {

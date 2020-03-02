@@ -53,40 +53,7 @@ const calculateDimensionOffsets = (
     })
   }
 
-  const reductionOffsets = (reduction: ReductionStage): DimensionOffsets => {
-    const wOffset = settings.circleRadius + settings.widthMargin
-    switch (reduction.type) {
-      case "SUBSTITUTE":
-        return {
-          [reduction.visibleParent]: {
-            w: -wOffset
-          }
-        }
-      case "SHIFT_ABS":
-        return {
-          [reduction.visibleParent]: {
-            w: -wOffset
-          }
-        }
-      case "SHIFT_PARENT":
-        return {
-          [reduction.visibleParent]: {
-            w: -(wOffset + (reduction.visibleParent === reduction.parentApplication ? wOffset * 2 : 0))
-          }
-        }
-      default:
-        return {}
-    }
-  }
-  const jOffsets = joinOffsets()
-
-  if (!reduction) return jOffsets
-  const redOffsets = reductionOffsets(reduction)
-  const keys = Array.from(new Set([...Object.keys(jOffsets), ...Object.keys(redOffsets)]).values())
-  return keys.reduce(
-    (offsets, nodeID) => ({ ...offsets, [nodeID]: addOffsets(jOffsets[nodeID], redOffsets[nodeID]) }),
-    {}
-  )
+  return joinOffsets()
 }
 
 const calculateDimensions = (
@@ -134,7 +101,7 @@ const elementWidth = (
     case "ABSTRACTION":
       return sumChildren() + settings.circleRadius * 2 + settings.widthMargin
     case "APPLICATION":
-      return sumChildren() + settings.widthMargin
+      return sumChildren() + settings.circleRadius + settings.widthMargin
     default:
       return 0
   }
@@ -156,10 +123,6 @@ const elementHeight = (
     default:
       return 0
   }
-}
-
-const addOffsets = (...offsets: (DimensionOffset | undefined)[]): DimensionOffset => {
-  return offsets.reduce(addOffset, {})
 }
 
 const addOffset = <A extends NodeDimension | DimensionOffset>(coord: A, offset?: DimensionOffset): A =>
