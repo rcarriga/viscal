@@ -1,4 +1,4 @@
-import { useSelected, useHighlighted, useCoord, Variable, Abstraction, useTree, useTextTree } from "board/state"
+import { useSelected, useHighlighted, useCoord, Variable, Abstraction, useTree, useTextTree, NodeID } from "board/state"
 import React from "react"
 import { useSpring, animated, config } from "react-spring"
 
@@ -17,11 +17,11 @@ const Tooltip = () => {
     if (nodeID && node) {
       switch (node.type) {
         case "VARIABLE":
-          return <VarDescription node={node} />
+          return <VarDescription nodeID={nodeID} node={node} />
         case "ABSTRACTION":
-          return <AbsDescription node={node} text={text} />
+          return <AbsDescription nodeID={nodeID} node={node} text={text} />
         case "APPLICATION":
-          return <ApplDescription text={text} />
+          return <ApplDescription nodeID={nodeID} text={text} />
         default:
       }
     }
@@ -43,30 +43,33 @@ const Tooltip = () => {
   ) : null
 }
 
-const VarDescription = ({ node }: { node: Variable }) => {
+const VarDescription = ({ node, nodeID }: { node: Variable; nodeID: NodeID }) => {
   return (
     <div className="">
       <DescriptionTitle name="Variable" />
       <DescriptionRow name={"Name"} value={node.name} />
+      <DescriptionRow name={"ID"} value={nodeID} />
       <DescriptionRow name={"DrBruijn Index"} value={node.index} />
     </div>
   )
 }
 
-const AbsDescription = ({ node, text }: { node: Abstraction; text: string }) => {
+const AbsDescription = ({ node, text, nodeID }: { node: Abstraction; nodeID: NodeID; text: string }) => {
   return (
     <div className="">
       <DescriptionTitle name="Abstraction" />
       <DescriptionRow name={"Scoped Variable"} value={node.variableName} />
+      <DescriptionRow name={"ID"} value={nodeID} />
       <DescriptionRow name={"Text"} value={text} />
     </div>
   )
 }
 
-const ApplDescription = ({ text }: { text: string }) => {
+const ApplDescription = ({ text, nodeID }: { text: string; nodeID: NodeID }) => {
   return (
     <div className="">
       <DescriptionTitle name="Application" />
+      <DescriptionRow name={"ID"} value={nodeID} />
       <DescriptionRow name={"Text"} value={text} />
     </div>
   )
