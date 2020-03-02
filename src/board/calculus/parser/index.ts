@@ -7,7 +7,6 @@ type Indices = { [name: string]: number }
 export const parseExpression = (expression: string, dis: Dispatcher) => {
   const expr = parse(expression)
   if (!expr) return
-  console.log(expr)
   const incrementIndex = (indices: Indices) =>
     Object.keys(indices).reduce((newIndex, key) => ({ ...newIndex, [key]: indices[key] + 1 }), {})
   const fillState = (expr: ParsedExpr | undefined, indices: { [name: string]: number }, nextID: NodeID) => {
@@ -64,19 +63,21 @@ const nonApp = (): Parser<ParsedExpr> => trim(P.alt(parens(P.lazy(expr)), P.lazy
 const variable = (): Parser<ParsedVar> => varName.map(res => ({ type: "VAR", varName: res }))
 
 const abstraction = (): Parser<ParsedAbs> =>
-  P.string("\\").then(
-    P.seqMap(varName.atLeast(1), P.string("."), P.lazy(expr), (names: string[], _: string, child: ParsedExpr) => {
-      const buildAbs = (expr: ParsedExpr | undefined, varName: string): ParsedAbs => ({
-        type: "ABS",
-        varName,
-        child: expr
+  P.string("\\")
+    .or(P.string("λ"))
+    .then(
+      P.seqMap(varName.atLeast(1), P.string("."), P.lazy(expr), (names: string[], _: string, child: ParsedExpr) => {
+        const buildAbs = (expr: ParsedExpr | undefined, varName: string): ParsedAbs => ({
+          type: "ABS",
+          varName,
+          child: expr
+        })
+        return names
+          .slice(0, names.length - 1)
+          .reverse()
+          .reduce(buildAbs, buildAbs(child, names[names.length - 1]))
       })
-      return names
-        .slice(0, names.length - 1)
-        .reverse()
-        .reduce(buildAbs, buildAbs(child, names[names.length - 1]))
-    })
-  )
+    )
 
 const parse = (expression: string) => {
   return expr().tryParse(expression)
