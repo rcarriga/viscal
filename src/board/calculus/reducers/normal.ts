@@ -4,14 +4,16 @@ import { createReduction, isRedex, LambdaReducer } from "./base"
 const reduce = (state: TreeState, rootID?: NodeID): ReductionStage | undefined => {
   if (rootID) {
     const root = state.nodes[rootID]
+    if (!root) return undefined
     if (isRedex(root, state.nodes)) return createReduction(rootID, state)
-    const [leftID, rightID] = root.type === "APPLICATION" ? [root.left, root.right] : []
-    if (leftID) {
-      const leftReduction = reduce(state, leftID)
-      if (leftReduction) return leftReduction
-      if (rightID) {
-        return reduce(state, rightID)
+    switch (root.type) {
+      case "ABSTRACTION":
+        return reduce(state, root.child)
+      case "APPLICATION": {
+        const [leftID, rightID] = [root.left, root.right]
+        return reduce(state, leftID) || reduce(state, rightID)
       }
+      default:
     }
   }
 }
