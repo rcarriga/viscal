@@ -1,5 +1,5 @@
 import { parseExpression } from "board/calculus"
-import { useDispatch, clearTree, useTextTree, useTree } from "board/state"
+import { useDispatch, clearTree, useTextTree } from "board/state"
 import React, { useState, useEffect } from "react"
 import { ActionCreators } from "redux-undo"
 
@@ -8,8 +8,6 @@ const ExpressionControl = () => {
   const [active, setActive] = useState(false)
   const [expr, setExpr] = useState("(λm.λn.λf.λx.m f (n f x)) (λf x.f (f x)) (λf x.f (f (f x)))")
   const [input, setInput] = useState(expr)
-  const text = useTextTree()
-  const tree = useTree()
   const toggle = () => setActive(!active)
   useEffect(() => {
     dis(clearTree())

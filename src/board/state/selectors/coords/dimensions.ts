@@ -125,10 +125,6 @@ const elementHeight = (
   }
 }
 
-const addOffsets = (...offsets: (DimensionOffset | undefined)[]): DimensionOffset => {
-  return offsets.reduce(addOffset, {})
-}
-
 const addOffset = <A extends NodeDimension | DimensionOffset>(coord: A, offset?: DimensionOffset): A =>
   offset
     ? ({
