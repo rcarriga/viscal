@@ -1,5 +1,6 @@
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown"
 import AnimationControl from "board/control/animation"
+import PrimitveControl from "board/control/primitive"
 import React, { useState } from "react"
 import { animated, useSpring } from "react-spring"
 
@@ -43,6 +44,7 @@ const ControlPanel = (props: any) => {
         <ExpressionControl />
         <ScaleControl />
         <AnimationControl />
+        <PrimitveControl />
       </animated.div>
       <ReducerControl />
     </div>
