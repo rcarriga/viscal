@@ -18,7 +18,7 @@ import { reduceTree, partialMapTree } from "./util"
 export const tree = (state = initialTreeState, action: BoardAction): TreeState => {
   switch (action.type) {
     case "CLEAR_TREE":
-      return { root: "", nodes: {}, constants: state.constants }
+      return { root: "", nodes: {}, primitives: {}, constants: state.constants }
     case "SET_ROOT":
       return { ...state, root: action.nodeID }
     case "SET_REDUCER":
@@ -56,6 +56,16 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
         }
       }
       return state
+    case "CREATE_PRIMITIVE": {
+      return {
+        ...state,
+        primitives: { ...state.primitives, [action.primID]: { name: action.name, rootID: action.nodeID } },
+        nodes: {
+          ...state.nodes,
+          ...partialMapTree(state.nodes, node => ({ ...node, primitive: action.primID }), action.nodeID)
+        }
+      }
+    }
     default:
       return state
   }

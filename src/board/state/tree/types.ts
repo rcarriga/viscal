@@ -9,6 +9,7 @@ interface BaseExpression {
   type: NodeType
   children: (tree: Tree) => NodeID[]
   directChildren: NodeID[]
+  primitive?: PrimitiveID
 }
 
 interface NullExpression extends BaseExpression {
@@ -70,13 +71,23 @@ export type LambdaReducerID = string | number
 
 export type ExprConstant = string
 
-export type ConstName = string | number
+export type ConstName = string
 
 export type ExprConstants = { [constName in ConstName]: ExprConstant }
+
+export type PrimitiveID = string
+
+export type Primitive = {
+  name: string
+  rootID: string
+}
+
+export type Primitives = { [primID in PrimitiveID]: Primitive }
 
 export interface TreeState {
   root: NodeID
   nodes: Tree
+  primitives: Primitives
   reducer?: LambdaReducerID
   reduction?: ReductionStage
   constants: ExprConstants
@@ -85,6 +96,7 @@ export interface TreeState {
 export const initialTreeState: TreeState = {
   nodes: {},
   root: "",
+  primitives: {},
   constants: {
     RECURSE: "λ f. (λ x. f (x x)) (λ x. f (x x))",
     PLUS: "λ a b f x.a f (b f x)",
