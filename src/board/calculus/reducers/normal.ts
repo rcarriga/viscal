@@ -18,10 +18,8 @@ const reduce = (state: TreeState, rootID?: NodeID): ReductionStage | undefined =
   }
 }
 
-const normalReducer: LambdaReducer = {
+export default {
   name: "Normal Order",
   description: "Performs normal order reduction...",
   useReduction: state => reduce(state, state.root)
-}
-
-export default normalReducer
+} as LambdaReducer

@@ -139,13 +139,13 @@ const Input = (props: { value: string; onChange: (e: React.ChangeEvent<HTMLInput
       <div style={{ display: "flex" }}>
         <div className="subtitle is-5">Input</div>
         <div style={{ marginLeft: 10 }}>
-          {helpIcon.map(({ item, props }) =>
+          {helpIcon.map(({ item, props, key }) =>
             !item ? (
-              <animated.div onClick={() => setHelp(!help)} style={props}>
+              <animated.div key={key} onClick={() => setHelp(!help)} style={props}>
                 <HelpIcon />
               </animated.div>
             ) : (
-              <animated.div onClick={() => setHelp(!help)} style={props}>
+              <animated.div key={key} onClick={() => setHelp(!help)} style={props}>
                 <CancelIcon />
               </animated.div>
             )
