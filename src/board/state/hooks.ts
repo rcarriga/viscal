@@ -12,6 +12,8 @@ export const useTree = () => useSelector(state => state.tree.present.nodes)
 
 export const useReduction = () => useSelector(state => state.tree.present.reduction)
 
+export const useReducer = () => useSelector(state => state.tree.present.reducer)
+
 export const useConstants = () => useSelector(state => state.tree.present.constants)
 
 export const useVisualState = () => useSelector(state => state.visual)

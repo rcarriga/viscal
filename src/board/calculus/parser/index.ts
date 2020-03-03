@@ -1,4 +1,5 @@
 import { Dispatcher, addVariable, addAbstraction, addApplication, NodeID, setRoot, ExprConstants } from "board/state"
+import _ from "lodash"
 import P, { Parser } from "parsimmon"
 import { generateID } from "../util"
 
@@ -74,12 +75,10 @@ export const parseExpression = (
     })
 
   const res = expr().parse(expression)
-  console.log(res)
   if (res.status) {
     const parsed = res.value
     if (!parsed) return
-    const incrementIndex = (indices: Indices) =>
-      Object.keys(indices).reduce((newIndex, key) => ({ ...newIndex, [key]: indices[key] + 1 }), {})
+    const incrementIndex = (indices: Indices) => _.mapValues(indices, index => index + 1)
     const fillState = (expr: ParsedExpr | undefined, indices: { [name: string]: number }, nextID: NodeID) => {
       if (!expr) return
       switch (expr.type) {

@@ -11,7 +11,7 @@ import {
   TreeNode,
   NodeJoins
 } from "board/state"
-import { reduceObj } from "board/util"
+import _ from "lodash"
 
 export const constructDimensions = (
   state: TreeState,
@@ -28,29 +28,36 @@ const calculateDimensionOffsets = (
   reduction?: ReductionStage
 ): DimensionOffsets => {
   const joinOffsets = (): DimensionOffsets => {
-    const maxDistances = Object.keys(joins).reduce((distances: { [nodeID in NodeID]: number }, nodeID) => {
-      const join = joins[nodeID]
-      const distance = distances[join.jointTo] || 0
-      return { ...distances, [join.jointTo]: Math.max(distance, join.distance) }
-    }, {})
-    return reduceObj(joins, {}, (offsets, join, nodeID) => {
-      switch (join.type) {
-        case "ABSTRACTION":
-          return {
-            ...offsets,
-            [join.jointTo]: { w: -(settings.circleRadius + settings.widthMargin) },
-            ...(maxDistances[join.jointTo] > join.distance
-              ? { [nodeID]: { w: -(settings.circleRadius + settings.widthMargin) } }
-              : {})
-          }
-        default:
-          return {
-            ...offsets,
-            [join.jointTo]: { w: -settings.widthMargin },
-            ...(maxDistances[join.jointTo] > join.distance ? { [nodeID]: { w: -settings.widthMargin } } : {})
-          }
-      }
-    })
+    const maxDistances = _.reduce(
+      joins,
+      (distances: { [nodeID in NodeID]: number }, join) => {
+        const distance = distances[join.jointTo] || 0
+        return { ...distances, [join.jointTo]: Math.max(distance, join.distance) }
+      },
+      {}
+    )
+    return _.reduce(
+      joins,
+      (offsets, join, nodeID) => {
+        switch (join.type) {
+          case "ABSTRACTION":
+            return {
+              ...offsets,
+              [join.jointTo]: { w: -(settings.circleRadius + settings.widthMargin) },
+              ...(maxDistances[join.jointTo] > join.distance
+                ? { [nodeID]: { w: -(settings.circleRadius + settings.widthMargin) } }
+                : {})
+            }
+          default:
+            return {
+              ...offsets,
+              [join.jointTo]: { w: -settings.widthMargin },
+              ...(maxDistances[join.jointTo] > join.distance ? { [nodeID]: { w: -settings.widthMargin } } : {})
+            }
+        }
+      },
+      {}
+    )
   }
 
   return joinOffsets()

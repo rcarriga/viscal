@@ -1,4 +1,5 @@
-import { isString, filterObj, reduceObj } from "../../util"
+import { isString } from "board/util"
+import _ from "lodash"
 import { BoardAction } from "../actions"
 import { parentsSelector } from "./selectors"
 import {
@@ -20,6 +21,8 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
       return { root: "", nodes: {}, constants: state.constants }
     case "SET_ROOT":
       return { ...state, root: action.nodeID }
+    case "SET_REDUCER":
+      return { ...state, reducer: action.reducerID }
     case "ADD_VARIABLE":
       return addNode(state, action.nodeID, createVar(action.nodeID, action.index, action.name))
     case "ADD_ABSTRACTION":
@@ -63,7 +66,7 @@ const removeReduced = (state: TreeState, reduction: ReductionStage): TreeState =
   const replaceRoot = state.root === reduction.parentApplication
   const replaceFrom = reduction.visibleParent === reduction.parentApplication ? state.root : reduction.visibleParent
   const childReplaced = replaceChild(reduction.parentApplication, newChild, replaceFrom, state.nodes)
-  const newTree = filterObj(childReplaced, [...Object.keys(reduction.substitutions), reduction.abs, reduction.consumed])
+  const newTree = _.omit(childReplaced, [...Object.keys(reduction.substitutions), reduction.abs, reduction.consumed])
   return {
     ...state,
     reduction: reduction,
@@ -73,89 +76,95 @@ const removeReduced = (state: TreeState, reduction: ReductionStage): TreeState =
 }
 
 const addReplacementNodes = (reduction: ReductionStage, tree: Tree): Tree =>
-  reduceObj(reduction.substitutions, tree, (tree, substitution, toReplace) => {
-    const calcOffset = (offset: number, nodeID?: NodeID): VarIndex => {
-      if (!nodeID) return undefined
-      const node = tree[nodeID]
-      if (!node) return undefined
-      switch (node.type) {
-        case "VARIABLE":
-          return nodeID === toReplace ? offset : undefined
-        case "ABSTRACTION":
-          return node.child ? calcOffset(offset + 1, node.child) : undefined
-        case "APPLICATION": {
-          const left = calcOffset(offset, node.left)
-          return typeof left === "number" ? left : calcOffset(offset, node.right)
-        }
-        default:
-          return undefined
-      }
-    }
-
-    const indexOffset = calcOffset(0, reduction.child) || 0
-
-    const getSub = (nodeID: NodeID) => substitution[nodeID] || nodeID
-    const getBoundOutside = (tree: Tree, rootID: NodeID, abstractions = 0): NodeID[] => {
-      const root = tree[rootID]
-      if (!root) return []
-      switch (root.type) {
-        case "VARIABLE":
-          return !root.index || abstractions <= root.index ? [rootID] : []
-        case "ABSTRACTION":
-          if (!root.child) return []
-          return getBoundOutside(tree, root.child, abstractions + 1)
-        case "APPLICATION":
-          return root.children(tree).flatMap(childID => getBoundOutside(tree, childID, abstractions))
-        default:
-          return []
-      }
-    }
-
-    const boundOutside = new Set(...getBoundOutside(tree, reduction.consumed))
-
-    const subTree = reduceTree(
-      tree,
-      (tree, node, nodeID) => {
-        const updated = () => {
-          switch (node.type) {
-            case "VARIABLE":
-              return createVar(
-                getSub(nodeID),
-                node.index !== undefined ? node.index + (boundOutside.has(nodeID) ? indexOffset : 0) : undefined,
-                node.name
-              )
-            case "ABSTRACTION":
-              return createAbs(getSub(nodeID), node.variableName, node.child ? getSub(node.child) : node.child)
-            case "APPLICATION": {
-              const newLeft = node.left ? getSub(node.left) : node.left
-              const newRight = node.right ? getSub(node.right) : node.right
-              return createAppl(getSub(nodeID), newLeft, newRight)
-            }
-            default:
-              return node
+  _.reduce(
+    reduction.substitutions,
+    (tree, substitution, toReplace) => {
+      const calcOffset = (offset: number, nodeID?: NodeID): VarIndex => {
+        if (!nodeID) return undefined
+        const node = tree[nodeID]
+        if (!node) return undefined
+        switch (node.type) {
+          case "VARIABLE":
+            return nodeID === toReplace ? offset : undefined
+          case "ABSTRACTION":
+            return node.child ? calcOffset(offset + 1, node.child) : undefined
+          case "APPLICATION": {
+            const left = calcOffset(offset, node.left)
+            return typeof left === "number" ? left : calcOffset(offset, node.right)
           }
+          default:
+            return undefined
         }
-        return {
-          ...tree,
-          [getSub(nodeID)]: updated()
-        }
-      },
-      {},
-      reduction.consumed
-    )
+      }
 
-    return { ...tree, ...subTree }
-  })
+      const indexOffset = calcOffset(0, reduction.child) || 0
+
+      const getSub = (nodeID: NodeID) => substitution[nodeID] || nodeID
+      const getBoundOutside = (tree: Tree, rootID: NodeID, abstractions = 0): NodeID[] => {
+        const root = tree[rootID]
+        if (!root) return []
+        switch (root.type) {
+          case "VARIABLE":
+            return !root.index || abstractions <= root.index ? [rootID] : []
+          case "ABSTRACTION":
+            if (!root.child) return []
+            return getBoundOutside(tree, root.child, abstractions + 1)
+          case "APPLICATION":
+            return root.children(tree).flatMap(childID => getBoundOutside(tree, childID, abstractions))
+          default:
+            return []
+        }
+      }
+
+      const boundOutside = new Set(...getBoundOutside(tree, reduction.consumed))
+
+      const subTree = reduceTree(
+        tree,
+        (tree, node, nodeID) => {
+          const updated = () => {
+            switch (node.type) {
+              case "VARIABLE":
+                return createVar(
+                  getSub(nodeID),
+                  node.index !== undefined ? node.index + (boundOutside.has(nodeID) ? indexOffset : 0) : undefined,
+                  node.name
+                )
+              case "ABSTRACTION":
+                return createAbs(getSub(nodeID), node.variableName, node.child ? getSub(node.child) : node.child)
+              case "APPLICATION": {
+                const newLeft = node.left ? getSub(node.left) : node.left
+                const newRight = node.right ? getSub(node.right) : node.right
+                return createAppl(getSub(nodeID), newLeft, newRight)
+              }
+              default:
+                return node
+            }
+          }
+          return {
+            ...tree,
+            [getSub(nodeID)]: updated()
+          }
+        },
+        {},
+        reduction.consumed
+      )
+
+      return { ...tree, ...subTree }
+    },
+    tree
+  )
 
 const replaceNodes = (reduction: ReductionStage, state: TreeState): TreeState => {
   const root = state.root
   return root
     ? {
         ...state,
-        nodes: Object.keys(reduction.substitutions).reduce((tree: Tree, toReplace: NodeID) => {
-          const getSub = (nodeID: NodeID) => reduction.substitutions[toReplace][nodeID] || nodeID
-          return replaceChild(toReplace, getSub(reduction.consumed), root, tree)
-        }, state.nodes)
+        nodes: _.reduce(
+          reduction.substitutions,
+          (tree: Tree, sub, toReplace: NodeID) =>
+            replaceChild(toReplace, sub[reduction.consumed] || reduction.consumed, root, tree),
+          state.nodes
+        )
       }
     : state
 }

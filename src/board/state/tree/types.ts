@@ -77,6 +77,7 @@ export type ExprConstants = { [constName in ConstName]: ExprConstant }
 export interface TreeState {
   root: NodeID
   nodes: Tree
+  reducer?: LambdaReducerID
   reduction?: ReductionStage
   constants: ExprConstants
 }
@@ -85,6 +86,7 @@ export const initialTreeState: TreeState = {
   nodes: {},
   root: "",
   constants: {
+    RECURSE: "λ f. (λ x. f (x x)) (λ x. f (x x))",
     PLUS: "λ a b f x.a f (b f x)",
     MULT: "λ a b f.a (b f)",
     SUCC: "λ b f x.f (b f x)",

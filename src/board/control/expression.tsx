@@ -11,7 +11,7 @@ import { ActionCreators } from "redux-undo"
 const ExpressionControl = () => {
   const dis = useDispatch()
   const [active, setActive] = useState(false)
-  const [expr, setExpr] = useState("(λm.λn.λf.λx.m f (n f x)) (λf x.f (f x)) (λf x.f (f (f x)))")
+  const [expr, setExpr] = useState("PLUS 1 2")
   const [input, setInput] = useState(expr)
   const toggle = () => setActive(!active)
   const constants = useConstants()
@@ -139,13 +139,13 @@ const Input = (props: { value: string; onChange: (e: React.ChangeEvent<HTMLInput
       <div style={{ display: "flex" }}>
         <div className="subtitle is-5">Input</div>
         <div style={{ marginLeft: 10 }}>
-          {helpIcon.map(({ item, props }) =>
+          {helpIcon.map(({ item, props, key }) =>
             !item ? (
-              <animated.div onClick={() => setHelp(!help)} style={props}>
+              <animated.div key={key} onClick={() => setHelp(!help)} style={props}>
                 <HelpIcon />
               </animated.div>
             ) : (
-              <animated.div onClick={() => setHelp(!help)} style={props}>
+              <animated.div key={key} onClick={() => setHelp(!help)} style={props}>
                 <CancelIcon />
               </animated.div>
             )

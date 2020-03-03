@@ -1,13 +1,17 @@
 import { BoardState, Tree, NodeID, NodeJoins, joinsSelector } from "board/state"
-import { reduceObj } from "board/util"
+import _ from "lodash"
 import { createSelector } from "reselect"
 
 const stringifyTree = (tree: Tree, rootID: NodeID, joins: NodeJoins): string => {
-  const furthestJoins = reduceObj(joins, {} as { [nodeID in NodeID]: NodeID }, (furthestJoins, join, nodeID) => {
-    const furthest: NodeID = furthestJoins[join.jointTo]
-    if (furthest && joins[furthest].distance > join.distance) return furthestJoins
-    return { ...furthestJoins, [join.jointTo]: nodeID }
-  })
+  const furthestJoins = _.reduce(
+    joins,
+    (furthestJoins, join, nodeID) => {
+      const furthest: NodeID = furthestJoins[join.jointTo]
+      if (furthest && joins[furthest].distance > join.distance) return furthestJoins
+      return { ...furthestJoins, [join.jointTo]: nodeID }
+    },
+    {} as { [nodeID in NodeID]: NodeID }
+  )
   const joinNames = (tree: Tree, end: NodeID, start?: NodeID): NodeID[] => {
     if (!start) return []
     const node = tree[start || ""]

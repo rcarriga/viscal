@@ -6,13 +6,15 @@ import PauseIcon from "@material-ui/icons/PauseSharp"
 import PlayArrowIcon from "@material-ui/icons/PlayArrow"
 
 import { reducers } from "board/calculus"
-import { useDispatch, useMode, setMode } from "board/state"
+import { setReducer, useReducer, useDispatch, useMode, setMode } from "board/state"
+import _ from "lodash"
 import React, { useState } from "react"
 
 const ReducerControl = () => {
-  const [currentReducer, setReducer] = useState(reducers.normal)
+  const currentReducer = reducers[useReducer() || ""] || { name: "No Method" }
   const dis = useDispatch()
   const mode = useMode()
+  const [showDrop, setDrop] = useState(false)
   return (
     <div>
       <div className="menu-label">Reduction</div>
@@ -41,20 +43,28 @@ const ReducerControl = () => {
         </IconButton>
       </div>
       <div>
-        <div className="dropdown is-hoverable" style={{ width: "100%" }}>
+        <div className={`dropdown ${showDrop && "is-active"}`} style={{ width: "100%" }}>
           <div className="dropdown-trigger" style={{ width: "100%" }}>
-            <button style={{ width: "100%" }} className="button has-text-dark">
+            <button
+              onMouseOver={() => setDrop(true)}
+              onMouseLeave={() => setDrop(false)}
+              style={{ width: "100%" }}
+              className="button has-text-dark"
+            >
               {currentReducer.name}
             </button>
           </div>
-          <div className="dropdown-menu">
+          <div onMouseOver={() => setDrop(true)} onMouseLeave={() => setDrop(false)} className="dropdown-menu">
             <div className="dropdown-content">
-              {Object.values(reducers).map(reducer => (
+              {_.map(reducers, (reducer, reducerID) => (
                 <a
                   key={reducer.name}
-                  style={{ height: "100%", width: "100%", textAlign: "center" }}
+                  style={{ height: "100%", width: "100%" }}
                   className="dropdown-item has-text-grey"
-                  onClick={() => setReducer(reducer)}
+                  onClick={() => {
+                    setDrop(false)
+                    dis(setReducer(reducerID))
+                  }}
                 >
                   {reducer.name}
                 </a>
