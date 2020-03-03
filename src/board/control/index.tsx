@@ -1,7 +1,7 @@
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown"
 import AnimationControl from "board/control/animation"
 import React, { useState } from "react"
-import { animated, useTransition, useSpring } from "react-spring"
+import { animated, useSpring } from "react-spring"
 
 import ExpressionControl from "./expression"
 import ReducerControl from "./reducer"
