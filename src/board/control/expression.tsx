@@ -1,6 +1,11 @@
+import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown"
+import CancelIcon from "@material-ui/icons/Cancel"
+import HelpIcon from "@material-ui/icons/Help"
 import { parseExpression } from "board/calculus"
-import { useDispatch, clearTree, useTextTree } from "board/state"
+import { useDispatch, clearTree, useTextTree, useConstants } from "board/state"
+import _ from "lodash"
 import React, { useState, useEffect } from "react"
+import { useSpring, animated, useTransition } from "react-spring"
 import { ActionCreators } from "redux-undo"
 
 const ExpressionControl = () => {
@@ -9,16 +14,17 @@ const ExpressionControl = () => {
   const [expr, setExpr] = useState("(λm.λn.λf.λx.m f (n f x)) (λf x.f (f x)) (λf x.f (f (f x)))")
   const [input, setInput] = useState(expr)
   const toggle = () => setActive(!active)
+  const constants = useConstants()
   useEffect(() => {
     dis(clearTree())
     dis(ActionCreators.clearHistory())
-    parseExpression(expr, dis)
-  }, [dis, expr])
+    parseExpression(expr, dis, constants)
+  }, [constants, dis, expr])
   return (
     <div>
       <div className="menu-label">Expression</div>
       <div>
-        <TreeText medium onClick={() => setActive(!active)} style={{ cursor: "pointer", marginBottom: 20 }} />
+        <TreeText medium={"true"} onClick={() => setActive(!active)} style={{ cursor: "pointer", marginBottom: 20 }} />
       </div>
       <div>
         <div className={`modal ${active ? "is-active" : ""}`}>
@@ -27,21 +33,12 @@ const ExpressionControl = () => {
             <div className="box is-background-light">
               <div className="card-content">
                 <div className="container" style={{ margin: 20 }}>
+                  <Constants />
+                  <Divider />
                   <div className="subtitle is-5">Current Form</div>
                   <TreeText />
-                </div>
-                <div style={{ width: "100%", marginTop: 20, paddingLeft: "20%", paddingRight: "20%" }}>
-                  <div className="dropdown-divider"></div>
-                </div>
-                <div className="container" style={{ margin: 20 }}>
-                  <div className="subtitle is-5">Input</div>
-                  <input
-                    className="input is-medium"
-                    value={input}
-                    onChange={e => setInput(e.currentTarget.value)}
-                    type="text"
-                    placeholder="Enter a lambda expression"
-                  />
+                  <Divider />
+                  <Input value={input} onChange={e => setInput(e.currentTarget.value)} />
                 </div>
                 <div style={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>
                   <button
@@ -52,7 +49,7 @@ const ExpressionControl = () => {
                       setExpr(input)
                     }}
                   >
-                    OK
+                    CHANGE
                   </button>
                 </div>
               </div>
@@ -61,6 +58,48 @@ const ExpressionControl = () => {
           <button className="modal-close is-large" onClick={toggle} aria-label="close"></button>
         </div>
       </div>
+    </div>
+  )
+}
+
+const Constants = () => {
+  const constants = useConstants()
+  const [active, setActive] = useState(false)
+  const table = useSpring({ overflow: "auto", maxHeight: active ? 300 : 0 })
+  const arrow = useSpring({
+    display: "inline-block",
+    transform: active ? "rotate(180deg)" : "rotate(0deg)"
+  })
+  return (
+    <div>
+      <div style={{ display: "flex", cursor: "pointer" }} onClick={() => setActive(!active)}>
+        <div style={{ flexGrow: 7 }} className="subtitle is-5">
+          Built-in Functions
+        </div>
+        <div style={{ flexGrow: 1 }}>
+          <animated.div style={arrow}>
+            <ArrowDropDownIcon fontSize="large" />
+          </animated.div>
+        </div>
+      </div>
+      <animated.div className="table-container" style={table}>
+        <table className="table is-fullwidth is-striped is-hoverable">
+          <thead className="thead">
+            <tr className="tr">
+              <th className="th">Name</th>
+              <th className="th">Text</th>
+            </tr>
+          </thead>
+          <tbody className="tbody">
+            {_.map(constants, (text, name) => (
+              <tr key={name} className="tr">
+                <td className="td">{name}</td>
+                <td className="td">{text}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </animated.div>
     </div>
   )
 }
@@ -78,6 +117,61 @@ const TreeText = (props: any) => {
     >
       <div style={{ textAlign: "center", width: "100%" }}>{text}</div>
     </div>
+  )
+}
+
+const Divider = () => (
+  <div style={{ width: "100%", margin: 10, paddingLeft: "20%", paddingRight: "20%" }}>
+    <div className="dropdown-divider"></div>
+  </div>
+)
+
+const Input = (props: { value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => {
+  const [help, setHelp] = useState(false)
+  const helpIcon = useTransition(help, null, {
+    from: { cursor: "pointer", opacity: 0, position: "absolute" },
+    enter: { opacity: 1 },
+    leave: { opacity: 0 }
+  })
+  const helpMessage = useSpring({ overflowY: "auto", maxHeight: help ? 300 : 0, config: { clamp: true } })
+  return (
+    <div>
+      <div style={{ display: "flex" }}>
+        <div className="subtitle is-5">Input</div>
+        <div style={{ marginLeft: 10 }}>
+          {helpIcon.map(({ item, props }) =>
+            !item ? (
+              <animated.div onClick={() => setHelp(!help)} style={props}>
+                <HelpIcon />
+              </animated.div>
+            ) : (
+              <animated.div onClick={() => setHelp(!help)} style={props}>
+                <CancelIcon />
+              </animated.div>
+            )
+          )}
+        </div>
+      </div>
+      <Help style={helpMessage} />
+      <input className="input is-medium" {...props} type="text" placeholder="Enter a lambda expression" />
+    </div>
+  )
+}
+
+const Help = (props: { style: React.CSSProperties }) => {
+  return (
+    <animated.div className="message is-info" style={props.style}>
+      <div className="message-header">
+        <p>Writing Expressions</p>
+      </div>
+      <div className="message-body">
+        {
+          'Expressions can be input as text. Examples of these can be seen in the built-in functions. Abstractions are \
+        written with "λ" or "\\", followed by a list of lower-case variable names separated by spaces and finally \
+        terminated by ".". Numbers can be entered as digits. Built-ins are used by using the upper-case name.'
+        }
+      </div>
+    </animated.div>
   )
 }
 

@@ -6,32 +6,32 @@ export type VarIndex = number | undefined
 export type NodeType = "NULL" | "VARIABLE" | "ABSTRACTION" | "APPLICATION"
 
 interface BaseExpression {
-  readonly type: NodeType
-  readonly children: (tree: Tree) => NodeID[]
-  readonly directChildren: NodeID[]
+  type: NodeType
+  children: (tree: Tree) => NodeID[]
+  directChildren: NodeID[]
 }
 
 interface NullExpression extends BaseExpression {
-  readonly type: "NULL"
+  type: "NULL"
 }
 
 export interface Variable extends BaseExpression {
-  readonly type: "VARIABLE"
-  readonly index: VarIndex
-  readonly name: VarName
-  readonly binder: (tree: TreeState) => NodeID | undefined
+  type: "VARIABLE"
+  index: VarIndex
+  name: VarName
+  binder: (tree: TreeState) => NodeID | undefined
 }
 
 export interface Abstraction extends BaseExpression {
-  readonly type: "ABSTRACTION"
-  readonly child?: NodeID
-  readonly variableName: VarName
+  type: "ABSTRACTION"
+  child?: NodeID
+  variableName: VarName
 }
 
 export interface Application extends BaseExpression {
-  readonly type: "APPLICATION"
-  readonly left?: NodeID
-  readonly right?: NodeID
+  type: "APPLICATION"
+  left?: NodeID
+  right?: NodeID
 }
 
 export type TreeNode = NullExpression | Variable | Abstraction | Application
@@ -68,10 +68,36 @@ export interface ReductionStage {
 
 export type LambdaReducerID = string | number
 
+export type ExprConstant = string
+
+export type ConstName = string | number
+
+export type ExprConstants = { [constName in ConstName]: ExprConstant }
+
 export interface TreeState {
-  readonly root: NodeID
-  readonly nodes: Tree
-  readonly reduction?: ReductionStage
+  root: NodeID
+  nodes: Tree
+  reduction?: ReductionStage
+  constants: ExprConstants
 }
 
-export const initialTreeState: TreeState = { nodes: {}, root: "" }
+export const initialTreeState: TreeState = {
+  nodes: {},
+  root: "",
+  constants: {
+    PLUS: "λ a b f x.a f (b f x)",
+    MULT: "λ a b f.a (b f)",
+    SUCC: "λ b f x.f (b f x)",
+    POW: "λ b e.e b",
+    PRED: "λ b f x.b (λ c d.d (c f)) (λ e.x) (λ e.e)",
+    SUb: "λ a b.b PRED a",
+    TRUE: "λ x y.x",
+    FALSE: "λ x y.y",
+    AND: "λ p q.p q p",
+    OR: "λ p q.p p q",
+    NOT: "λ p.p FALSE TRUE",
+    IFTHENELSE: "λ p a b.p a b",
+    ISZERO: "λ b.b (λ x.FALSE) TRUE",
+    LEQ: "λ a b.ISZERO (SUB a b)"
+  }
+}

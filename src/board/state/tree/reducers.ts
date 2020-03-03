@@ -17,7 +17,7 @@ import { reduceTree, partialMapTree } from "./util"
 export const tree = (state = initialTreeState, action: BoardAction): TreeState => {
   switch (action.type) {
     case "CLEAR_TREE":
-      return { root: "", nodes: {} }
+      return { root: "", nodes: {}, constants: state.constants }
     case "SET_ROOT":
       return { ...state, root: action.nodeID }
     case "ADD_VARIABLE":
