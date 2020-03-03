@@ -48,7 +48,10 @@ const RawVar = (props: RawVarProps) => {
     <animated.path
       {...animate}
       id={props.id}
-      onClick={() => props.events.click(props.id)}
+      onClick={e => {
+        e.stopPropagation()
+        props.events.click(props.id)
+      }}
       onMouseOver={() => props.events.highlight(props.id)}
       onMouseLeave={() => props.events.clearHighlight(props.id)}
     />
