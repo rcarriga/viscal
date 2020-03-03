@@ -1,7 +1,7 @@
 import { reduceTree } from "board/state/tree"
+import _ from "lodash"
 import randomcolor from "randomcolor"
 import { createSelector } from "reselect"
-import { reduceObj } from "../../util"
 import { AnimationSettings } from "../visual"
 import { BoardState, NodeID, TreeState, Color, Theme, DimensionSettings, TreeNode, ReductionStage } from ".."
 
@@ -57,111 +57,82 @@ type StyleSettings = {
 const createStyles = (state: StylesState): NodeStyles => {
   const tree = state.tree.nodes
   const reduction = state.tree.reduction
-  const initStyles = reduceObj(tree, {}, (styles: NodeStyles, _, nodeID: NodeID) => {
-    const style = createStyle(nodeID, state, {})
-    return style ? { ...styles, [nodeID]: style } : styles
-  })
+  const initStyles: NodeStyles = _.pickBy(
+    _.mapValues(tree, (_, nodeID: NodeID) => createStyle(nodeID, state, {})),
+    (style): style is NodeStyle => _.isObject(style)
+  )
   if (!reduction) return initStyles
   switch (reduction.type) {
     case "UNBIND":
-      return overrideUnbinded(
-        reduction,
-        { transparent: true },
-        state,
-        overrideConsumed(
-          reduction,
-          { highlighted: true },
-          state,
-          overrideReplacement(reduction, { highlighted: true }, state, initStyles)
-        )
-      )
+      return {
+        ...initStyles,
+        ...overrideReplacement(reduction, { highlighted: true }, state),
+        ...overrideConsumed(reduction, { highlighted: true }, state),
+        ...overrideUnbinded(reduction, { transparent: true }, state)
+      }
     case "FADE":
-      return overrideRemoved(
-        reduction,
-        { transparent: true },
-        state,
-        overrideReplaced(
-          reduction,
-          { transparent: true },
-          state,
-          overrideReplacement(reduction, { highlighted: true }, state, initStyles)
-        )
-      )
+      return {
+        ...initStyles,
+        ...overrideReplacement(reduction, { highlighted: true }, state),
+        ...overrideReplaced(reduction, { transparent: true }, state),
+        ...overrideRemoved(reduction, { transparent: true }, state)
+      }
     default:
-      return overrideConsumed(
-        reduction,
-        { highlighted: true },
-        state,
-        overrideReplacement(reduction, { highlighted: true }, state, initStyles)
-      )
+      return {
+        ...initStyles,
+        ...overrideReplacement(reduction, { highlighted: true }, state),
+        ...overrideConsumed(reduction, { highlighted: true }, state)
+      }
   }
 }
 
-const overrideUnbinded = (
-  reduction: ReductionStage,
-  override: StyleSettings,
-  state: StylesState,
-  styles: NodeStyles
-): NodeStyles =>
-  reduceObj(reduction.substitutions, styles, (styles, _, unbindedVar) => {
-    const style = createStyle(unbindedVar, state, override)
-    return style ? { ...styles, [unbindedVar]: style } : styles
-  })
+const overrideUnbinded = (reduction: ReductionStage, override: StyleSettings, state: StylesState): NodeStyles =>
+  _.reduce(
+    reduction.substitutions,
+    (styles, _, unbindedVar) => {
+      const style = createStyle(unbindedVar, state, override)
+      return style ? { ...styles, [unbindedVar]: style } : styles
+    },
+    {}
+  )
 
-const overrideReplacement = (
-  reduction: ReductionStage,
-  override: StyleSettings,
-  state: StylesState,
-  styles: NodeStyles
-): NodeStyles =>
-  reduceObj(reduction.substitutions, styles, (styles: NodeStyles, substitution) => {
-    const newNodeID = substitution[reduction.consumed]
-    if (state.tree.nodes[newNodeID]) {
-      const style = createStyle(newNodeID, state, override)
-      return style ? { ...styles, [newNodeID]: style } : styles
-    }
-    return styles
-  })
+const overrideReplacement = (reduction: ReductionStage, override: StyleSettings, state: StylesState): NodeStyles =>
+  _.reduce(
+    reduction.substitutions,
+    (styles: NodeStyles, substitution) => {
+      const newNodeID = substitution[reduction.consumed]
+      if (state.tree.nodes[newNodeID]) {
+        const style = createStyle(newNodeID, state, override)
+        return style ? { ...styles, [newNodeID]: style } : styles
+      }
+      return styles
+    },
+    {}
+  )
 
-const overrideReplaced = (
-  reduction: ReductionStage,
-  override: StyleSettings,
-  state: StylesState,
-  styles: NodeStyles
-): NodeStyles =>
+const overrideReplaced = (reduction: ReductionStage, override: StyleSettings, state: StylesState): NodeStyles =>
   reduceTree(
     state.tree.nodes,
     (styles, _, nodeID) => {
       const style = createStyle(nodeID, state, override)
       return style ? { ...styles, [nodeID]: style } : styles
     },
-    styles,
+    {},
     reduction.consumed
   )
 
-const overrideConsumed = (
-  reduction: ReductionStage,
-  override: StyleSettings,
-  state: StylesState,
-  styles: NodeStyles
-): NodeStyles => {
+const overrideConsumed = (reduction: ReductionStage, override: StyleSettings, state: StylesState): NodeStyles => {
   if (state.tree.nodes[reduction.consumed]) {
     const style = createStyle(reduction.consumed, state, override)
-    return style ? { ...styles, [reduction.consumed]: style } : styles
+    return style ? { [reduction.consumed]: style } : {}
   }
-  return styles
+  return {}
 }
 
-const overrideRemoved = (
-  reduction: ReductionStage,
-  override: StyleSettings,
-  state: StylesState,
-  styles: NodeStyles
-): NodeStyles => {
+const overrideRemoved = (reduction: ReductionStage, override: StyleSettings, state: StylesState): NodeStyles => {
   const absStyle = createStyle(reduction.abs, state, override)
   const applStyle = createStyle(reduction.parentApplication, state, override)
   return {
-    ...styles,
     ...(absStyle ? { [reduction.abs]: absStyle } : {}),
     ...(applStyle ? { [reduction.parentApplication]: applStyle } : {})
   }
@@ -284,18 +255,19 @@ const constructCopyMap = (reduction: ReductionStage): { [nodeID in NodeID]: Node
     case "REMOVE":
       return {}
     default:
-      return reduceObj(reduction.substitutions, {}, (copies, sub) => ({
-        ...copies,
-        ...reduceObj(sub, {}, (copies, toReplace, toCopy) => ({ ...copies, [toReplace]: toCopy }))
-      }))
+      return _.reduce(
+        reduction.substitutions,
+        (copies, sub) => ({
+          ...copies,
+          ..._.reduce(sub, (copies, toReplace, toCopy) => ({ ...copies, [toReplace]: toCopy }), {})
+        }),
+        {}
+      )
   }
 }
 
 const createColors = (tree: TreeState): VarColors => {
-  return reduceObj(tree.nodes, {}, (colors, node, nodeID) => ({
-    ...colors,
-    [nodeID]: createColor(nodeID, node, tree)
-  }))
+  return _.mapValues(tree.nodes, (node, nodeID) => createColor(nodeID, node, tree))
 }
 
 const createColor = (nodeID: NodeID, node: TreeNode, tree: TreeState): Color => {

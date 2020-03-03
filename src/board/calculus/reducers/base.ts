@@ -9,6 +9,7 @@ import {
   REDUCTION_STAGES,
   searchTree
 } from "board/state"
+import _ from "lodash"
 import { generateID } from "../util"
 export interface LambdaReducer {
   name: string
@@ -34,7 +35,7 @@ export const createReduction = (parentID: NodeID, tree: TreeState): ReductionSta
       child,
       consumed,
       substitutions: createSubstitutions(abs, consumed, tree),
-      reducer: ""
+      reducer: tree.reducer || ""
     }
 }
 
@@ -69,10 +70,9 @@ const createCopyIDs = (nodeID: NodeID, tree: Tree): Substitution => {
     .reduce((subs, sub) => ({ ...subs, ...sub }), { [nodeID]: generateID() })
 }
 
-const getRemoved = (binderID: NodeID, tree: TreeState): NodeID[] => {
-  const nodes = tree.nodes
-  return Object.keys(tree.nodes).filter(nodeID => {
-    const node = nodes[nodeID]
-    return node.type === "VARIABLE" && node.binder(tree) === binderID
-  })
-}
+const getRemoved = (binderID: NodeID, tree: TreeState): NodeID[] =>
+  _.keys(
+    _.pickBy(tree.nodes, node => {
+      return node.type === "VARIABLE" && node.binder(tree) === binderID
+    })
+  )
