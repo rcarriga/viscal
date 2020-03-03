@@ -11,7 +11,7 @@ import { ActionCreators } from "redux-undo"
 const ExpressionControl = () => {
   const dis = useDispatch()
   const [active, setActive] = useState(false)
-  const [expr, setExpr] = useState("(λm.λn.λf.λx.m f (n f x)) (λf x.f (f x)) (λf x.f (f (f x)))")
+  const [expr, setExpr] = useState("PLUS 1 2")
   const [input, setInput] = useState(expr)
   const toggle = () => setActive(!active)
   const constants = useConstants()

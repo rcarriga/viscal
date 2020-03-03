@@ -13,7 +13,7 @@ import { generateID } from "../util"
 export interface LambdaReducer {
   name: string
   description: string
-  reduce: (tree: TreeState) => ReductionStage | undefined
+  useReduction: (tree: TreeState) => ReductionStage | undefined
 }
 
 export const createReduction = (parentID: NodeID, tree: TreeState): ReductionStage | undefined => {

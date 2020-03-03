@@ -20,6 +20,8 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
       return { root: "", nodes: {}, constants: state.constants }
     case "SET_ROOT":
       return { ...state, root: action.nodeID }
+    case "SET_REDUCER":
+      return { ...state, reducer: action.reducerID }
     case "ADD_VARIABLE":
       return addNode(state, action.nodeID, createVar(action.nodeID, action.index, action.name))
     case "ADD_ABSTRACTION":

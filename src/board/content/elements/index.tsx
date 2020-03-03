@@ -10,6 +10,7 @@ import {
   queueReduction,
   useTreeState,
   setMode,
+  useReducer,
   REDUCTION_STAGES
 } from "board/state"
 import React, { useRef, Ref } from "react"
@@ -47,19 +48,20 @@ const useAnimationControl = () => {
   const dis = useDispatch()
   const tree = useTreeState()
   const reduction = useReduction()
+  const reducer = reducers[useReducer() || ""] || { useReduction: () => undefined }
+  const nextReduction = reducer.useReduction(tree)
   const mode = useMode()
   return () => {
     switch (mode) {
       case "PLAY":
         if (reduction) dis(nextReductionStage())
         else {
-          const next = reducers.normal.reduce(tree)
-          if (next) dis(queueReduction(next))
+          if (nextReduction) dis(queueReduction(nextReduction))
           else dis(setMode("STOP"))
         }
         break
       case "FORWARD":
-        if (!reduction) dis(queueReduction(reducers.normal.reduce(tree)))
+        if (!reduction) dis(queueReduction(nextReduction))
         else {
           dis(nextReductionStage())
           if (reduction.type === REDUCTION_STAGES[REDUCTION_STAGES.length - 1]) dis(setMode("STOP"))

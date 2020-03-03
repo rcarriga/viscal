@@ -6,11 +6,12 @@ import PauseIcon from "@material-ui/icons/PauseSharp"
 import PlayArrowIcon from "@material-ui/icons/PlayArrow"
 
 import { reducers } from "board/calculus"
-import { useDispatch, useMode, setMode } from "board/state"
-import React, { useState } from "react"
+import { setReducer, useReducer, useDispatch, useMode, setMode } from "board/state"
+import _ from "lodash"
+import React from "react"
 
 const ReducerControl = () => {
-  const [currentReducer, setReducer] = useState(reducers.normal)
+  const currentReducer = reducers[useReducer() || ""] || { name: "No Method" }
   const dis = useDispatch()
   const mode = useMode()
   return (
@@ -49,12 +50,12 @@ const ReducerControl = () => {
           </div>
           <div className="dropdown-menu">
             <div className="dropdown-content">
-              {Object.values(reducers).map(reducer => (
+              {_.map(reducers, (reducer, reducerID) => (
                 <a
                   key={reducer.name}
                   style={{ height: "100%", width: "100%", textAlign: "center" }}
                   className="dropdown-item has-text-grey"
-                  onClick={() => setReducer(reducer)}
+                  onClick={() => dis(setReducer(reducerID))}
                 >
                   {reducer.name}
                 </a>

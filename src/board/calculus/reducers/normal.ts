@@ -21,7 +21,7 @@ const reduce = (state: TreeState, rootID?: NodeID): ReductionStage | undefined =
 const normalReducer: LambdaReducer = {
   name: "Normal Order",
   description: "Performs normal order reduction...",
-  reduce: state => reduce(state, state.root)
+  useReduction: state => reduce(state, state.root)
 }
 
 export default normalReducer
