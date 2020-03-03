@@ -5,12 +5,12 @@ import { parseExpression } from "board/calculus"
 import { useDispatch, clearTree, useTextTree, useConstants } from "board/state"
 import _ from "lodash"
 import React, { useState, useEffect } from "react"
-import { useSpring, animated, config, useTransition } from "react-spring"
+import { useSpring, animated, useTransition } from "react-spring"
 import { ActionCreators } from "redux-undo"
 
 const ExpressionControl = () => {
   const dis = useDispatch()
-  const [active, setActive] = useState(true)
+  const [active, setActive] = useState(false)
   const [expr, setExpr] = useState("(λm.λn.λf.λx.m f (n f x)) (λf x.f (f x)) (λf x.f (f (f x)))")
   const [input, setInput] = useState(expr)
   const toggle = () => setActive(!active)
@@ -165,9 +165,11 @@ const Help = (props: { style: React.CSSProperties }) => {
         <p>Writing Expressions</p>
       </div>
       <div className="message-body">
-        Expressions can be input as text. Examples of these can be seen in the built-in functions. Abstractions are
-        written with "λ" or "\", followed by a list of lowercase variable names separated by spaces and finally
-        terminated by ".". Numbers can be entered as digits.
+        {
+          'Expressions can be input as text. Examples of these can be seen in the built-in functions. Abstractions are \
+        written with "λ" or "\\", followed by a list of lower-case variable names separated by spaces and finally \
+        terminated by ".". Numbers can be entered as digits. Built-ins are used by using the upper-case name.'
+        }
       </div>
     </animated.div>
   )

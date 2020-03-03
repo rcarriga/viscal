@@ -85,19 +85,19 @@ export const initialTreeState: TreeState = {
   nodes: {},
   root: "",
   constants: {
-    PLUS: "λm.λn.λf.λx.m f (n f x)",
-    MULT: "λm.λn.λf.m (n f)",
-    SUCC: "λn.λf.λx.f (n f x)",
-    POW: "λb.λe.e b",
-    PRED: "λn.λf.λx.n (λg.λh.h (g f)) (λu.x) (λu.u)",
-    SUB: "λm.λn.n PRED m",
-    TRUE: "λx.λy.x",
-    FALSE: "λx.λy.y",
-    AND: "λp.λq.p q p",
-    OR: "λp.λq.p p q",
-    NOT: "λp.p FALSE TRUE",
-    IFTHENELSE: "λp.λa.λb.p a b",
-    ISZERO: "λn.n (λx.FALSE) TRUE",
-    LEQ: "λm.λn.ISZERO (SUB m n)"
+    PLUS: "λ a b f x.a f (b f x)",
+    MULT: "λ a b f.a (b f)",
+    SUCC: "λ b f x.f (b f x)",
+    POW: "λ b e.e b",
+    PRED: "λ b f x.b (λ c d.d (c f)) (λ e.x) (λ e.e)",
+    SUb: "λ a b.b PRED a",
+    TRUE: "λ x y.x",
+    FALSE: "λ x y.y",
+    AND: "λ p q.p q p",
+    OR: "λ p q.p p q",
+    NOT: "λ p.p FALSE TRUE",
+    IFTHENELSE: "λ p a b.p a b",
+    ISZERO: "λ b.b (λ x.FALSE) TRUE",
+    LEQ: "λ a b.ISZERO (SUB a b)"
   }
 }
