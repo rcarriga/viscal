@@ -161,7 +161,8 @@ const replaceNodes = (reduction: ReductionStage, state: TreeState): TreeState =>
         ...state,
         nodes: _.reduce(
           reduction.substitutions,
-          (tree: Tree, sub, toReplace: NodeID) => replaceChild(toReplace, sub[toReplace] || toReplace, root, tree),
+          (tree: Tree, sub, toReplace: NodeID) =>
+            replaceChild(toReplace, sub[reduction.consumed] || reduction.consumed, root, tree),
           state.nodes
         )
       }

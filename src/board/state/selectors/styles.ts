@@ -1,4 +1,4 @@
-import { reduceTree } from "board/state/tree"
+import { reduceTree, Tree } from "board/state/tree"
 import _ from "lodash"
 import randomcolor from "randomcolor"
 import { createSelector } from "reselect"
@@ -240,7 +240,9 @@ export const stylesSelector = createSelector(
   (state: BoardState) => ({
     tree: state.tree.present,
     colors: colorsSelector(state),
-    copies: state.tree.present.reduction ? constructCopyMap(state.tree.present.reduction) : {},
+    copies: state.tree.present.reduction
+      ? constructCopyMap(state.tree.present.reduction, state.tree.present.nodes)
+      : {},
     theme: state.visual.theme,
     dimensions: state.visual.dimensions,
     animation: state.visual.animation.settings,
@@ -250,19 +252,36 @@ export const stylesSelector = createSelector(
   createStyles
 )
 
-const constructCopyMap = (reduction: ReductionStage): { [nodeID in NodeID]: NodeID } => {
+const constructCopyMap = (reduction: ReductionStage, tree: Tree): { [nodeID in NodeID]: NodeID } => {
+  const copyReplaced = () =>
+    _.reduce(
+      reduction.substitutions,
+      (copies, sub) => ({
+        ...copies,
+        ..._.reduce(sub, (copies, toReplace, toCopy) => ({ ...copies, [toReplace]: toCopy }), {})
+      }),
+      {}
+    )
+
+  const copyParent = () => {
+    const newChildID = tree[reduction.abs].directChildren[0]
+    const newChild = newChildID ? tree[newChildID] : undefined
+    return newChild && newChild.type === "APPLICATION" ? { [newChildID]: reduction.parentApplication } : {}
+  }
+
   switch (reduction.type) {
+    case "SHIFT_ABS":
+    case "SHIFT_PARENT":
+    case "FADE": {
+      return {
+        ...copyReplaced(),
+        ...copyParent()
+      }
+    }
     case "REMOVE":
       return {}
     default:
-      return _.reduce(
-        reduction.substitutions,
-        (copies, sub) => ({
-          ...copies,
-          ..._.reduce(sub, (copies, toReplace, toCopy) => ({ ...copies, [toReplace]: toCopy }), {})
-        }),
-        {}
-      )
+      return copyReplaced()
   }
 }
 

@@ -22,7 +22,7 @@ const constructCoords = (tree: TreeState, settings: DimensionSettings, joins: No
     const coordOffsets = calculateCoordOffsets(settings, joins, tree)
 
     const coords = fillCoords(root, dimensions, tree.nodes, settings, coordOffsets)
-    const afterReduction = tree.reduction ? addOverrides(coords, tree.reduction, settings) : coords
+    const afterReduction = tree.reduction ? addOverrides(coords, tree, tree.reduction, settings) : coords
     if (tree.nodes[root].type === "APPLICATION") delete afterReduction[root]
     return afterReduction
   } else return {}
@@ -35,8 +35,13 @@ export const coordsSelector = createSelector(
   constructCoords
 )
 
-const addOverrides = (coords: Coords, reduction: ReductionStage, settings: DimensionSettings): Coords =>
-  _.reduce(
+const addOverrides = (
+  coords: Coords,
+  state: TreeState,
+  reduction: ReductionStage,
+  settings: DimensionSettings
+): Coords => {
+  const replacementOverrides = _.reduce(
     reduction.substitutions,
     (coords, substitution, unbindedVar) =>
       _.reduce(
@@ -83,6 +88,20 @@ const addOverrides = (coords: Coords, reduction: ReductionStage, settings: Dimen
       ),
     coords
   )
+  if (state.nodes[reduction.abs]) {
+    const newChildID = state.nodes[reduction.abs].directChildren[0]
+    const newChild = newChildID ? state.nodes[newChildID] : undefined
+    if (newChild && newChild.type === "APPLICATION" && coords[reduction.parentApplication]) {
+      return {
+        [newChildID]: { ...coords[reduction.parentApplication], nodeID: newChildID },
+        ...replacementOverrides
+      }
+    }
+  }
+  return {
+    ...replacementOverrides
+  }
+}
 
 const calculateCoordOffsets = (settings: DimensionSettings, joins: NodeJoins, state: TreeState): CoordOffsets => {
   const reductionOffsets = (reduction: ReductionStage) => {
@@ -145,11 +164,9 @@ const fillCoords = (
   return {}
 }
 
-const addOffset = <A extends NodeCoord | CoordOffset>(coord: A, offset?: CoordOffset): A =>
-  offset
-    ? ({
-        ...coord,
-        x: (coord.x || 0) + (offset.x || 0),
-        y: (coord.y || 0) + (offset.y || 0)
-      } as A)
-    : coord
+const addOffset = <A extends NodeCoord | CoordOffset>(coord: A, offset?: CoordOffset): A => {
+  if (!coord) return offset as A
+  else if (offset)
+    return { ...(coord || {}), x: (coord.x || 0) + (offset.x || 0), y: (coord.y || 0) + (offset.y || 0) } as A
+  return coord
+}
