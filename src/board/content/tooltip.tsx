@@ -1,8 +1,20 @@
-import { useSelected, useHighlighted, useCoord, Variable, Abstraction, useTree, useTextTree, NodeID } from "board/state"
+import {
+  useSelected,
+  useHighlighted,
+  useCoord,
+  Variable,
+  setSelected,
+  Abstraction,
+  useTree,
+  useTextTree,
+  NodeID,
+  useDispatch
+} from "board/state"
 import React from "react"
 import { useSpring, animated, config } from "react-spring"
 
 const Tooltip = () => {
+  const dis = useDispatch()
   const selected = useSelected()
   const highlighted = useHighlighted()
   const nodeID = selected || highlighted || ""
@@ -12,6 +24,10 @@ const Tooltip = () => {
   const style = useSpring({
     opacity: nodeID && coord ? 1 : 0,
     config: config.gentle
+  })
+  const deleteStyle = useSpring({
+    float: "right",
+    opacity: selected ? 1 : 0
   })
   const description = () => {
     if (nodeID && node) {
@@ -37,7 +53,16 @@ const Tooltip = () => {
       width={width}
     >
       <div className="card" style={{ border: "3px solid grey", borderRadius: 3 }}>
-        <div className="card-content">{description()}</div>
+        <div className="card-content">
+          {
+            <animated.button
+              className="delete"
+              onClick={() => dis(setSelected(""))}
+              style={deleteStyle}
+            ></animated.button>
+          }
+          {description()}
+        </div>
       </div>
     </animated.foreignObject>
   ) : null
