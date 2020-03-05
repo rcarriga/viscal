@@ -1,4 +1,4 @@
-import { reduceTree, Tree } from "board/state/tree"
+import { reduceTree, Tree, PrimitiveID } from "board/state/tree"
 import _ from "lodash"
 import randomcolor from "randomcolor"
 import { createSelector } from "reselect"
@@ -34,7 +34,11 @@ export interface ApplStyle extends BaseNodeStyle {
   output: VarStyle
 }
 
-export type NodeStyle = VarStyle | AbsStyle | ApplStyle
+export interface PrimStyle extends BaseNodeStyle {
+  type: "PRIM_STYLE"
+}
+
+export type NodeStyle = VarStyle | AbsStyle | ApplStyle | PrimStyle
 type NodeStyles = { [nodeID in NodeID]: NodeStyle }
 
 type StylesState = {
@@ -144,6 +148,7 @@ const createStyle = (nodeID: NodeID, state: StylesState, overrides: StyleSetting
   const binder = node && node.type === "VARIABLE" ? node.binder(state.tree) || styleID : styleID
   const highlighted = (state.highlighted && (state.highlighted === styleID || state.highlighted === binder)) || false
   const selected = (state.selected && state.selected === styleID) || false
+  if (node.primitive) return createPrimStyle(node.primitive, state, { highlighted, selected, ...overrides })
   switch (node.type) {
     case "VARIABLE":
       return createVarStyle(styleID, state, { highlighted, selected, ...overrides })
@@ -233,6 +238,29 @@ const createApplStyle = (
       strokeWidth: state.dimensions.strokeWidth
     },
     output: createVarStyle("", state, { transparent, selected, highlighted })
+  }
+}
+
+const createPrimStyle = (
+  primID: PrimitiveID,
+  state: StylesState,
+  { transparent, selected, highlighted }: StyleSettings
+): PrimStyle => {
+  const theme = state.theme
+  return {
+    type: "PRIM_STYLE",
+    fill: theme.stroke,
+    animation: state.animation,
+    stroke: {
+      stroke: transparent
+        ? theme.transparent
+        : selected
+        ? state.theme.selectedStroke
+        : highlighted
+        ? state.theme.highlightedStroke
+        : state.theme.stroke,
+      strokeWidth: state.dimensions.strokeWidth
+    }
   }
 }
 
