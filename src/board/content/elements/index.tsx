@@ -1,4 +1,5 @@
 import { reducers } from "board/calculus"
+import Prim from "board/content/elements/primitive"
 import {
   useMode,
   useCoords,
@@ -11,7 +12,8 @@ import {
   useTreeState,
   setMode,
   useReducer,
-  REDUCTION_STAGES
+  REDUCTION_STAGES,
+  useTree
 } from "board/state"
 import React, { useRef, Ref } from "react"
 import { ActionCreators } from "redux-undo"
@@ -23,17 +25,20 @@ const Graph = () => {
   const coords = useCoords()
   const keys = useOrderedKeys()
   const onStop = useAnimationControl()
+  const tree = useTree()
   const { start, rest } = useMotionTrackers(onStop)
   return (
     <g>
-      {keys.map(coordID => {
-        switch (coords[coordID].type) {
+      {keys.map(nodeID => {
+        const node = tree[nodeID]
+        if (node.primitive) return <Prim key={nodeID} id={nodeID} rest={rest} start={start} />
+        switch (coords[nodeID].type) {
           case "VARIABLE":
-            return <Var key={coordID} id={coordID} rest={rest} start={start} />
+            return <Var key={nodeID} id={nodeID} rest={rest} start={start} />
           case "ABSTRACTION":
-            return <Abs key={coordID} id={coordID} rest={rest} start={start} />
+            return <Abs key={nodeID} id={nodeID} rest={rest} start={start} />
           case "APPLICATION":
-            return <Appl key={coordID} id={coordID} rest={rest} start={start} />
+            return <Appl key={nodeID} id={nodeID} rest={rest} start={start} />
           default:
             return null
         }

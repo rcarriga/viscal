@@ -62,7 +62,7 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
         primitives: { ...state.primitives, [action.primID]: { name: action.name, rootID: action.nodeID } },
         nodes: {
           ...state.nodes,
-          ...partialMapTree(state.nodes, node => ({ ...node, primitive: action.primID }), action.nodeID)
+          [action.nodeID]: { ...state.nodes[action.nodeID], primitive: action.primID }
         }
       }
     }
