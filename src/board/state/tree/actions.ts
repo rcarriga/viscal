@@ -57,6 +57,12 @@ interface CreatePrimitive {
   primID: PrimitiveID
   nodeID: NodeID
 }
+
+interface RemovePrimitive {
+  type: "REMOVE_PRIMITIVE"
+  primID: PrimitiveID
+}
+
 export type TreeAction =
   | ClearTree
   | SetRoot
@@ -68,6 +74,7 @@ export type TreeAction =
   | SetConstant
   | SetReducer
   | CreatePrimitive
+  | RemovePrimitive
 
 export const clearTree = (): TreeAction => {
   return { type: "CLEAR_TREE" }
@@ -123,4 +130,9 @@ export const createPrimitive = (name: string, primID: PrimitiveID, nodeID: NodeI
   name,
   primID,
   nodeID
+})
+
+export const removePrimitive = (primID: PrimitiveID): TreeAction => ({
+  type: "REMOVE_PRIMITIVE",
+  primID
 })

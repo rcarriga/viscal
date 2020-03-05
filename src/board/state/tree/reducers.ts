@@ -11,7 +11,8 @@ import {
   ReductionStage,
   VarName,
   NodeID,
-  REDUCTION_STAGES
+  REDUCTION_STAGES,
+  PrimitiveID
 } from "./types"
 import { reduceTree, partialMapTree } from "./util"
 
@@ -31,11 +32,20 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
       return addNode(state, action.nodeID, createAppl(action.nodeID, action.left, action.right))
     case "QUEUE_REDUCTION": {
       if (action.reduction) {
+        const primitivesRemoved = _.reduce(
+          action.reduction.substitutions,
+          (newState, _, replacedID) =>
+            state.nodes[replacedID].primitives.reduce(
+              (newState, primID) => removePrimitive(newState, primID),
+              newState
+            ),
+          state
+        )
         const withReduction: TreeState = {
-          ...state,
+          ...primitivesRemoved,
           reduction: action.reduction
         }
-        return { ...withReduction, nodes: addReplacementNodes(action.reduction, state.nodes) }
+        return { ...withReduction, nodes: addReplacementNodes(action.reduction, primitivesRemoved.nodes) }
       }
       return state
     }
@@ -70,8 +80,28 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
         }
       }
     }
+    case "REMOVE_PRIMITIVE": {
+      return removePrimitive(state, action.primID)
+    }
     default:
       return state
+  }
+}
+
+const removePrimitive = (state: TreeState, primitiveID: PrimitiveID): TreeState => {
+  const primitive = state.primitives[primitiveID]
+  if (!primitive) return state
+  return {
+    ...state,
+    primitives: _.omit(state.primitives, primitiveID),
+    nodes: {
+      ...state.nodes,
+      ...partialMapTree(
+        state.nodes,
+        node => ({ ...node, primitives: node.primitives.filter(primID => primID !== primitiveID) }),
+        primitive.rootID
+      )
+    }
   }
 }
 
