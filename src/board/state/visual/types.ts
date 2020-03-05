@@ -8,7 +8,7 @@ const defaultTheme = {
   secondary: "rgba(248, 248, 248,1)",
   foreground: "rgba(0,0,0,1)",
   background: "rgba(248, 248, 248,1)",
-  text: "rgba(0,0,0,1)",
+  text: "rgba(248, 248, 248,1)",
   highlightedStroke: "rgba(62, 61, 50, 1)",
   selectedStroke: "rgba(62, 61, 50, 1)",
   stroke: "rgba(139, 139, 139, 1)",

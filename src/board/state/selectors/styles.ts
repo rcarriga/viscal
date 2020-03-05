@@ -36,6 +36,7 @@ export interface ApplStyle extends BaseNodeStyle {
 
 export interface PrimStyle extends BaseNodeStyle {
   type: "PRIM_STYLE"
+  text: { fill: string }
 }
 
 export type NodeStyle = VarStyle | AbsStyle | ApplStyle | PrimStyle
@@ -251,6 +252,9 @@ const createPrimStyle = (
     type: "PRIM_STYLE",
     fill: theme.stroke,
     animation: state.animation,
+    text: {
+      fill: theme.text
+    },
     stroke: {
       stroke: transparent
         ? theme.transparent

@@ -61,7 +61,12 @@ const RawPrim = (props: RawPrimProps) => {
 
   const animatePaths = useMotion({ d: boxPath, fill: props.style.fill, ...props.style.stroke }, props.rest, props.start)
   const fontSize = props.radius * 2 - (props.name.length > 3 ? (props.name.length - 3) * 6 : 0)
-  const animateText = useMotion({ x: props.x + props.radius * 2, y: props.y + fontSize / 3, fontSize })
+  const animateText = useMotion({
+    x: props.x + props.radius * 2,
+    y: props.y + fontSize / 3,
+    fontSize,
+    ...props.style.text
+  })
 
   return (
     <animated.g id={props.id}>
@@ -84,9 +89,7 @@ const RawPrim = (props: RawPrimProps) => {
         onMouseLeave={() => props.events.clearHighlight(props.id)}
       />
       <animated.path {...animatePaths} onClick={() => props.events.click(props.id)} pointerEvents="stroke" />
-      <animated.text fontWeight="bold" fill="white" {...animateText}>
-        {props.name}
-      </animated.text>
+      <animated.text {...animateText}>{props.name}</animated.text>
     </animated.g>
   )
 }
