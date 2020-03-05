@@ -62,7 +62,11 @@ export const tree = (state = initialTreeState, action: BoardAction): TreeState =
         primitives: { ...state.primitives, [action.primID]: { name: action.name, rootID: action.nodeID } },
         nodes: {
           ...state.nodes,
-          [action.nodeID]: { ...state.nodes[action.nodeID], primitive: action.primID }
+          ...partialMapTree(
+            state.nodes,
+            node => ({ ...node, primitives: [...node.primitives, action.primID] }),
+            action.nodeID
+          )
         }
       }
     }
@@ -206,6 +210,7 @@ const createVar = (nodeID: NodeID, index: VarIndex, name: VarName): TreeNode => 
   type: "VARIABLE",
   index: index,
   name: name,
+  primitives: [],
   children: () => [],
   directChildren: [],
   binder: tree => getBinder(nodeID, index, tree)
@@ -215,6 +220,7 @@ const createAbs = (nodeID: NodeID, variableName: VarName, child?: NodeID): TreeN
   type: "ABSTRACTION",
   variableName: variableName,
   child: child,
+  primitives: [],
   directChildren: [child].filter(isString),
   children: tree => getChildren(nodeID, tree)
 })
@@ -223,6 +229,7 @@ const createAppl = (nodeID: NodeID, left?: NodeID, right?: NodeID): TreeNode => 
   type: "APPLICATION",
   left: left,
   right: right,
+  primitives: [],
   directChildren: [left, right].filter(isString),
   children: tree => getChildren(nodeID, tree)
 })

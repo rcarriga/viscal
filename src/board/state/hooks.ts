@@ -20,7 +20,7 @@ export const useNodePrimitive = (nodeID: NodeID) =>
   useSelector(state => {
     const tree = state.tree.present
     const node = tree.nodes[nodeID]
-    return node.primitive ? tree.primitives[node.primitive] : undefined
+    return node.primitives.length ? tree.primitives[node.primitives[node.primitives.length - 1]] : undefined
   })
 
 export const useConstants = () => useSelector(state => state.tree.present.constants)

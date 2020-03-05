@@ -6,7 +6,7 @@ const PrimitveControl = () => {
   const selected = useSelected()
   const [modal, setModal] = useState(false)
   return (
-    <div style={{ marginBottom: 20 }}>
+    <div>
       <PrimitiveModal show={modal} nodeID={selected || ""} onClose={() => setModal(false)} />
       <div className="menu-label">Primitives</div>
       <div className="" style={{ display: "flex", justifyContent: "center" }}>

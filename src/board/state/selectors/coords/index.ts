@@ -144,7 +144,7 @@ const fillCoords = (
       { nodeID: rootID, type: root.type, ...dimensions[rootID], x: baseX, y: baseY },
       offsets[rootID]
     )
-    return root.primitive
+    return root.primitives.length
       ? { [rootID]: coord }
       : root.children(tree).reduce(
           (current, nodeID) => {

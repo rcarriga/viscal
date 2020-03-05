@@ -31,7 +31,7 @@ const Graph = () => {
     <g>
       {keys.map(nodeID => {
         const node = tree[nodeID]
-        if (node.primitive) return <Prim key={nodeID} id={nodeID} rest={rest} start={start} />
+        if (node.primitives.length) return <Prim key={nodeID} id={nodeID} rest={rest} start={start} />
         switch (coords[nodeID].type) {
           case "VARIABLE":
             return <Var key={nodeID} id={nodeID} rest={rest} start={start} />

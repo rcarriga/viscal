@@ -73,7 +73,7 @@ const calculateDimensions = (
   const root = tree[rootID]
   if (root) {
     const children = root.children(tree)
-    const childDimensions = root.primitive
+    const childDimensions = root.primitives.length
       ? dimensions
       : children
           .map(childID => calculateDimensions(childID, tree, settings, offsets, dimensions))
@@ -103,7 +103,7 @@ const elementWidth = (
       .children(tree)
       .map(childID => (tree[childID] ? nodeDimensions[childID].w : -settings.widthMargin))
       .reduce((sum, w) => sum + w + settings.widthMargin, 0)
-  if (node.primitive) return settings.circleRadius * 4 + settings.widthMargin * 2
+  if (node.primitives.length) return settings.circleRadius * 4 + settings.widthMargin * 2
   switch (node.type) {
     case "VARIABLE":
       return settings.circleRadius * 2

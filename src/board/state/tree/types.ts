@@ -9,7 +9,7 @@ interface BaseExpression {
   type: NodeType
   children: (tree: Tree) => NodeID[]
   directChildren: NodeID[]
-  primitive?: PrimitiveID
+  primitives: PrimitiveID[]
 }
 
 interface NullExpression extends BaseExpression {

@@ -149,7 +149,8 @@ const createStyle = (nodeID: NodeID, state: StylesState, overrides: StyleSetting
   const binder = node && node.type === "VARIABLE" ? node.binder(state.tree) || styleID : styleID
   const highlighted = (state.highlighted && (state.highlighted === styleID || state.highlighted === binder)) || false
   const selected = (state.selected && state.selected === styleID) || false
-  if (node.primitive) return createPrimStyle(node.primitive, state, { highlighted, selected, ...overrides })
+  if (node.primitives.length)
+    return createPrimStyle(node.primitives[node.primitives.length - 1], state, { highlighted, selected, ...overrides })
   switch (node.type) {
     case "VARIABLE":
       return createVarStyle(styleID, state, { highlighted, selected, ...overrides })
