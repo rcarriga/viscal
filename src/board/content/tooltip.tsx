@@ -8,7 +8,11 @@ import {
   useTree,
   useTextTree,
   NodeID,
-  useDispatch
+  useDispatch,
+  PrimitiveID,
+  removePrimitive,
+  usePrimitives,
+  TreeNode
 } from "board/state"
 import React from "react"
 import { useSpring, animated, config } from "react-spring"
@@ -31,15 +35,22 @@ const Tooltip = () => {
   })
   const description = () => {
     if (nodeID && node) {
-      switch (node.type) {
-        case "VARIABLE":
-          return <VarDescription nodeID={nodeID} node={node} />
-        case "ABSTRACTION":
-          return <AbsDescription nodeID={nodeID} node={node} text={text} />
-        case "APPLICATION":
-          return <ApplDescription nodeID={nodeID} text={text} />
-        default:
-      }
+      return (
+        <div>
+          {(() => {
+            switch (node.type) {
+              case "VARIABLE":
+                return <VarDescription nodeID={nodeID} node={node} />
+              case "ABSTRACTION":
+                return <AbsDescription nodeID={nodeID} node={node} text={text} />
+              case "APPLICATION":
+                return <ApplDescription nodeID={nodeID} text={text} />
+              default:
+            }
+          })()}
+          <RemovePrimitive node={node} />
+        </div>
+      )
     }
     return null
   }
@@ -116,5 +127,20 @@ const DescriptionTitle = ({ name }: { name: string }) => (
     <div className="dropdown-divider" />
   </div>
 )
+
+const RemovePrimitive = ({ node }: { node: TreeNode }) => {
+  const dis = useDispatch()
+  const primID = node.primitives[node.primitives.length - 1]
+  const primitive = usePrimitives()[primID]
+
+  return primitive ? (
+    <div>
+      <div className="dropdown-divider" />
+      <div className="button" onClick={() => dis(removePrimitive(primID))}>
+        Destructure Primitive
+      </div>
+    </div>
+  ) : null
+}
 
 export default Tooltip
