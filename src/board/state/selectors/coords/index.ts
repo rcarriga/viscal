@@ -144,22 +144,24 @@ const fillCoords = (
       { nodeID: rootID, type: root.type, ...dimensions[rootID], x: baseX, y: baseY },
       offsets[rootID]
     )
-    return root.children(tree).reduce(
-      (current, nodeID) => {
-        const childCoord = fillCoords(nodeID, dimensions, tree, settings, offsets, current.baseX, baseY)
-        if (!childCoord[nodeID]) return current
-        return {
-          baseX: childCoord[nodeID].x + childCoord[nodeID].w + settings.widthMargin,
-          coords: { ...current.coords, ...childCoord }
-        }
-      },
-      {
-        baseX: coord.x + settings.widthMargin + settings.circleRadius,
-        coords: {
-          [rootID]: coord
-        }
-      }
-    ).coords
+    return root.primitive
+      ? { [rootID]: coord }
+      : root.children(tree).reduce(
+          (current, nodeID) => {
+            const childCoord = fillCoords(nodeID, dimensions, tree, settings, offsets, current.baseX, baseY)
+            if (!childCoord[nodeID]) return current
+            return {
+              baseX: childCoord[nodeID].x + childCoord[nodeID].w + settings.widthMargin,
+              coords: { ...current.coords, ...childCoord }
+            }
+          },
+          {
+            baseX: coord.x + settings.widthMargin + settings.circleRadius,
+            coords: {
+              [rootID]: coord
+            }
+          }
+        ).coords
   }
   return {}
 }

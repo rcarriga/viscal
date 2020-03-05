@@ -11,12 +11,13 @@ import _ from "lodash"
 import React, { useState } from "react"
 
 const ReducerControl = () => {
-  const currentReducer = reducers[useReducer() || ""] || { name: "No Method" }
+  const reducerID = useReducer()
+  const currentReducer = reducerID ? reducers[reducerID] : undefined
   const dis = useDispatch()
   const mode = useMode()
   const [showDrop, setDrop] = useState(false)
   return (
-    <div>
+    <div style={{ marginTop: 20 }}>
       <div className="menu-label">Reduction</div>
 
       <div
@@ -49,9 +50,9 @@ const ReducerControl = () => {
               onMouseOver={() => setDrop(true)}
               onMouseLeave={() => setDrop(false)}
               style={{ width: "100%" }}
-              className="button has-text-dark"
+              className={`button ${currentReducer ? "has-text-info" : "has-text-dark"}`}
             >
-              {currentReducer.name}
+              {currentReducer ? currentReducer.name : "No Method"}
             </button>
           </div>
           <div onMouseOver={() => setDrop(true)} onMouseLeave={() => setDrop(false)} className="dropdown-menu">

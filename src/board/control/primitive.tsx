@@ -6,13 +6,13 @@ const PrimitveControl = () => {
   const selected = useSelected()
   const [modal, setModal] = useState(false)
   return (
-    <div>
+    <div style={{ marginBottom: 20 }}>
       <PrimitiveModal show={modal} nodeID={selected || ""} onClose={() => setModal(false)} />
       <div className="menu-label">Primitives</div>
       <div className="" style={{ display: "flex", justifyContent: "center" }}>
         <button
           onClick={() => selected && setModal(true)}
-          className={`button ${selected ? "has-text-dark" : "has-text-info"} `}
+          className={`button ${selected ? "has-text-info" : "has-text-dark"} `}
           style={{ width: "100%" }}
         >
           {selected ? "Create" : "Select a Node"}
