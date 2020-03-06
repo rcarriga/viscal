@@ -1,4 +1,5 @@
 import { reducers } from "board/calculus"
+import { ExprElements } from "board/content/elements/base"
 import Prim from "board/content/elements/primitive"
 import {
   useMode,
@@ -13,7 +14,10 @@ import {
   setMode,
   useReducer,
   REDUCTION_STAGES,
-  useTree
+  useStyles,
+  useEvents,
+  useDimensions,
+  useLayout
 } from "board/state"
 import React, { useRef, Ref } from "react"
 import { ActionCreators } from "redux-undo"
@@ -25,26 +29,25 @@ const Graph = () => {
   const coords = useCoords()
   const keys = useOrderedKeys()
   const onStop = useAnimationControl()
-  const tree = useTree()
+  const styles = useStyles()
+  const events = useEvents()
+  const layout = useLayout()
+  const dimensions = useDimensions()
   const { start, rest } = useMotionTrackers(onStop)
-  return (
-    <g>
-      {keys.map(nodeID => {
-        const node = tree[nodeID]
-        if (node.primitives.length) return <Prim key={nodeID} id={nodeID} rest={rest} start={start} />
-        switch (coords[nodeID].type) {
-          case "VARIABLE":
-            return <Var key={nodeID} id={nodeID} rest={rest} start={start} />
-          case "ABSTRACTION":
-            return <Abs key={nodeID} id={nodeID} rest={rest} start={start} />
-          case "APPLICATION":
-            return <Appl key={nodeID} id={nodeID} rest={rest} start={start} />
-          default:
-            return null
-        }
-      })}
-    </g>
-  )
+  const values = keys.flatMap(nodeID => {
+    const coord = { ...coords[nodeID], x: coords[nodeID].x + layout.startX, y: coords[nodeID].y + layout.startY }
+    switch (coords[nodeID].type) {
+      case "VARIABLE":
+        return Var(nodeID, events, styles[nodeID], coord)
+      case "ABSTRACTION":
+        return Abs(nodeID, events, styles[nodeID], coord, dimensions)
+      case "APPLICATION":
+        return Appl(nodeID, events, styles[nodeID], coord, dimensions)
+      default:
+        return []
+    }
+  })
+  return <ExprElements common={{}} values={values} onRest={rest} onStart={start} />
 }
 
 export default Graph
@@ -84,9 +87,9 @@ const useAnimationControl = () => {
 }
 
 const useMotionTrackers = (onStop: () => void) => {
-  const movingSet: Ref<Set<symbol>> = useRef(new Set([]))
+  const movingSet: Ref<Set<string>> = useRef(new Set([]))
   const isMoving = useRef(false)
-  const start = (sym: symbol) => {
+  const start = (sym: string) => {
     if (movingSet.current) {
       movingSet.current.add(sym)
       if (!isMoving.current) {
@@ -94,12 +97,13 @@ const useMotionTrackers = (onStop: () => void) => {
       }
     }
   }
-  const rest = (sym: symbol) => {
+  const rest = (sym: string) => {
     if (movingSet.current) {
       movingSet.current.delete(sym)
       if (movingSet.current.size === 0) {
-        isMoving.current = false
+        console.log("all stopped")
         onStop()
+        isMoving.current = false
       }
     }
   }

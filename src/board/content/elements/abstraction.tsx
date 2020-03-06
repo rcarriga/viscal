@@ -1,30 +1,33 @@
 import React from "react"
 import { animated } from "react-spring"
-import { useDimensions, useEvents, AbsStyle, useStyle, useCoord } from "../../state"
-import { ExprProps, RawExprProps, useMotion } from "./base"
+import {
+  useDimensions,
+  useEvents,
+  AbsStyle,
+  useStyle,
+  useCoord,
+  NodeID,
+  DimensionSettings,
+  NodeEvents,
+  NodeStyle,
+  NodeCoord
+} from "../../state"
+import { ExprProps, RawExprProps, ExprElements, ExprElementValues } from "./base"
 
-const Abs = (props: ExprProps) => {
-  const dimensions = useDimensions()
-  const events = useEvents()
-  const style = useStyle(props.id)
-  const coord = useCoord(props.id)
-  if (!style || !coord || style.type !== "ABS_STYLE") return null
-  return (
-    <RawAbs
-      id={props.id}
-      events={events}
-      height={coord.h}
-      heightMargin={dimensions.heightMargin}
-      radius={dimensions.circleRadius}
-      style={style}
-      width={coord.w}
-      widthMargin={dimensions.widthMargin}
-      rest={props.rest}
-      start={props.start}
-      x={coord.x}
-      y={coord.y}
-    />
-  )
+const Abs = (nodeID: NodeID, events: NodeEvents, style: NodeStyle, coord: NodeCoord, dimensions: DimensionSettings) => {
+  if (!style || !coord || style.type !== "ABS_STYLE") return []
+  return RawAbs({
+    id: nodeID,
+    height: coord.h,
+    heightMargin: dimensions.heightMargin,
+    radius: dimensions.circleRadius,
+    style: style,
+    events,
+    width: coord.w,
+    widthMargin: dimensions.widthMargin,
+    x: coord.x,
+    y: coord.y
+  })
 }
 
 export default Abs
@@ -38,7 +41,7 @@ interface RawAbsProps extends RawExprProps {
   widthMargin: number
 }
 
-const RawAbs = (props: RawAbsProps) => {
+const RawAbs = (props: RawAbsProps): ExprElementValues[] => {
   const boxWidth = props.width - props.radius
   const circleTopPoint = props.y - props.radius
   const inputX = props.x + boxWidth + props.radius
@@ -62,47 +65,37 @@ const RawAbs = (props: RawAbsProps) => {
         l${-props.heightMargin},${circleBuffer}
         l0,${bufferOffset + props.radius * 2}`
 
-  const outAnimate = useMotion(
-    {
-      d: outPath,
-      fill: props.style.output.fill,
-      ...props.style.output.stroke
+  const staticProps = {
+    onClick: (e: any) => {
+      e.stopPropagation()
+      props.events.click(props.id)
     },
-    props.rest,
-    props.start
-  )
-  const inAnimate = useMotion(
+    onMouseOver: () => props.events.highlight(props.id),
+    onMouseLeave: () => props.events.clearHighlight(props.id)
+  }
+  return [
     {
-      d: inPath,
-      fill: props.style.input.fill,
-      ...props.style.input.stroke
+      key: `${props.id}_output`,
+      animated: {
+        d: outPath,
+        fill: props.style.output.fill,
+        ...props.style.output.stroke
+      },
+      static: staticProps
     },
-    props.rest,
-    props.start
-  )
-  const boxAnimate = useMotion({ d: boxPath, fill: props.style.fill, ...props.style.stroke }, props.rest, props.start)
-
-  return (
-    <animated.g id={props.id}>
-      <animated.path
-        {...outAnimate}
-        onClick={e => {
-          e.stopPropagation()
-          props.events.click(props.id)
-        }}
-        onMouseOver={() => props.events.highlight(props.id)}
-        onMouseLeave={() => props.events.clearHighlight(props.id)}
-      />
-      <animated.path
-        {...inAnimate}
-        onClick={e => {
-          e.stopPropagation()
-          props.events.click(props.id)
-        }}
-        onMouseOver={() => props.events.highlight(props.id)}
-        onMouseLeave={() => props.events.clearHighlight(props.id)}
-      />
-      <animated.path {...boxAnimate} onClick={() => props.events.click(props.id)} pointerEvents="stroke" />
-    </animated.g>
-  )
+    {
+      key: `${props.id}_input`,
+      animated: {
+        d: inPath,
+        fill: props.style.input.fill,
+        ...props.style.input.stroke
+      },
+      static: staticProps
+    },
+    {
+      key: `${props.id}_box`,
+      animated: { d: boxPath, fill: props.style.fill, ...props.style.stroke },
+      static: { ...staticProps, pointerEvents: "stroke" }
+    }
+  ]
 }

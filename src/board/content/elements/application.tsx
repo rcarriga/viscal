@@ -1,29 +1,38 @@
 import React from "react"
 import { animated } from "react-spring"
-import { useDimensions, useEvents, ApplStyle, useStyle, useCoord } from "../../state"
-import { ExprProps, RawExprProps, useMotion } from "./base"
+import {
+  useDimensions,
+  useEvents,
+  ApplStyle,
+  useStyle,
+  useCoord,
+  NodeID,
+  DimensionSettings,
+  NodeEvents,
+  NodeStyle,
+  NodeCoord
+} from "../../state"
+import { ExprProps, RawExprProps, ExprElements, ExprElementValues } from "./base"
 
-const Appl = (props: ExprProps) => {
-  const dimensions = useDimensions()
-  const events = useEvents()
-  const style = useStyle(props.id)
-  const coord = useCoord(props.id)
-  if (!style || !coord || style.type !== "APPL_STYLE") return null
-  return (
-    <RawAppl
-      id={props.id}
-      events={events}
-      height={coord.h}
-      heightMargin={dimensions.heightMargin}
-      radius={dimensions.circleRadius}
-      rest={props.rest}
-      start={props.start}
-      style={style}
-      width={coord.w}
-      x={coord.x}
-      y={coord.y}
-    />
-  )
+const Appl = (
+  nodeID: NodeID,
+  events: NodeEvents,
+  style: NodeStyle,
+  coord: NodeCoord,
+  dimensions: DimensionSettings
+) => {
+  if (!style || !coord || style.type !== "APPL_STYLE") return []
+  return RawAppl({
+    id: nodeID,
+    height: coord.h,
+    heightMargin: dimensions.heightMargin,
+    radius: dimensions.circleRadius,
+    style: style,
+    events,
+    width: coord.w,
+    x: coord.x,
+    y: coord.y
+  })
 }
 
 export default Appl
@@ -36,7 +45,7 @@ interface RawApplProps extends RawExprProps {
   style: ApplStyle
 }
 
-const RawAppl = (props: RawApplProps) => {
+const RawAppl = (props: RawApplProps): ExprElementValues[] => {
   const boxWidth = props.width - props.radius
   const bufferOffset = 1
   const circleBuffer = props.height / 2 - props.radius - bufferOffset
@@ -55,44 +64,32 @@ const RawAppl = (props: RawApplProps) => {
         l${-props.heightMargin},${circleBuffer}
         l0,${bufferOffset + props.radius * 2}`
 
-  const boxAnimate = useMotion(
-    {
-      d: boxPath,
-      fill: props.style.fill,
-      ...props.style.stroke
+  const staticProps = {
+    onClick: (e: any) => {
+      e.stopPropagation()
+      props.events.click(props.id)
     },
-    props.rest,
-    props.start
-  )
-  const outAnimate = useMotion(
+    onMouseOver: () => props.events.highlight(props.id),
+    onMouseLeave: () => props.events.clearHighlight(props.id)
+  }
+  return [
     {
-      d: outPath,
-      fill: props.style.output.fill,
-      ...props.style.output.stroke
+      key: `${props.id}_output`,
+      animated: {
+        d: outPath,
+        fill: props.style.output.fill,
+        ...props.style.output.stroke
+      },
+      static: staticProps
     },
-    props.rest,
-    props.start
-  )
-
-  return (
-    <g>
-      <animated.path
-        {...outAnimate}
-        onClick={e => {
-          e.stopPropagation()
-          props.events.click(props.id)
-        }}
-        onMouseOver={() => props.events.highlight(props.id)}
-        onMouseLeave={() => props.events.clearHighlight(props.id)}
-      />
-      <animated.path
-        {...boxAnimate}
-        strokeLinecap="round"
-        pointerEvents="stroke"
-        onClick={() => props.events.click(props.id)}
-        onMouseOver={() => props.events.highlight(props.id)}
-        onMouseLeave={() => props.events.clearHighlight(props.id)}
-      />
-    </g>
-  )
+    {
+      key: `${props.id}_box`,
+      animated: {
+        d: boxPath,
+        fill: props.style.fill,
+        ...props.style.stroke
+      },
+      static: { ...staticProps, pointerEvents: "stroke" }
+    }
+  ]
 }

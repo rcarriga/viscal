@@ -2539,6 +2539,84 @@
     style-value-types "^3.1.7"
     tslib "^1.10.0"
 
+"@react-spring/animated@9.0.0-canary.808.17.55c5691":
+  version "9.0.0-canary.808.17.55c5691"
+  resolved "https://registry.yarnpkg.com/@react-spring/animated/-/animated-9.0.0-canary.808.17.55c5691.tgz#3f89f77928d30ce9e546768d59568579860f8a3c"
+  integrity sha512-QlkCqE5dcc3UmYPGhBUka5CotyHr0+hcpwJnHcQJoLqsI9fVFpNVjnXbamP4BEXcXGLvVzzLSNzxBo/UaVGYDg==
+  dependencies:
+    "@babel/runtime" "^7.3.1"
+    "@react-spring/shared" "9.0.0-canary.808.17.55c5691"
+    react-layout-effect "^1.0.1"
+
+"@react-spring/core@9.0.0-canary.808.17.55c5691":
+  version "9.0.0-canary.808.17.55c5691"
+  resolved "https://registry.yarnpkg.com/@react-spring/core/-/core-9.0.0-canary.808.17.55c5691.tgz#b56103e0adeec19e75e5976f133f00418835b771"
+  integrity sha512-PdDjtcJQUYMFtSeP/PalAJ33kztcS5nT5fCVv0rfPEJRXOwewpMiEWgpQzoFkHr0crTPPfzpwGCCycM7w/eDiA==
+  dependencies:
+    "@babel/runtime" "^7.3.1"
+    "@react-spring/animated" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/shared" "9.0.0-canary.808.17.55c5691"
+    react-layout-effect "^1.0.1"
+    use-memo-one "^1.1.0"
+
+"@react-spring/konva@9.0.0-canary.808.17.55c5691":
+  version "9.0.0-canary.808.17.55c5691"
+  resolved "https://registry.yarnpkg.com/@react-spring/konva/-/konva-9.0.0-canary.808.17.55c5691.tgz#0e41226060167ce022b4d5e634aeb6752ea7394b"
+  integrity sha512-4YN4XF1Zro5OHkUI4aUlRA41b5O/qIypLlTwdsFgtGgQuG+qJuq2NT3Gdpl1EIFPEHhsgvrpwAkLA149qqkp3Q==
+  dependencies:
+    "@babel/runtime" "^7.3.1"
+    "@react-spring/animated" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/core" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/shared" "9.0.0-canary.808.17.55c5691"
+
+"@react-spring/native@9.0.0-canary.808.17.55c5691":
+  version "9.0.0-canary.808.17.55c5691"
+  resolved "https://registry.yarnpkg.com/@react-spring/native/-/native-9.0.0-canary.808.17.55c5691.tgz#a8eab4586012cf58352546070eee6075249f60d3"
+  integrity sha512-wFeqGw5VrBnM0JpoHA9X57AF8u6eszQONaavCdvYlYMcnANY0W+mRP72KaS7YojR/PnjmKk5PsyuW6ajm8SlRQ==
+  dependencies:
+    "@babel/runtime" "^7.3.1"
+    "@react-spring/animated" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/core" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/shared" "9.0.0-canary.808.17.55c5691"
+
+"@react-spring/shared@9.0.0-canary.808.17.55c5691":
+  version "9.0.0-canary.808.17.55c5691"
+  resolved "https://registry.yarnpkg.com/@react-spring/shared/-/shared-9.0.0-canary.808.17.55c5691.tgz#8f91eb1cbd9e27a7943b2ae24d8b57dd87cf2f6c"
+  integrity sha512-APkixgVRPsefZRd5MUZXoEGSW5ccSLoIk8Mp9aF77o9JnzaoK6KY3pL+wNmhr8ui31IynqiDIwhW7Bg8FcFOSQ==
+  dependencies:
+    "@babel/runtime" "^7.3.1"
+    fluids "^0.1.0"
+
+"@react-spring/three@9.0.0-canary.808.17.55c5691":
+  version "9.0.0-canary.808.17.55c5691"
+  resolved "https://registry.yarnpkg.com/@react-spring/three/-/three-9.0.0-canary.808.17.55c5691.tgz#0ca998cf3c0ae52c474bc7aa71781578e4cdc11f"
+  integrity sha512-Bc/rh5mHf9tgBKUBwgihHR/IeK/0HGWv2mIHdDmcgdnO8mHNh+ECc7bm1utH0FFHM/wnC2zEbk7V4wdGdO9Kjg==
+  dependencies:
+    "@babel/runtime" "^7.3.1"
+    "@react-spring/animated" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/core" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/shared" "9.0.0-canary.808.17.55c5691"
+
+"@react-spring/web@9.0.0-canary.808.17.55c5691":
+  version "9.0.0-canary.808.17.55c5691"
+  resolved "https://registry.yarnpkg.com/@react-spring/web/-/web-9.0.0-canary.808.17.55c5691.tgz#192da3485473118d75aead882e3b8120e666f758"
+  integrity sha512-Bk6CMiZx7AY3Mecxy85IY8Qpx/HTrbs3FOJI/fS9jiJVviavqj61+JNY4iRZc6VMZ65PI7B0bY1pkww08ofcxA==
+  dependencies:
+    "@babel/runtime" "^7.3.1"
+    "@react-spring/animated" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/core" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/shared" "9.0.0-canary.808.17.55c5691"
+
+"@react-spring/zdog@9.0.0-canary.808.17.55c5691":
+  version "9.0.0-canary.808.17.55c5691"
+  resolved "https://registry.yarnpkg.com/@react-spring/zdog/-/zdog-9.0.0-canary.808.17.55c5691.tgz#3a884981663ea22a9e71a243618de1265283e7ff"
+  integrity sha512-SudEjgESk6zzBTdx2g5lpK3iF9la8Aj5QXUwYoNKswPBNAHcnH/MbyUog340UcrET/VOtZosoP7HF+VZixVAJg==
+  dependencies:
+    "@babel/runtime" "^7.3.1"
+    "@react-spring/animated" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/core" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/shared" "9.0.0-canary.808.17.55c5691"
+
 "@svgr/babel-plugin-add-jsx-attribute@^4.2.0":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@svgr/babel-plugin-add-jsx-attribute/-/babel-plugin-add-jsx-attribute-4.2.0.tgz#dadcb6218503532d6884b210e7f3c502caaa44b1"
@@ -6444,6 +6522,11 @@ flatten@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/flatten/-/flatten-1.0.2.tgz#dae46a9d78fbe25292258cc1e780a41d95c03782"
   integrity sha1-2uRqnXj74lKSJYzB54CkHZXAN4I=
+
+fluids@^0.1.0:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/fluids/-/fluids-0.1.6.tgz#d38e51a3108d445078418072764f07c975d36a52"
+  integrity sha512-KfBiyAzU06O9A1onsS65JAIU1hs36i/IY5nYwBBUJsY5h7TTArvGYNJYzwiz3BLDoKsE53s69iM2k2s/HWgtZg==
 
 flush-write-stream@^1.0.0:
   version "1.1.1"
@@ -11259,6 +11342,11 @@ react-is@^16.8.1, react-is@^16.8.4:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.10.1.tgz#0612786bf19df406502d935494f0450b40b8294f"
   integrity sha512-BXUMf9sIOPXXZWqr7+c5SeOKJykyVr2u0UDzEf4LNGc6taGkQe1A9DFD07umCIXz45RLr9oAAwZbAJ0Pkknfaw==
 
+react-layout-effect@^1.0.1:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/react-layout-effect/-/react-layout-effect-1.0.3.tgz#856461cbb54af9581d9a0598394555dd5ff482c6"
+  integrity sha512-TCAYcNEa+XftOJDFYAClkcFn77AP5+zaQTI7UxiIBWLXyMyzT6GDqRfycm7fcEudpErzhARV5+lwFRDtv+87dw==
+
 react-motion@^0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/react-motion/-/react-motion-0.5.2.tgz#0dd3a69e411316567927917c6626551ba0607316"
@@ -11340,13 +11428,18 @@ react-scripts@^3.3.0:
   optionalDependencies:
     fsevents "2.1.2"
 
-react-spring@^8.0.27:
-  version "8.0.27"
-  resolved "https://registry.yarnpkg.com/react-spring/-/react-spring-8.0.27.tgz#97d4dee677f41e0b2adcb696f3839680a3aa356a"
-  integrity sha512-nDpWBe3ZVezukNRandTeLSPcwwTMjNVu1IDq9qA/AMiUqHuRN4BeSWvKr3eIxxg1vtiYiOLy4FqdfCP5IoP77g==
+react-spring@9.0.0-canary.808.17.55c5691:
+  version "9.0.0-canary.808.17.55c5691"
+  resolved "https://registry.yarnpkg.com/react-spring/-/react-spring-9.0.0-canary.808.17.55c5691.tgz#a77f21d162a4f51d469ccfcd85bcb8917a24a0e4"
+  integrity sha512-vgjlqqpqsLOiYddB44y/qizUGJK3G1I/Rao5ZyxE/vCfqqvcjORw+/jDZV7ZEUreOMw2QBxBkBsDHCQE1F1Sbw==
   dependencies:
     "@babel/runtime" "^7.3.1"
-    prop-types "^15.5.8"
+    "@react-spring/core" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/konva" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/native" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/three" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/web" "9.0.0-canary.808.17.55c5691"
+    "@react-spring/zdog" "9.0.0-canary.808.17.55c5691"
 
 react-transition-group@^4.3.0:
   version "4.3.0"
@@ -13246,6 +13339,11 @@ url@^0.11.0:
   dependencies:
     punycode "1.3.2"
     querystring "0.2.0"
+
+use-memo-one@^1.1.0:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/use-memo-one/-/use-memo-one-1.1.1.tgz#39e6f08fe27e422a7d7b234b5f9056af313bd22c"
+  integrity sha512-oFfsyun+bP7RX8X2AskHNTxu+R3QdE/RC5IefMbqptmACAA/gfol1KDD5KRzPsGMa62sWxGZw+Ui43u6x4ddoQ==
 
 use@^3.1.0:
   version "3.1.1"

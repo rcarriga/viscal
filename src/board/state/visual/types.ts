@@ -72,7 +72,7 @@ export interface AnimationState {
 
 const defaultAnimationState: AnimationState = {
   settings: {
-    tension: 500,
+    tension: 200,
     clamp: true
   },
   enabled: true,

@@ -40,7 +40,7 @@ const ControlPanel = (props: any) => {
           </animated.div>
         </div>
       </div>
-      <animated.div className="menu" style={children}>
+      <animated.div className="menu" style={children as any}>
         <ExpressionControl />
         <ScaleControl />
         <AnimationControl />

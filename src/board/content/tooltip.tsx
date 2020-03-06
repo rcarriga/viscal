@@ -68,7 +68,7 @@ const Tooltip = () => {
             <animated.button
               className="delete"
               onClick={() => dis(setSelected(""))}
-              style={deleteStyle}
+              style={deleteStyle as any}
             ></animated.button>
           }
           {description()}
