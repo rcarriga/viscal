@@ -105,7 +105,7 @@ const overrideReplacement = (reduction: ReductionStage, override: StyleSettings,
   _.reduce(
     reduction.substitutions,
     (styles: NodeStyles, substitution) => {
-      const newNodeID = substitution[reduction.consumed]
+      const newNodeID = substitution.nodes[reduction.consumed]
       if (state.tree.nodes[newNodeID]) {
         const style = createStyle(newNodeID, state, override)
         return style ? { ...styles, [newNodeID]: style } : styles
@@ -291,7 +291,7 @@ const constructCopyMap = (reduction: ReductionStage, tree: Tree): { [nodeID in N
       reduction.substitutions,
       (copies, sub) => ({
         ...copies,
-        ..._.reduce(sub, (copies, toReplace, toCopy) => ({ ...copies, [toReplace]: toCopy }), {})
+        ..._.reduce(sub.nodes, (copies, toReplace, toCopy) => ({ ...copies, [toReplace]: toCopy }), {})
       }),
       {}
     )

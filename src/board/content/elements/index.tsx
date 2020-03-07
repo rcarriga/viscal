@@ -117,7 +117,7 @@ const useOrderedKeys = () => {
       if (
         nodeID === reduction.consumed ||
         Object.values(reduction.substitutions)
-          .map(sub => sub[reduction.consumed])
+          .map(sub => sub.nodes[reduction.consumed])
           .indexOf(nodeID) !== -1
       )
         return 1

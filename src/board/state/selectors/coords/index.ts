@@ -45,7 +45,7 @@ const addOverrides = (
     reduction.substitutions,
     (coords, substitution, unbindedVar) =>
       _.reduce(
-        substitution,
+        substitution.nodes,
         (coords, replacement, toReplace) => {
           if (coords[toReplace]) {
             const yOffset = settings.heightMargin * 2 + settings.circleRadius * 4

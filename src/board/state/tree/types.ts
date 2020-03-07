@@ -39,8 +39,14 @@ export type TreeNode = NullExpression | Variable | Abstraction | Application
 
 export type Tree = { [nodeId in NodeID]: TreeNode }
 
-export type Substitution = { [nodeID in NodeID]: NodeID }
+export type NodeSubstitution = { [nodeID in NodeID]: NodeID }
 
+export type PrimitiveSubstitution = { [primID in PrimitiveID]: PrimitiveID }
+
+export type Substitution = {
+  nodes: NodeSubstitution
+  primitives: PrimitiveSubstitution
+}
 export type Substitutions = { [variable in NodeID]: Substitution }
 
 export const REDUCTION_STAGES = [
