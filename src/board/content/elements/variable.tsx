@@ -1,8 +1,5 @@
-import React from "react"
-import { animated } from "react-spring"
-
-import { useEvents, VarStyle, useStyle, useCoord, NodeID, NodeStyle, NodeCoord, NodeEvents } from "../../state"
-import { RawExprProps, ExprProps, ExprElementValues, ExprElements } from "./base"
+import { VarStyle, NodeID, NodeStyle, NodeCoord, NodeEvents } from "../../state"
+import { RawExprProps, ExprElementValues } from "./base"
 
 const Var = (nodeID: NodeID, events: NodeEvents, style: NodeStyle, coord: NodeCoord) => {
   if (!style || !coord || style.type !== "VAR_STYLE") return []
@@ -30,6 +27,7 @@ const RawVar = (props: RawVarProps): ExprElementValues[] => {
 
   return [
     {
+      type: "PATH",
       key: `${props.id}_var`,
       animated: {
         d: path,

@@ -17,7 +17,9 @@ import {
   useStyles,
   useEvents,
   useDimensions,
-  useLayout
+  useLayout,
+  useTree,
+  usePrimitives
 } from "board/state"
 import React, { useRef, Ref } from "react"
 import { ActionCreators } from "redux-undo"
@@ -32,11 +34,18 @@ const Graph = () => {
   const styles = useStyles()
   const events = useEvents()
   const layout = useLayout()
+  const tree = useTree()
   const dimensions = useDimensions()
+  const primitives = usePrimitives()
   const { start, rest } = useMotionTrackers(onStop)
   const values = keys.flatMap(nodeID => {
     const coord = { ...coords[nodeID], x: coords[nodeID].x + layout.startX, y: coords[nodeID].y + layout.startY }
-    switch (coords[nodeID].type) {
+    const node = tree[nodeID]
+    if (node.primitives.length) {
+      const primitive = primitives[node.primitives[node.primitives.length - 1]]
+      return Prim(nodeID, events, styles[nodeID], coord, dimensions, primitive)
+    }
+    switch (node.type) {
       case "VARIABLE":
         return Var(nodeID, events, styles[nodeID], coord)
       case "ABSTRACTION":
@@ -47,7 +56,7 @@ const Graph = () => {
         return []
     }
   })
-  return <ExprElements common={{}} values={values} onRest={rest} onStart={start} />
+  return <ExprElements values={values} onRest={rest} onStart={start} />
 }
 
 export default Graph
@@ -57,19 +66,20 @@ const useAnimationControl = () => {
   const tree = useTreeState()
   const reduction = useReduction()
   const reducer = reducers[useReducer() || ""] || { useReduction: () => undefined }
-  const nextReduction = reducer.useReduction(tree)
+  const nextReduction = () => reducer.useReduction(tree)
   const mode = useMode()
   return () => {
     switch (mode) {
       case "PLAY":
         if (reduction) dis(nextReductionStage())
         else {
-          if (nextReduction) dis(queueReduction(nextReduction))
+          const next = nextReduction()
+          if (next) dis(queueReduction(next))
           else dis(setMode("STOP"))
         }
         break
       case "FORWARD":
-        if (!reduction) dis(queueReduction(nextReduction))
+        if (!reduction) dis(queueReduction(nextReduction()))
         else {
           dis(nextReductionStage())
           if (reduction.type === REDUCTION_STAGES[REDUCTION_STAGES.length - 1]) dis(setMode("STOP"))

@@ -75,6 +75,7 @@ const RawAbs = (props: RawAbsProps): ExprElementValues[] => {
   }
   return [
     {
+      type: "PATH",
       key: `${props.id}_output`,
       animated: {
         d: outPath,
@@ -84,6 +85,7 @@ const RawAbs = (props: RawAbsProps): ExprElementValues[] => {
       static: staticProps
     },
     {
+      type: "PATH",
       key: `${props.id}_input`,
       animated: {
         d: inPath,
@@ -93,6 +95,7 @@ const RawAbs = (props: RawAbsProps): ExprElementValues[] => {
       static: staticProps
     },
     {
+      type: "PATH",
       key: `${props.id}_box`,
       animated: { d: boxPath, fill: props.style.fill, ...props.style.stroke },
       static: { ...staticProps, pointerEvents: "stroke" }

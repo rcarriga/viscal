@@ -74,6 +74,7 @@ const RawAppl = (props: RawApplProps): ExprElementValues[] => {
   }
   return [
     {
+      type: "PATH",
       key: `${props.id}_output`,
       animated: {
         d: outPath,
@@ -83,6 +84,7 @@ const RawAppl = (props: RawApplProps): ExprElementValues[] => {
       static: staticProps
     },
     {
+      type: "PATH",
       key: `${props.id}_box`,
       animated: {
         d: boxPath,

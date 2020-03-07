@@ -128,7 +128,7 @@ const Divider = () => (
 
 const Input = (props: { value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => {
   const [help, setHelp] = useState(false)
-  const helpIcon = useTransition(help, {
+  const helpIcon = useTransition(help, null, {
     from: { cursor: "pointer", opacity: 0, position: "absolute" },
     enter: { opacity: 1 },
     leave: { opacity: 0 }
@@ -139,20 +139,20 @@ const Input = (props: { value: string; onChange: (e: React.ChangeEvent<HTMLInput
       <div style={{ display: "flex" }}>
         <div className="subtitle is-5">Input</div>
         <div style={{ marginLeft: 10 }}>
-          {helpIcon((props, item, _, key) =>
+          {helpIcon.map(({ item, props, key }) =>
             !item ? (
-              <animated.div key={key} onClick={() => setHelp(!help)} style={props as any}>
+              <animated.div key={key} onClick={() => setHelp(!help)} style={props}>
                 <HelpIcon />
               </animated.div>
             ) : (
-              <animated.div key={key} onClick={() => setHelp(!help)} style={props as any}>
+              <animated.div key={key} onClick={() => setHelp(!help)} style={props}>
                 <CancelIcon />
               </animated.div>
             )
           )}
         </div>
       </div>
-      <Help style={helpMessage as any} />
+      <Help style={helpMessage} />
       <input className="input is-medium" {...props} type="text" placeholder="Enter a lambda expression" />
     </div>
   )
@@ -160,7 +160,7 @@ const Input = (props: { value: string; onChange: (e: React.ChangeEvent<HTMLInput
 
 const Help = (props: { style: React.CSSProperties }) => {
   return (
-    <animated.div className="message is-info" style={props.style as any}>
+    <animated.div className="message is-info" style={props.style}>
       <div className="message-header">
         <p>Writing Expressions</p>
       </div>
