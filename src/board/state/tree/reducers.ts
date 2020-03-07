@@ -118,11 +118,33 @@ const removeReduced = (state: TreeState, reduction: ReductionStage): TreeState =
   const replaceFrom = reduction.visibleParent === reduction.parentApplication ? state.root : reduction.visibleParent
   const childReplaced = replaceChild(reduction.parentApplication, newChild, replaceFrom, state.nodes)
   const newTree = _.omit(childReplaced, [...Object.keys(reduction.substitutions), reduction.abs, reduction.consumed])
+  const boundOutsideAbs = new Set(getBoundOutside(state.nodes, reduction.abs))
+  const newNodes = new Set(_.flatMap(reduction.substitutions, sub => _.values(sub.nodes)))
+  const absChildOffsetSubtracted = partialMapTree(
+    newTree,
+    (node, nodeID) => {
+      switch (node.type) {
+        case "VARIABLE":
+          return newNodes.has(nodeID)
+            ? node
+            : createVar(
+                nodeID,
+                node.index !== undefined ? node.index - (boundOutsideAbs.has(nodeID) ? 1 : 0) : undefined,
+                node.name,
+                node.primitives
+              )
+        default:
+          return node
+      }
+    },
+    newChild
+  )
+
   return {
     ...state,
     reduction: reduction,
     root: replaceRoot ? newChild : state.root,
-    nodes: newTree
+    nodes: { ...newTree, ...absChildOffsetSubtracted }
   }
 }
 
@@ -152,25 +174,9 @@ const addReplacementNodes = (reduction: ReductionStage, tree: Tree): Tree =>
 
       const getNodeSub = (nodeID: NodeID) => substitution.nodes[nodeID] || nodeID
       const getPrimSub = (primID: PrimitiveID) => substitution.primitives[primID] || primID
-      const getBoundOutside = (tree: Tree, rootID: NodeID, abstractions = 0): NodeID[] => {
-        const root = tree[rootID]
-        if (!root) return []
-        switch (root.type) {
-          case "VARIABLE":
-            return !root.index || abstractions <= root.index ? [rootID] : []
-          case "ABSTRACTION":
-            if (!root.child) return []
-            return getBoundOutside(tree, root.child, abstractions + 1)
-          case "APPLICATION":
-            return root.children(tree).flatMap(childID => getBoundOutside(tree, childID, abstractions))
-          default:
-            return []
-        }
-      }
+      const boundOutsideConsumed = new Set(getBoundOutside(tree, reduction.consumed))
 
-      const boundOutside = new Set(...getBoundOutside(tree, reduction.consumed))
-
-      const subTree = reduceTree(
+      const consumedOffsetAdded = reduceTree(
         tree,
         (tree, node, nodeID) => {
           const updated = () => {
@@ -178,7 +184,9 @@ const addReplacementNodes = (reduction: ReductionStage, tree: Tree): Tree =>
               case "VARIABLE":
                 return createVar(
                   getNodeSub(nodeID),
-                  node.index !== undefined ? node.index + (boundOutside.has(nodeID) ? indexOffset : 0) : undefined,
+                  node.index !== undefined
+                    ? node.index + (boundOutsideConsumed.has(nodeID) ? indexOffset : 0)
+                    : undefined,
                   node.name,
                   node.primitives.map(getPrimSub)
                 )
@@ -207,24 +215,38 @@ const addReplacementNodes = (reduction: ReductionStage, tree: Tree): Tree =>
         reduction.consumed
       )
 
-      return { ...tree, ...subTree }
+      return { ...tree, ...consumedOffsetAdded }
     },
     tree
   )
 
+const getBoundOutside = (tree: Tree, rootID: NodeID, abstractions = 0): NodeID[] => {
+  const root = tree[rootID]
+  if (!root) return []
+  switch (root.type) {
+    case "VARIABLE":
+      return root.index === undefined || abstractions <= root.index ? [rootID] : []
+    case "ABSTRACTION":
+      if (!root.child) return []
+      return getBoundOutside(tree, root.child, abstractions + 1)
+    case "APPLICATION":
+      return root.children(tree).flatMap(childID => getBoundOutside(tree, childID, abstractions))
+    default:
+      return []
+  }
+}
+
 const replaceNodes = (reduction: ReductionStage, state: TreeState): TreeState => {
   const root = state.root
-  return root
-    ? {
-        ...state,
-        nodes: _.reduce(
-          reduction.substitutions,
-          (tree: Tree, sub, toReplace: NodeID) =>
-            replaceChild(toReplace, sub.nodes[reduction.consumed] || reduction.consumed, root, tree),
-          state.nodes
-        )
-      }
-    : state
+  return {
+    ...state,
+    nodes: _.reduce(
+      reduction.substitutions,
+      (tree: Tree, sub, toReplace: NodeID) =>
+        replaceChild(toReplace, sub.nodes[reduction.consumed] || reduction.consumed, root, tree),
+      state.nodes
+    )
+  }
 }
 
 const replaceChild = (oldChild: NodeID, newChild: NodeID, rootID: NodeID, tree: Tree): Tree => {
