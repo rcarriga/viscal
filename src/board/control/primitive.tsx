@@ -1,5 +1,5 @@
 import { generateID } from "board/calculus/util"
-import { useSelected, useDispatch, NodeID, createPrimitive } from "board/state"
+import { useSelected, useDispatch, NodeID, createPrimitive, setSelected } from "board/state"
 import React, { useState } from "react"
 
 const PrimitveControl = () => {
@@ -46,7 +46,10 @@ const PrimitiveModal = (props: { nodeID: NodeID; show: boolean; onClose: () => v
             <button
               className="button is-capitalized"
               onClick={() => {
-                props.nodeID && input && dis(createPrimitive(input, generateID(), props.nodeID))
+                if (props.nodeID && input) {
+                  dis(createPrimitive(input, generateID(), props.nodeID))
+                  dis(setSelected())
+                }
                 close()
               }}
             >

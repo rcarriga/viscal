@@ -1,9 +1,9 @@
-import { VarStyle, NodeID, NodeStyle, NodeCoord, NodeEvents } from "../../state"
-import { RawExprProps, ExprElementValues } from "./base"
+import { VarStyle, NodeID, NodeStyle, NodeCoord, NodeEvents } from "board/state"
+import { RawExprProps, ExprElementValues } from "./types"
 
-const Var = (nodeID: NodeID, events: NodeEvents, style: NodeStyle, coord: NodeCoord) => {
+const varElements = (nodeID: NodeID, events: NodeEvents, style: NodeStyle, coord: NodeCoord): ExprElementValues[] => {
   if (!style || !coord || style.type !== "VAR_STYLE") return []
-  return RawVar({
+  return rawVarElements({
     id: nodeID,
     radius: coord.w / 2,
     style: style,
@@ -13,14 +13,14 @@ const Var = (nodeID: NodeID, events: NodeEvents, style: NodeStyle, coord: NodeCo
   })
 }
 
-export default Var
+export default varElements
 
 interface RawVarProps extends RawExprProps {
   radius: number
   style: VarStyle
 }
 
-const RawVar = (props: RawVarProps): ExprElementValues[] => {
+const rawVarElements = (props: RawVarProps): ExprElementValues[] => {
   const path = `M${props.x},${props.y}
       a${props.radius},${props.radius} 0 1,0 ${props.radius * 2},0
       a${props.radius},${props.radius} 0 1,0 -${props.radius * 2},0`

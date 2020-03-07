@@ -1,28 +1,15 @@
-import React from "react"
-import { animated } from "react-spring"
-import {
-  useDimensions,
-  useEvents,
-  ApplStyle,
-  useStyle,
-  useCoord,
-  NodeID,
-  DimensionSettings,
-  NodeEvents,
-  NodeStyle,
-  NodeCoord
-} from "../../state"
-import { ExprProps, RawExprProps, ExprElements, ExprElementValues } from "./base"
+import { AbsStyle, NodeID, DimensionSettings, NodeEvents, NodeStyle, NodeCoord } from "board/state"
+import { RawExprProps, ExprElementValues } from "./types"
 
-const Appl = (
+const absElements = (
   nodeID: NodeID,
   events: NodeEvents,
   style: NodeStyle,
   coord: NodeCoord,
   dimensions: DimensionSettings
 ) => {
-  if (!style || !coord || style.type !== "APPL_STYLE") return []
-  return RawAppl({
+  if (!style || !coord || style.type !== "ABS_STYLE") return []
+  return rawAbsElements({
     id: nodeID,
     height: coord.h,
     heightMargin: dimensions.heightMargin,
@@ -30,34 +17,41 @@ const Appl = (
     style: style,
     events,
     width: coord.w,
+    widthMargin: dimensions.widthMargin,
     x: coord.x,
     y: coord.y
   })
 }
 
-export default Appl
+export default absElements
 
-interface RawApplProps extends RawExprProps {
-  radius: number
-  heightMargin: number
-  width: number
+interface RawAbsProps extends RawExprProps {
   height: number
-  style: ApplStyle
+  heightMargin: number
+  radius: number
+  style: AbsStyle
+  width: number
+  widthMargin: number
 }
 
-const RawAppl = (props: RawApplProps): ExprElementValues[] => {
+const rawAbsElements = (props: RawAbsProps): ExprElementValues[] => {
   const boxWidth = props.width - props.radius
+  const circleTopPoint = props.y - props.radius
+  const inputX = props.x + boxWidth + props.radius
+  const outPath = `M${props.x + props.radius},${circleTopPoint}
+        a1,1 0 0,0 0,${props.radius * 2}`
+  const inPath = `M${inputX},${circleTopPoint}
+        a1,1 0 0,0 0,${props.radius * 2}
+        l0,${-props.radius * 2}`
   const bufferOffset = 1
   const circleBuffer = props.height / 2 - props.radius - bufferOffset
-  const outPath = `M${props.x + props.radius},${props.y - props.radius}
-        a1,1 0 0,0 0,${props.radius * 2}`
-  const boxPath = `M${props.x + props.radius},${props.y + props.radius}
+  const boxPath = `M${props.x + props.radius},${circleTopPoint + props.radius * 2}
         l0,${bufferOffset}
         l${props.heightMargin},${circleBuffer}
         l${boxWidth - props.heightMargin * 2},0
         l${props.heightMargin},${-circleBuffer}
         l0,${-bufferOffset}
-        l0,${-props.radius * 2}
+        a1,1 0 1,1 0,${-props.radius * 2}
         l0,${-bufferOffset}
         l${-props.heightMargin},${-circleBuffer}
         l${props.heightMargin * 2 - boxWidth},0
@@ -85,12 +79,18 @@ const RawAppl = (props: RawApplProps): ExprElementValues[] => {
     },
     {
       type: "PATH",
-      key: `${props.id}_box`,
+      key: `${props.id}_input`,
       animated: {
-        d: boxPath,
-        fill: props.style.fill,
-        ...props.style.stroke
+        d: inPath,
+        fill: props.style.input.fill,
+        ...props.style.input.stroke
       },
+      static: staticProps
+    },
+    {
+      type: "PATH",
+      key: `${props.id}_box`,
+      animated: { d: boxPath, fill: props.style.fill, ...props.style.stroke },
       static: { ...staticProps, pointerEvents: "stroke" }
     }
   ]

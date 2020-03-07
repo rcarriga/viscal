@@ -75,7 +75,9 @@ const Tooltip = () => {
         </div>
       </div>
     </animated.foreignObject>
-  ) : null
+  ) : (
+    <g></g>
+  )
 }
 
 const VarDescription = ({ node, nodeID }: { node: Variable; nodeID: NodeID }) => {

@@ -1,7 +1,7 @@
-import { PrimStyle, NodeID, NodeEvents, NodeStyle, NodeCoord, DimensionSettings, Primitive } from "../../state"
-import { RawExprProps, ExprElementValues } from "./base"
+import { PrimStyle, NodeID, NodeEvents, NodeStyle, NodeCoord, DimensionSettings, Primitive } from "board/state"
+import { RawExprProps, ExprElementValues } from "./types"
 
-const Prim = (
+const primElements = (
   nodeID: NodeID,
   events: NodeEvents,
   style: NodeStyle,
@@ -10,7 +10,7 @@ const Prim = (
   primitive: Primitive
 ): ExprElementValues[] => {
   if (!style || !coord || !primitive || style.type !== "PRIM_STYLE") return []
-  return RawPrim({
+  return rawPrimElements({
     id: nodeID,
     events: events,
     height: coord.h,
@@ -25,7 +25,7 @@ const Prim = (
   })
 }
 
-export default Prim
+export default primElements
 
 interface RawPrimProps extends RawExprProps {
   height: number
@@ -37,7 +37,7 @@ interface RawPrimProps extends RawExprProps {
   name: string
 }
 
-const RawPrim = (props: RawPrimProps): ExprElementValues[] => {
+const rawPrimElements = (props: RawPrimProps): ExprElementValues[] => {
   const boxWidth = props.width - props.radius
   const circleTopPoint = props.y - props.radius
   const bufferOffset = 1
@@ -55,7 +55,8 @@ const RawPrim = (props: RawPrimProps): ExprElementValues[] => {
         l${-props.heightMargin},${circleBuffer + bufferOffset}
         l${-1},0`
 
-  const fontSize = props.radius * 2 - (props.name.length > 3 ? (props.name.length - 3) * 6 : 0)
+  const calculatedFontSize = props.radius * 2 - (props.name.length > 3 ? (props.name.length - 3) * 7 : 0)
+  const fontSize = calculatedFontSize > 2 ? calculatedFontSize : 3
 
   const staticProps = {
     onClick: (e: any) => {

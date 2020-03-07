@@ -10,7 +10,7 @@ import {
 } from "board/state"
 import React, { useEffect, useState } from "react"
 import { animated } from "react-spring"
-import Graph from "./elements"
+import Graph from "./graph"
 import Tooltip from "./tooltip"
 
 const BoardContent = () => {

@@ -5,7 +5,7 @@ import { parseExpression } from "board/calculus"
 import { useDispatch, clearTree, useTextTree, useConstants } from "board/state"
 import _ from "lodash"
 import React, { useState, useEffect } from "react"
-import { useSpring, animated, useTransition } from "react-spring"
+import { useSpring, animated } from "react-spring"
 import { ActionCreators } from "redux-undo"
 
 const ExpressionControl = () => {
@@ -128,27 +128,21 @@ const Divider = () => (
 
 const Input = (props: { value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => {
   const [help, setHelp] = useState(false)
-  const helpIcon = useTransition(help, null, {
-    from: { cursor: "pointer", opacity: 0, position: "absolute" },
-    enter: { opacity: 1 },
-    leave: { opacity: 0 }
-  })
+  const helpIcon = { cursor: "pointer", position: "absolute" } as const
   const helpMessage = useSpring({ overflowY: "auto", maxHeight: help ? 300 : 0, config: { clamp: true } })
   return (
     <div>
       <div style={{ display: "flex" }}>
         <div className="subtitle is-5">Input</div>
         <div style={{ marginLeft: 10 }}>
-          {helpIcon.map(({ item, props, key }) =>
-            !item ? (
-              <animated.div key={key} onClick={() => setHelp(!help)} style={props}>
-                <HelpIcon />
-              </animated.div>
-            ) : (
-              <animated.div key={key} onClick={() => setHelp(!help)} style={props}>
-                <CancelIcon />
-              </animated.div>
-            )
+          {!help ? (
+            <animated.div onClick={() => setHelp(!help)} style={helpIcon}>
+              <HelpIcon />
+            </animated.div>
+          ) : (
+            <animated.div onClick={() => setHelp(!help)} style={helpIcon}>
+              <CancelIcon />
+            </animated.div>
           )}
         </div>
       </div>

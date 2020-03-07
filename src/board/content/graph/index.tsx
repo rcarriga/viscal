@@ -1,6 +1,4 @@
 import { reducers } from "board/calculus"
-import { ExprElements } from "board/content/elements/base"
-import Prim from "board/content/elements/primitive"
 import {
   useMode,
   useCoords,
@@ -13,50 +11,17 @@ import {
   useTreeState,
   setMode,
   useReducer,
-  REDUCTION_STAGES,
-  useStyles,
-  useEvents,
-  useDimensions,
-  useLayout,
-  useTree,
-  usePrimitives
+  REDUCTION_STAGES
 } from "board/state"
 import React, { useRef, Ref } from "react"
 import { ActionCreators } from "redux-undo"
-import Abs from "./abstraction"
-import Appl from "./application"
-import Var from "./variable"
+import ExprElements from "./elements"
 
 const Graph = () => {
-  const coords = useCoords()
   const keys = useOrderedKeys()
   const onStop = useAnimationControl()
-  const styles = useStyles()
-  const events = useEvents()
-  const layout = useLayout()
-  const tree = useTree()
-  const dimensions = useDimensions()
-  const primitives = usePrimitives()
   const { start, rest } = useMotionTrackers(onStop)
-  const values = keys.flatMap(nodeID => {
-    const coord = { ...coords[nodeID], x: coords[nodeID].x + layout.startX, y: coords[nodeID].y + layout.startY }
-    const node = tree[nodeID]
-    if (node.primitives.length) {
-      const primitive = primitives[node.primitives[node.primitives.length - 1]]
-      return Prim(nodeID, events, styles[nodeID], coord, dimensions, primitive)
-    }
-    switch (node.type) {
-      case "VARIABLE":
-        return Var(nodeID, events, styles[nodeID], coord)
-      case "ABSTRACTION":
-        return Abs(nodeID, events, styles[nodeID], coord, dimensions)
-      case "APPLICATION":
-        return Appl(nodeID, events, styles[nodeID], coord, dimensions)
-      default:
-        return []
-    }
-  })
-  return <ExprElements values={values} onRest={rest} onStart={start} />
+  return <ExprElements orderedKeys={keys} onRest={rest} onStart={start} />
 }
 
 export default Graph
@@ -111,7 +76,6 @@ const useMotionTrackers = (onStop: () => void) => {
     if (movingSet.current) {
       movingSet.current.delete(sym)
       if (movingSet.current.size === 0) {
-        console.log("all stopped")
         onStop()
         isMoving.current = false
       }
