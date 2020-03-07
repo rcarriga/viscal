@@ -1,4 +1,4 @@
-import { VarIndex, NodeID, VarName, ReductionStage, LambdaReducerID } from "./types"
+import { VarIndex, NodeID, VarName, ReductionStage, LambdaReducerID, PrimitiveID } from "./types"
 
 interface ClearTree {
   type: "CLEAR_TREE"
@@ -51,6 +51,18 @@ interface SetReducer {
   reducerID: LambdaReducerID
 }
 
+interface CreatePrimitive {
+  type: "CREATE_PRIMITIVE"
+  name: string
+  primID: PrimitiveID
+  nodeID: NodeID
+}
+
+interface RemovePrimitive {
+  type: "REMOVE_PRIMITIVE"
+  primID: PrimitiveID
+}
+
 export type TreeAction =
   | ClearTree
   | SetRoot
@@ -61,6 +73,8 @@ export type TreeAction =
   | NextReductionStage
   | SetConstant
   | SetReducer
+  | CreatePrimitive
+  | RemovePrimitive
 
 export const clearTree = (): TreeAction => {
   return { type: "CLEAR_TREE" }
@@ -109,4 +123,16 @@ export const setConstant = (name: string, text: string): TreeAction => ({
 export const setReducer = (reducerID: LambdaReducerID): TreeAction => ({
   type: "SET_REDUCER",
   reducerID
+})
+
+export const createPrimitive = (name: string, primID: PrimitiveID, nodeID: NodeID): TreeAction => ({
+  type: "CREATE_PRIMITIVE",
+  name,
+  primID,
+  nodeID
+})
+
+export const removePrimitive = (primID: PrimitiveID): TreeAction => ({
+  type: "REMOVE_PRIMITIVE",
+  primID
 })

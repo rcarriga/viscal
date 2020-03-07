@@ -4,10 +4,12 @@ import {
   Substitutions,
   Tree,
   TreeNode,
-  Substitution,
   ReductionStage,
   REDUCTION_STAGES,
-  searchTree
+  searchTree,
+  reduceTree,
+  NodeSubstitution,
+  PrimitiveSubstitution
 } from "board/state"
 import _ from "lodash"
 import { generateID } from "../util"
@@ -26,17 +28,17 @@ export const createReduction = (parentID: NodeID, tree: TreeState): ReductionSta
   const visibleParent = getVisibleParent(abs, tree)
   if (!visibleParent) return undefined
   const child = tree.nodes[abs].children(tree.nodes)[0]
-  if (tree.nodes[parentID])
-    return {
-      type: REDUCTION_STAGES[0],
-      visibleParent: visibleParent,
-      parentApplication: parentID,
-      abs,
-      child,
-      consumed,
-      substitutions: createSubstitutions(abs, consumed, tree),
-      reducer: tree.reducer || ""
-    }
+  const substitutions = createSubstitutions(abs, consumed, tree)
+  return {
+    type: REDUCTION_STAGES[0],
+    visibleParent: visibleParent,
+    parentApplication: parentID,
+    abs,
+    child,
+    consumed,
+    substitutions,
+    reducer: tree.reducer || ""
+  }
 }
 
 export const isRedex = (node: TreeNode, tree: Tree): boolean => {
@@ -58,15 +60,30 @@ const getVisibleParent = (nodeID: NodeID, state: TreeState): NodeID | undefined 
 const createSubstitutions = (absID: NodeID, consumedID: NodeID, tree: TreeState): Substitutions => {
   const removed = getRemoved(absID, tree)
   return removed
-    .map((nodeID, index) => ({ [nodeID]: index === -1 ? {} : createCopyIDs(consumedID, tree.nodes) }))
+    .map((nodeID, index) =>
+      index === -1
+        ? {}
+        : {
+            [nodeID]: {
+              nodes: createNodeSubstitution(consumedID, tree.nodes),
+              primitives: createPrimitiveSubstitution(consumedID, tree.nodes)
+            }
+          }
+    )
     .reduce((prev, cur) => ({ ...prev, ...cur }), {})
 }
 
-const createCopyIDs = (nodeID: NodeID, tree: Tree): Substitution => {
+const createPrimitiveSubstitution = (consumedID: NodeID, tree: Tree): PrimitiveSubstitution => {
+  const oldPrims = _.uniq(reduceTree(tree, (prims: string[], node) => [...prims, ...node.primitives], [], consumedID))
+  const sub = oldPrims.reduce((sub, oldID) => ({ ...sub, [oldID]: generateID() }), {})
+  return sub
+}
+
+const createNodeSubstitution = (nodeID: NodeID, tree: Tree): NodeSubstitution => {
   const node = tree[nodeID]
   if (!node) return {}
   return node.directChildren
-    .map(nodeID => createCopyIDs(nodeID, tree))
+    .map(nodeID => createNodeSubstitution(nodeID, tree))
     .reduce((subs, sub) => ({ ...subs, ...sub }), { [nodeID]: generateID() })
 }
 

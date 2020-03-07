@@ -1,8 +1,23 @@
-import { useSelected, useHighlighted, useCoord, Variable, Abstraction, useTree, useTextTree, NodeID } from "board/state"
+import {
+  useSelected,
+  useHighlighted,
+  useCoord,
+  Variable,
+  setSelected,
+  Abstraction,
+  useTree,
+  useTextTree,
+  NodeID,
+  useDispatch,
+  removePrimitive,
+  usePrimitives,
+  TreeNode
+} from "board/state"
 import React from "react"
 import { useSpring, animated, config } from "react-spring"
 
 const Tooltip = () => {
+  const dis = useDispatch()
   const selected = useSelected()
   const highlighted = useHighlighted()
   const nodeID = selected || highlighted || ""
@@ -13,17 +28,28 @@ const Tooltip = () => {
     opacity: nodeID && coord ? 1 : 0,
     config: config.gentle
   })
+  const deleteStyle = useSpring({
+    float: "right",
+    opacity: selected ? 1 : 0
+  })
   const description = () => {
     if (nodeID && node) {
-      switch (node.type) {
-        case "VARIABLE":
-          return <VarDescription nodeID={nodeID} node={node} />
-        case "ABSTRACTION":
-          return <AbsDescription nodeID={nodeID} node={node} text={text} />
-        case "APPLICATION":
-          return <ApplDescription nodeID={nodeID} text={text} />
-        default:
-      }
+      return (
+        <div>
+          {(() => {
+            switch (node.type) {
+              case "VARIABLE":
+                return <VarDescription nodeID={nodeID} node={node} />
+              case "ABSTRACTION":
+                return <AbsDescription nodeID={nodeID} node={node} text={text} />
+              case "APPLICATION":
+                return <ApplDescription nodeID={nodeID} text={text} />
+              default:
+            }
+          })()}
+          <RemovePrimitive node={node} />
+        </div>
+      )
     }
     return null
   }
@@ -37,10 +63,21 @@ const Tooltip = () => {
       width={width}
     >
       <div className="card" style={{ border: "3px solid grey", borderRadius: 3 }}>
-        <div className="card-content">{description()}</div>
+        <div className="card-content">
+          {
+            <animated.button
+              className="delete"
+              onClick={() => dis(setSelected(""))}
+              style={deleteStyle as any}
+            ></animated.button>
+          }
+          {description()}
+        </div>
       </div>
     </animated.foreignObject>
-  ) : null
+  ) : (
+    <g></g>
+  )
 }
 
 const VarDescription = ({ node, nodeID }: { node: Variable; nodeID: NodeID }) => {
@@ -91,5 +128,20 @@ const DescriptionTitle = ({ name }: { name: string }) => (
     <div className="dropdown-divider" />
   </div>
 )
+
+const RemovePrimitive = ({ node }: { node: TreeNode }) => {
+  const dis = useDispatch()
+  const primID = node.primitives[node.primitives.length - 1]
+  const primitive = usePrimitives()[primID]
+
+  return primitive ? (
+    <div>
+      <div className="dropdown-divider" />
+      <div className="button" onClick={() => dis(removePrimitive(primID))}>
+        Destructure Primitive
+      </div>
+    </div>
+  ) : null
+}
 
 export default Tooltip

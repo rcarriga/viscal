@@ -1,4 +1,4 @@
-import { reduceTree, Tree } from "board/state/tree"
+import { reduceTree, Tree, PrimitiveID } from "board/state/tree"
 import _ from "lodash"
 import randomcolor from "randomcolor"
 import { createSelector } from "reselect"
@@ -34,7 +34,12 @@ export interface ApplStyle extends BaseNodeStyle {
   output: VarStyle
 }
 
-export type NodeStyle = VarStyle | AbsStyle | ApplStyle
+export interface PrimStyle extends BaseNodeStyle {
+  type: "PRIM_STYLE"
+  text: { fill: string }
+}
+
+export type NodeStyle = VarStyle | AbsStyle | ApplStyle | PrimStyle
 type NodeStyles = { [nodeID in NodeID]: NodeStyle }
 
 type StylesState = {
@@ -100,7 +105,7 @@ const overrideReplacement = (reduction: ReductionStage, override: StyleSettings,
   _.reduce(
     reduction.substitutions,
     (styles: NodeStyles, substitution) => {
-      const newNodeID = substitution[reduction.consumed]
+      const newNodeID = substitution.nodes[reduction.consumed]
       if (state.tree.nodes[newNodeID]) {
         const style = createStyle(newNodeID, state, override)
         return style ? { ...styles, [newNodeID]: style } : styles
@@ -144,6 +149,8 @@ const createStyle = (nodeID: NodeID, state: StylesState, overrides: StyleSetting
   const binder = node && node.type === "VARIABLE" ? node.binder(state.tree) || styleID : styleID
   const highlighted = (state.highlighted && (state.highlighted === styleID || state.highlighted === binder)) || false
   const selected = (state.selected && state.selected === styleID) || false
+  if (node.primitives.length)
+    return createPrimStyle(node.primitives[node.primitives.length - 1], state, { highlighted, selected, ...overrides })
   switch (node.type) {
     case "VARIABLE":
       return createVarStyle(styleID, state, { highlighted, selected, ...overrides })
@@ -236,6 +243,32 @@ const createApplStyle = (
   }
 }
 
+const createPrimStyle = (
+  primID: PrimitiveID,
+  state: StylesState,
+  { transparent, selected, highlighted }: StyleSettings
+): PrimStyle => {
+  const theme = state.theme
+  return {
+    type: "PRIM_STYLE",
+    fill: theme.stroke,
+    animation: state.animation,
+    text: {
+      fill: theme.text
+    },
+    stroke: {
+      stroke: transparent
+        ? theme.transparent
+        : selected
+        ? state.theme.selectedStroke
+        : highlighted
+        ? state.theme.highlightedStroke
+        : state.theme.stroke,
+      strokeWidth: state.dimensions.strokeWidth
+    }
+  }
+}
+
 export const stylesSelector = createSelector(
   (state: BoardState) => ({
     tree: state.tree.present,
@@ -258,7 +291,7 @@ const constructCopyMap = (reduction: ReductionStage, tree: Tree): { [nodeID in N
       reduction.substitutions,
       (copies, sub) => ({
         ...copies,
-        ..._.reduce(sub, (copies, toReplace, toCopy) => ({ ...copies, [toReplace]: toCopy }), {})
+        ..._.reduce(sub.nodes, (copies, toReplace, toCopy) => ({ ...copies, [toReplace]: toCopy }), {})
       }),
       {}
     )

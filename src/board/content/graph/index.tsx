@@ -15,31 +15,13 @@ import {
 } from "board/state"
 import React, { useRef, Ref } from "react"
 import { ActionCreators } from "redux-undo"
-import Abs from "./abstraction"
-import Appl from "./application"
-import Var from "./variable"
+import ExprElements from "./elements"
 
 const Graph = () => {
-  const coords = useCoords()
   const keys = useOrderedKeys()
   const onStop = useAnimationControl()
   const { start, rest } = useMotionTrackers(onStop)
-  return (
-    <g>
-      {keys.map(coordID => {
-        switch (coords[coordID].type) {
-          case "VARIABLE":
-            return <Var key={coordID} id={coordID} rest={rest} start={start} />
-          case "ABSTRACTION":
-            return <Abs key={coordID} id={coordID} rest={rest} start={start} />
-          case "APPLICATION":
-            return <Appl key={coordID} id={coordID} rest={rest} start={start} />
-          default:
-            return null
-        }
-      })}
-    </g>
-  )
+  return <ExprElements orderedKeys={keys} onRest={rest} onStart={start} />
 }
 
 export default Graph
@@ -49,19 +31,20 @@ const useAnimationControl = () => {
   const tree = useTreeState()
   const reduction = useReduction()
   const reducer = reducers[useReducer() || ""] || { useReduction: () => undefined }
-  const nextReduction = reducer.useReduction(tree)
+  const nextReduction = () => reducer.useReduction(tree)
   const mode = useMode()
   return () => {
     switch (mode) {
       case "PLAY":
         if (reduction) dis(nextReductionStage())
         else {
-          if (nextReduction) dis(queueReduction(nextReduction))
+          const next = nextReduction()
+          if (next) dis(queueReduction(next))
           else dis(setMode("STOP"))
         }
         break
       case "FORWARD":
-        if (!reduction) dis(queueReduction(nextReduction))
+        if (!reduction) dis(queueReduction(nextReduction()))
         else {
           dis(nextReductionStage())
           if (reduction.type === REDUCTION_STAGES[REDUCTION_STAGES.length - 1]) dis(setMode("STOP"))
@@ -79,9 +62,9 @@ const useAnimationControl = () => {
 }
 
 const useMotionTrackers = (onStop: () => void) => {
-  const movingSet: Ref<Set<symbol>> = useRef(new Set([]))
+  const movingSet: Ref<Set<string>> = useRef(new Set([]))
   const isMoving = useRef(false)
-  const start = (sym: symbol) => {
+  const start = (sym: string) => {
     if (movingSet.current) {
       movingSet.current.add(sym)
       if (!isMoving.current) {
@@ -89,12 +72,12 @@ const useMotionTrackers = (onStop: () => void) => {
       }
     }
   }
-  const rest = (sym: symbol) => {
+  const rest = (sym: string) => {
     if (movingSet.current) {
       movingSet.current.delete(sym)
       if (movingSet.current.size === 0) {
-        isMoving.current = false
         onStop()
+        isMoving.current = false
       }
     }
   }
@@ -112,7 +95,7 @@ const useOrderedKeys = () => {
       if (
         nodeID === reduction.consumed ||
         Object.values(reduction.substitutions)
-          .map(sub => sub[reduction.consumed])
+          .map(sub => sub.nodes[reduction.consumed])
           .indexOf(nodeID) !== -1
       )
         return 1
