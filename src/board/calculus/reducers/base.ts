@@ -8,8 +8,6 @@ import {
   REDUCTION_STAGES,
   searchTree,
   reduceTree,
-  PrimitiveID,
-  Primitives,
   NodeSubstitution,
   PrimitiveSubstitution
 } from "board/state"

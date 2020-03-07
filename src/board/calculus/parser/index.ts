@@ -1,4 +1,14 @@
-import { Dispatcher, addVariable, addAbstraction, addApplication, NodeID, setRoot, ExprConstants } from "board/state"
+import {
+  Dispatcher,
+  addVariable,
+  addAbstraction,
+  addApplication,
+  createPrimitive,
+  NodeID,
+  setRoot,
+  ExprConstants,
+  Primitives
+} from "board/state"
 import _ from "lodash"
 import P, { Parser } from "parsimmon"
 import { generateID } from "../util"
@@ -8,7 +18,8 @@ type Indices = { [name: string]: number }
 type ParsedVar = { type: "VAR"; varName: string }
 type ParsedAbs = { type: "ABS"; varName: string; child?: ParsedExpr }
 type ParsedAppl = { type: "APPL"; left: ParsedExpr; right: ParsedExpr }
-type ParsedExpr = ParsedVar | ParsedAbs | ParsedAppl
+type ParsedConst = { type: "CONST"; name: string; expr: ParsedExpr }
+type ParsedExpr = ParsedVar | ParsedAbs | ParsedAppl | ParsedConst
 
 export const parseExpression = (
   expression: string,
@@ -55,23 +66,25 @@ export const parseExpression = (
         })
       )
 
-  const constant = (): Parser<ParsedExpr> =>
+  const constant = (): Parser<ParsedConst> =>
     trim(
-      constName.or(
-        P.regexp(/[0-9]+/).map(res => {
-          const num = Number(res)
-          let numText = "x"
-          for (let index = 0; index < num; index++) {
-            numText = `f (${numText})`
-          }
-          return `λ f x. ${numText}`
-        })
-      )
+      constName
+        .map(name => ({ name, exprStr: constants[name] }))
+        .or(
+          P.regexp(/[0-9]+/).map(res => {
+            const num = Number(res)
+            let numText = "x"
+            for (let index = 0; index < num; index++) {
+              numText = `f (${numText})`
+            }
+            return { name: res, exprStr: `λ f x. ${numText}` }
+          })
+        )
     ).map(res => {
-      const parsed = expr().parse(constants[res] || res)
+      const parsed = expr().parse(res.exprStr)
       return parsed.status
-        ? parsed.value
-        : ((P.makeFailure(parsed.index.offset, parsed.expected) as unknown) as ParsedExpr)
+        ? { type: "CONST", name: res.name, expr: parsed.value }
+        : ((P.makeFailure(parsed.index.offset, parsed.expected) as unknown) as ParsedConst)
     })
 
   const res = expr().parse(expression)
@@ -79,31 +92,40 @@ export const parseExpression = (
     const parsed = res.value
     if (!parsed) return
     const incrementIndex = (indices: Indices) => _.mapValues(indices, index => index + 1)
-    const fillState = (expr: ParsedExpr | undefined, indices: { [name: string]: number }, nextID: NodeID) => {
-      if (!expr) return
+    const fillState = (
+      expr: ParsedExpr | undefined,
+      indices: { [name: string]: number },
+      nextID: NodeID,
+      primitives: Primitives = {}
+    ): Primitives => {
+      if (!expr) return primitives
       switch (expr.type) {
+        case "CONST": {
+          const primID = generateID()
+          return fillState(expr.expr, indices, nextID, { ...primitives, [primID]: { rootID: nextID, name: expr.name } })
+        }
         case "VAR":
           dis(addVariable(nextID, indices[expr.varName], expr.varName))
-          break
+          return primitives
         case "ABS": {
           const childID = generateID()
           dis(addAbstraction(nextID, expr.varName, childID))
-          fillState(expr.child, { ...incrementIndex(indices), [expr.varName]: 0 }, childID)
-          break
+          return fillState(expr.child, { ...incrementIndex(indices), [expr.varName]: 0 }, childID, primitives)
         }
         case "APPL": {
           const leftID = generateID()
           const rightID = generateID()
           dis(addApplication(nextID, leftID, rightID))
-          fillState(expr.left, indices, leftID)
-          fillState(expr.right, indices, rightID)
-          break
+          const leftPrims = fillState(expr.left, indices, leftID, primitives)
+          return fillState(expr.right, indices, rightID, leftPrims)
         }
         default:
+          return primitives
       }
     }
     const rootID = generateID()
-    fillState(parsed, {}, rootID)
+    const prims = fillState(parsed, {}, rootID)
+    _.forEach(prims, (prim, primID) => dis(createPrimitive(prim.name, primID, prim.rootID)))
     dis(setRoot(rootID))
   } else {
     return res

@@ -9,7 +9,6 @@ import {
   useTextTree,
   NodeID,
   useDispatch,
-  PrimitiveID,
   removePrimitive,
   usePrimitives,
   TreeNode
