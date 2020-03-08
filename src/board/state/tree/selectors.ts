@@ -1,3 +1,4 @@
+import { visibleChildren } from "board/state/tree/util"
 import _ from "lodash"
 import { createSelector } from "reselect"
 import { NodeID, TreeState } from "./types"
@@ -9,7 +10,7 @@ const constructParents = (tree: TreeState, parents = {}): Parents => {
   const root = tree.nodes[rootID]
   if (root) {
     return _.reduce(
-      root.children(tree.nodes),
+      visibleChildren(root, tree.nodes),
       (parents: Parents, nodeID: string) => {
         return constructParents({ ...tree, root: nodeID }, { ...parents, [nodeID]: rootID })
       },

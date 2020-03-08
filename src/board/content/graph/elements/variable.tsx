@@ -1,5 +1,6 @@
-import { VarStyle, NodeID, NodeStyle, NodeCoord, NodeEvents } from "board/state"
-import { RawExprProps, ExprElementValues } from "./types"
+import { VarStyle, NodeID, NodeStyle, NodeCoord } from "board/state"
+import _ from "lodash"
+import { RawExprProps, ExprElementValues, NodeEvents } from "./types"
 
 const varElements = (nodeID: NodeID, events: NodeEvents, style: NodeStyle, coord: NodeCoord): ExprElementValues[] => {
   if (!style || !coord || style.type !== "VAR_STYLE") return []
@@ -34,14 +35,10 @@ const rawVarElements = (props: RawVarProps): ExprElementValues[] => {
         fill: props.style.fill,
         ...props.style.stroke
       },
-      static: {
-        onClick: (e: any) => {
-          e.stopPropagation()
-          props.events.click(props.id)
-        },
-        onMouseOver: () => props.events.highlight(props.id),
-        onMouseLeave: () => props.events.clearHighlight(props.id)
-      }
+      static: _.mapValues(props.events, handler => (e: any) => {
+        e.stopPropagation()
+        handler(props.id)
+      })
     }
   ]
 }

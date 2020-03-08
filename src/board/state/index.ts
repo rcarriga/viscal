@@ -1,18 +1,31 @@
-import { createStore } from "redux"
-import { StateWithHistory } from "redux-undo"
-import board from "./reducers"
-import { TreeState, initialTreeState } from "./tree"
+import { configureStore } from "@reduxjs/toolkit"
+import { useDispatch as _useDispatch } from "react-redux"
+import undoable, { includeAction } from "redux-undo"
+import treeSlice from "./tree/reducers"
+import visualSlice from "./visual/reducers"
 export * from "./tree"
 export * from "./visual"
-export * from "./types"
 export * from "./hooks"
 export * from "./selectors"
-export * from "./actions"
 
-export default createStore(
-  board,
-  {
-    tree: (initialTreeState as unknown) as StateWithHistory<TreeState>
-  },
-  (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__()
-)
+type TreeAction = keyof typeof treeSlice.actions
+
+const include = (actions: TreeAction[]) => includeAction(actions.map(action => `tree/${action}`))
+
+const store = configureStore({
+  reducer: {
+    tree: undoable(treeSlice.reducer, {
+      ignoreInitialState: true,
+      filter: include(["setRoot", "queueReduction", "nextReductionStage"])
+    }),
+    visual: visualSlice.reducer
+  }
+})
+
+export type BoardState = ReturnType<typeof store.getState>
+
+export default store
+
+export type Dispatcher = typeof store.dispatch
+
+export const useDispatch: () => Dispatcher = _useDispatch

@@ -1,6 +1,6 @@
 import { textTreeSelector } from "board/state/selectors/text"
-import { useSelector as _useSelector, TypedUseSelectorHook, useDispatch as _useDispatch } from "react-redux"
-import { BoardState, coordsSelector, stylesSelector, BoardAction, NodeID, NodeStyle, NodeCoord, joinsSelector } from "."
+import { useSelector as _useSelector, TypedUseSelectorHook } from "react-redux"
+import { BoardState, coordsSelector, stylesSelector, NodeID, NodeStyle, NodeCoord, joinsSelector } from "."
 
 const useSelector: TypedUseSelectorHook<BoardState> = _useSelector
 
@@ -26,10 +26,6 @@ export const useNodePrimitive = (nodeID: NodeID) =>
 export const useConstants = () => useSelector(state => state.tree.present.constants)
 
 export const useVisualState = () => useSelector(state => state.visual)
-
-export const useLayout = () => useSelector(state => state.visual.treeLayout)
-
-export const useEvents = () => useSelector(state => state.visual.events)
 
 export const useDimensions = () => useSelector(state => state.visual.dimensions)
 
@@ -58,11 +54,4 @@ export const useAnimationSettings = () => useSelector(state => state.visual.anim
 
 export const useAnimationEnabled = () => useSelector(state => state.visual.animation.enabled)
 
-export const useCoord = (nodeID: NodeID): NodeCoord | undefined => {
-  const baseCoord = useCoords()[nodeID]
-  const layout = useLayout()
-  return baseCoord ? { ...baseCoord, x: baseCoord.x + layout.startX, y: baseCoord.y + layout.startY } : undefined
-}
-
-export type Dispatcher = (action: BoardAction) => void
-export const useDispatch: () => Dispatcher = _useDispatch
+export const useCoord = (nodeID: NodeID): NodeCoord | undefined => useCoords()[nodeID]

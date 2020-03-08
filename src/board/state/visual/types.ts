@@ -32,30 +32,6 @@ export type DimensionSettings = typeof defaultDimensions
 
 export type DimensionSetting = keyof DimensionSettings
 
-const defaultEvents = {
-  select: () => {},
-  highlight: () => {},
-  click: () => {},
-  clearHighlight: () => {},
-  clearSelect: () => {},
-  drag: () => {},
-  rest: () => {},
-  move: () => {}
-}
-
-export type NodeEvents = { [event in keyof typeof defaultEvents]: EventHandler }
-
-export type NodeEvent = keyof NodeEvents
-
-const defaultTreeLayout = {
-  startX: 100,
-  startY: 400
-}
-
-export type TreeLayout = typeof defaultTreeLayout
-
-export type Layout = keyof TreeLayout
-
 export type EventHandler = (nodeID: NodeID) => void
 
 export type AnimationSetting = keyof AnimationSettings
@@ -85,8 +61,6 @@ export interface VisualState {
   highlighted?: NodeID
   theme: Theme
   dimensions: DimensionSettings
-  treeLayout: TreeLayout
-  events: NodeEvents
   animation: AnimationState
 }
 
@@ -94,7 +68,5 @@ export const initialVisualState: VisualState = {
   expression: "",
   theme: defaultTheme,
   dimensions: defaultDimensions,
-  treeLayout: defaultTreeLayout,
-  events: defaultEvents,
   animation: defaultAnimationState
 }

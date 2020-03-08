@@ -1,6 +1,6 @@
-import { BoardState, Tree, NodeID, NodeJoins, joinsSelector } from "board/state"
+import { createSelector } from "@reduxjs/toolkit"
+import { BoardState, Tree, NodeID, NodeJoins, joinsSelector, visibleChildren } from "board/state"
 import _ from "lodash"
-import { createSelector } from "reselect"
 
 const stringifyTree = (tree: Tree, rootID: NodeID, joins: NodeJoins): string => {
   const furthestJoins = _.reduce(
@@ -29,13 +29,12 @@ const stringifyTree = (tree: Tree, rootID: NodeID, joins: NodeJoins): string => 
       return root.name
     case "ABSTRACTION": {
       const furthest = furthestJoins[rootID] || (joins[rootID] ? furthestJoins[joins[rootID].jointTo] : "")
-      const nextNodes = tree[furthest] ? tree[furthest].children(tree) : root.children(tree)
+      const nextNodes = tree[furthest] ? visibleChildren(tree[furthest], tree) : visibleChildren(root, tree)
       const names = joinNames(tree, furthest, rootID)
       return `(λ ${names.join(" ")}. ${nextNodes.map(nextNode => stringifyTree(tree, nextNode, joins)).join(" ")})`
     }
     case "APPLICATION": {
-      return `(${root
-        .children(tree)
+      return `(${visibleChildren(root, tree)
         .map(nodeID => stringifyTree(tree, nodeID, joins))
         .join(" ")})`
     }

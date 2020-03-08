@@ -9,7 +9,7 @@ import {
   useTextTree,
   NodeID,
   useDispatch,
-  removePrimitive,
+  destructurePrimitive,
   usePrimitives,
   TreeNode
 } from "board/state"
@@ -53,13 +53,14 @@ const Tooltip = () => {
     }
     return null
   }
-  const width = 400
-  return coord ? (
+  const width = coord ? 400 : 0
+  const height = coord ? 300 : 0
+  return (
     <animated.foreignObject
       style={style}
-      x={coord.x + coord.w / 2 - width / 2}
-      y={coord.y + 100}
-      height={300}
+      x={coord ? coord.x + coord.w / 2 - width / 2 : 0}
+      y={coord ? coord.y + 100 : 0}
+      height={height}
       width={width}
     >
       <div className="card" style={{ border: "3px solid grey", borderRadius: 3 }}>
@@ -75,8 +76,6 @@ const Tooltip = () => {
         </div>
       </div>
     </animated.foreignObject>
-  ) : (
-    <g></g>
   )
 }
 
@@ -137,7 +136,7 @@ const RemovePrimitive = ({ node }: { node: TreeNode }) => {
   return primitive ? (
     <div>
       <div className="dropdown-divider" />
-      <div className="button" onClick={() => dis(removePrimitive(primID))}>
+      <div className="button" onClick={() => dis(destructurePrimitive(primID))}>
         Destructure Primitive
       </div>
     </div>

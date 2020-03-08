@@ -1,4 +1,14 @@
-import { NodeEvents } from "board/state"
+import { NodeID } from "board/state"
+
+const defaultEvents = {
+  onMouseOver: () => {},
+  onMouseLeave: () => {},
+  onClick: () => {}
+}
+
+export type EventHandler = (nodeID: NodeID) => void
+export type NodeEvents = { [event in keyof typeof defaultEvents]: EventHandler }
+export type NodeEvent = keyof NodeEvents
 
 export interface RawExprProps {
   id: string
@@ -24,4 +34,3 @@ export interface TextElementValues extends BaseElementValues {
 }
 
 export type ExprElementValues = PathElementValues | TextElementValues
-

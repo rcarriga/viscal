@@ -9,7 +9,8 @@ import {
   Tree,
   DimensionSettings,
   TreeNode,
-  NodeJoins
+  NodeJoins,
+  visibleChildren
 } from "board/state"
 import _ from "lodash"
 
@@ -72,7 +73,7 @@ const calculateDimensions = (
 ): NodeDimensions => {
   const root = tree[rootID]
   if (root) {
-    const children = root.children(tree)
+    const children = visibleChildren(rootID, tree)
     const childDimensions = root.primitives.length
       ? dimensions
       : children
@@ -99,8 +100,7 @@ const elementWidth = (
   tree: Tree
 ): number => {
   const sumChildren = () =>
-    node
-      .children(tree)
+    visibleChildren(node, tree)
       .map(childID => (tree[childID] ? nodeDimensions[childID].w : -settings.widthMargin))
       .reduce((sum, w) => sum + w + settings.widthMargin, 0)
   if (node.primitives.length) return settings.circleRadius * 4 + settings.widthMargin * 2

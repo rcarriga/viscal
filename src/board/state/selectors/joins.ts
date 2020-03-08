@@ -1,5 +1,4 @@
-import { NodeID, TreeState, Tree, BoardState, ReductionStage } from "board/state"
-import { NodeType } from "board/state/tree"
+import { NodeType, directChildren, NodeID, TreeState, Tree, BoardState, ReductionStage } from "board/state"
 import { createSelector } from "reselect"
 
 export type NodeJoins = { [nodeID in NodeID]: { distance: number; jointTo: NodeID; type: NodeType } }
@@ -20,7 +19,7 @@ const abstractionJoins = (
   const root = tree[rootID]
   if (!root || root.primitives.length) return joins
   if (!parentNode || parentNode.type !== "ABSTRACTION" || root.type !== "ABSTRACTION")
-    return root.directChildren.reduce((joins, child) => abstractionJoins(tree, child, reduction, joins, rootID), joins)
+    return directChildren(root).reduce((joins, child) => abstractionJoins(tree, child, reduction, joins, rootID), joins)
   const parentJoin = joins[parentID]
   if (reduction) {
     const reductionAbs = reduction.abs
@@ -43,7 +42,7 @@ const applicationJoins = (tree: Tree, rootID: NodeID = "", joins: NodeJoins = {}
   const root = tree[rootID]
   if (!root || root.primitives.length) return joins
   if (!parentNode || parentNode.type !== "APPLICATION" || root.type !== "APPLICATION")
-    return root.directChildren.reduce((joins, child) => applicationJoins(tree, child, joins, rootID), joins)
+    return directChildren(root).reduce((joins, child) => applicationJoins(tree, child, joins, rootID), joins)
   const parentJoin = joins[parentID]
   const newJoins = {
     ...joins,

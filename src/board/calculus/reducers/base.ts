@@ -9,7 +9,10 @@ import {
   searchTree,
   reduceTree,
   NodeSubstitution,
-  PrimitiveSubstitution
+  PrimitiveSubstitution,
+  visibleChildren,
+  directChildren,
+  binder
 } from "board/state"
 import _ from "lodash"
 import { generateID } from "../util"
@@ -27,7 +30,7 @@ export const createReduction = (parentID: NodeID, tree: TreeState): ReductionSta
   if (!abs || !consumed || !tree.nodes[abs] || !tree.nodes[consumed]) return undefined
   const visibleParent = getVisibleParent(abs, tree)
   if (!visibleParent) return undefined
-  const child = tree.nodes[abs].children(tree.nodes)[0]
+  const child = visibleChildren(abs, tree.nodes)[0]
   const substitutions = createSubstitutions(abs, consumed, tree)
   return {
     type: REDUCTION_STAGES[0],
@@ -52,8 +55,12 @@ export const isRedex = (node: TreeNode, tree: Tree): boolean => {
   )
 }
 
-const getVisibleParent = (nodeID: NodeID, state: TreeState): NodeID | undefined => {
-  const parentID = searchTree(state.nodes, node => node.children(state.nodes).indexOf(nodeID) !== -1, state.root || "")
+const getVisibleParent = (childID: NodeID, state: TreeState): NodeID | undefined => {
+  const parentID = searchTree(
+    state.nodes,
+    (_node, nodeID) => visibleChildren(nodeID, state.nodes).indexOf(childID) !== -1,
+    state.root || ""
+  )
   return parentID
 }
 
@@ -82,14 +89,14 @@ const createPrimitiveSubstitution = (consumedID: NodeID, tree: Tree): PrimitiveS
 const createNodeSubstitution = (nodeID: NodeID, tree: Tree): NodeSubstitution => {
   const node = tree[nodeID]
   if (!node) return {}
-  return node.directChildren
+  return directChildren(node)
     .map(nodeID => createNodeSubstitution(nodeID, tree))
     .reduce((subs, sub) => ({ ...subs, ...sub }), { [nodeID]: generateID() })
 }
 
 const getRemoved = (binderID: NodeID, tree: TreeState): NodeID[] =>
   _.keys(
-    _.pickBy(tree.nodes, node => {
-      return node.type === "VARIABLE" && node.binder(tree) === binderID
+    _.pickBy(tree.nodes, (_node, nodeID) => {
+      return binder(tree, nodeID) === binderID
     })
   )

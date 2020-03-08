@@ -1,3 +1,4 @@
+import { createSelector } from "@reduxjs/toolkit"
 import {
   DimensionSettings,
   BoardState,
@@ -6,10 +7,11 @@ import {
   TreeState,
   ReductionStage,
   joinsSelector,
-  NodeJoins
+  NodeJoins,
+  visibleChildren,
+  directChildren
 } from "board/state"
 import _ from "lodash"
-import { createSelector } from "reselect"
 import { constructDimensions } from "./dimensions"
 import { Coords, CoordOffsets, NodeCoord, CoordOffset, NodeDimensions } from "./types"
 
@@ -89,7 +91,7 @@ const addOverrides = (
     coords
   )
   if (state.nodes[reduction.abs]) {
-    const newChildID = state.nodes[reduction.abs].directChildren[0]
+    const newChildID = directChildren(state.nodes[reduction.abs])[0]
     const newChild = newChildID ? state.nodes[newChildID] : undefined
     if (newChild && newChild.type === "APPLICATION" && coords[reduction.parentApplication]) {
       return {
@@ -106,7 +108,7 @@ const addOverrides = (
 const calculateCoordOffsets = (settings: DimensionSettings, joins: NodeJoins, state: TreeState): CoordOffsets => {
   const reductionOffsets = (reduction: ReductionStage) => {
     const xOffset = settings.widthMargin + settings.circleRadius
-    const afterConsumed = state.nodes[reduction.visibleParent].children(state.nodes)[2]
+    const afterConsumed = visibleChildren(reduction.visibleParent, state.nodes)[2]
     return {
       [reduction.consumed]: { x: -xOffset },
       ...(afterConsumed ? { [afterConsumed]: { x: xOffset } } : {})
@@ -146,7 +148,7 @@ const fillCoords = (
     )
     return root.primitives.length
       ? { [rootID]: coord }
-      : root.children(tree).reduce(
+      : visibleChildren(root, tree).reduce(
           (current, nodeID) => {
             const childCoord = fillCoords(nodeID, dimensions, tree, settings, offsets, current.baseX, baseY)
             if (!childCoord[nodeID]) return current

@@ -1,5 +1,6 @@
-import { ApplStyle, NodeID, DimensionSettings, NodeEvents, NodeStyle, NodeCoord } from "board/state"
-import { RawExprProps, ExprElementValues } from "./types"
+import { ApplStyle, NodeID, DimensionSettings, NodeStyle, NodeCoord } from "board/state"
+import _ from "lodash"
+import { RawExprProps, ExprElementValues, NodeEvents } from "./types"
 
 const applElements = (
   nodeID: NodeID,
@@ -51,14 +52,10 @@ const rawApplElements = (props: RawApplProps): ExprElementValues[] => {
         l${-props.heightMargin},${circleBuffer}
         l0,${bufferOffset + props.radius * 2}`
 
-  const staticProps = {
-    onClick: (e: any) => {
-      e.stopPropagation()
-      props.events.click(props.id)
-    },
-    onMouseOver: () => props.events.highlight(props.id),
-    onMouseLeave: () => props.events.clearHighlight(props.id)
-  }
+  const staticProps = _.mapValues(props.events, handler => (e: any) => {
+    e.stopPropagation()
+    handler(props.id)
+  })
   return [
     {
       type: "PATH",

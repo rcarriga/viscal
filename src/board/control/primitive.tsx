@@ -47,7 +47,7 @@ const PrimitiveModal = (props: { nodeID: NodeID; show: boolean; onClose: () => v
               className="button is-capitalized"
               onClick={() => {
                 if (props.nodeID && input) {
-                  dis(createPrimitive(input, generateID(), props.nodeID))
+                  dis(createPrimitive({ name: input, primID: generateID(), rootID: props.nodeID }))
                   dis(setSelected())
                 }
                 close()

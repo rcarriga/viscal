@@ -105,17 +105,17 @@ export const parseExpression = (
           return fillState(expr.expr, indices, nextID, { ...primitives, [primID]: { rootID: nextID, name: expr.name } })
         }
         case "VAR":
-          dis(addVariable(nextID, indices[expr.varName], expr.varName))
+          dis(addVariable({ nodeID: nextID, index: indices[expr.varName], name: expr.varName }))
           return primitives
         case "ABS": {
           const childID = generateID()
-          dis(addAbstraction(nextID, expr.varName, childID))
+          dis(addAbstraction({ nodeID: nextID, variableName: expr.varName, child: childID }))
           return fillState(expr.child, { ...incrementIndex(indices), [expr.varName]: 0 }, childID, primitives)
         }
         case "APPL": {
           const leftID = generateID()
           const rightID = generateID()
-          dis(addApplication(nextID, leftID, rightID))
+          dis(addApplication({ nodeID: nextID, left: leftID, right: rightID }))
           const leftPrims = fillState(expr.left, indices, leftID, primitives)
           return fillState(expr.right, indices, rightID, leftPrims)
         }
@@ -125,7 +125,7 @@ export const parseExpression = (
     }
     const rootID = generateID()
     const prims = fillState(parsed, {}, rootID)
-    _.forEach(prims, (prim, primID) => dis(createPrimitive(prim.name, primID, prim.rootID)))
+    _.forEach(prims, (prim, primID) => dis(createPrimitive({ name: prim.name, primID, rootID: prim.rootID })))
     dis(setRoot(rootID))
   } else {
     return res

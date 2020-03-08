@@ -1,5 +1,5 @@
 import { isString } from "../../util"
-import { Tree, TreeNode, NodeID } from "."
+import { Tree, TreeNode, NodeID, VarIndex, VarName, PrimitiveID, TreeState, REDUCTION_STAGES, parentsSelector } from "."
 /**
  * Depth first search through the tree for first node to pass a predicate.
  *
@@ -26,23 +26,6 @@ export const searchTree = (
     default:
       return undefined
   }
-}
-
-/**
- * Apply a function to nodes in a tree.
- * Function is applied in depth first order.
- *
- * @function mapTree
- * @param tree - Tree to map over
- * @param f - Function to apply to each node
- * @return Tree with mapped nodes
- */
-export const mapTree = <A>(
-  tree: Tree,
-  f: (node: TreeNode, nodeID: NodeID) => A,
-  rootID: NodeID
-): { [nodeID in NodeID]: A } => {
-  return reduceTree(tree, (tree, node, nodeID) => ({ ...tree, [nodeID]: f(node, nodeID) }), {}, rootID)
 }
 
 /**
@@ -92,3 +75,97 @@ export const reduceTree = <A>(
   }
 }
 
+export const traverseTree = (tree: Tree, f: (node: TreeNode, nodeID: NodeID) => void, rootID: NodeID) => {
+  return reduceTree(
+    tree,
+    (_, node, nodeID) => {
+      f(node, nodeID)
+      return undefined
+    },
+    undefined,
+    rootID
+  )
+}
+
+export const createVar = (index: VarIndex, name: VarName, primitives: PrimitiveID[] = []): TreeNode => ({
+  type: "VARIABLE",
+  index: index,
+  name: name,
+  primitives
+})
+
+export const createAbs = (variableName: VarName, child?: NodeID, primitives: PrimitiveID[] = []): TreeNode => ({
+  type: "ABSTRACTION",
+  variableName: variableName,
+  child: child,
+  primitives
+})
+
+export const createAppl = (left?: NodeID, right?: NodeID, primitives: PrimitiveID[] = []): TreeNode => ({
+  type: "APPLICATION",
+  left: left,
+  right: right,
+  primitives
+})
+
+export const setNextStage = (state: TreeState) => {
+  const prev = state.reduction
+  if (prev) {
+    const stage = REDUCTION_STAGES[REDUCTION_STAGES.indexOf(prev.type) + 1]
+    state.reduction = stage ? { ...prev, type: stage } : undefined
+  }
+}
+
+export const binder = (tree: TreeState, nodeID: NodeID): NodeID | undefined => {
+  const varNode = tree.nodes[nodeID]
+  if (varNode.type !== "VARIABLE") return undefined
+  return getBinder(tree, nodeID, varNode.index)
+}
+const getBinder = (tree: TreeState, nodeID: NodeID | undefined, index: VarIndex): NodeID | undefined => {
+  if (!nodeID || index === undefined) return undefined
+  const parents = parentsSelector(tree)
+  const node = getNode(nodeID, tree.nodes)
+  if (node.type === "ABSTRACTION") return index === 0 ? nodeID : getBinder(tree, parents[nodeID], index - 1)
+  else return parents[nodeID] ? getBinder(tree, parents[nodeID], index) : undefined
+}
+
+export const getNode = (nodeID: NodeID, tree: Tree): TreeNode => {
+  return tree[nodeID] || { type: "NULL", children: [] }
+}
+
+export const directChildren = (node: TreeNode): NodeID[] => {
+  switch (node.type) {
+    case "ABSTRACTION":
+      return node.child ? [node.child] : []
+    case "APPLICATION":
+      return [node.left, node.right].filter(isString)
+    default:
+      return []
+  }
+}
+export const visibleChildren = (nodeID: NodeID | TreeNode, tree: Tree): NodeID[] => {
+  const node = typeof nodeID === "object" ? nodeID : getNode(nodeID, tree)
+  const left = directChildren(node)[0] ? getNode(directChildren(node)[0], tree) : undefined
+  if (left && left.type === "APPLICATION") {
+    return [...visibleChildren(directChildren(node)[0], tree), ...directChildren(node).slice(1)]
+  }
+  return directChildren(node)
+}
+
+export const indexFrom = (tree: Tree, goalID: NodeID, rootID: NodeID | undefined, index = 0): VarIndex => {
+  if (!rootID) return undefined
+  const node = tree[rootID]
+  if (!node) return undefined
+  switch (node.type) {
+    case "VARIABLE":
+      return rootID === goalID ? index : undefined
+    case "ABSTRACTION":
+      return indexFrom(tree, goalID, node.child, index)
+    case "APPLICATION": {
+      const left = indexFrom(tree, goalID, node.left, index)
+      return left === undefined ? indexFrom(tree, goalID, node.right, index) : left
+    }
+    default:
+      return undefined
+  }
+}
