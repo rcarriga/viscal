@@ -1,91 +1,73 @@
-import { VisualAction } from "./actions"
-import { VisualState, initialVisualState } from "./types"
+import { createSlice, PayloadAction } from "@reduxjs/toolkit"
+import { NodeID } from "board/state/tree"
+import {
+  VisualState,
+  initialVisualState,
+  NodeEvent,
+  EventHandler,
+  DimensionSetting,
+  Layout,
+  AnimationMode,
+  AnimationSettings,
+  AnimationSetting
+} from "./types"
 
-export const visual = (state = initialVisualState, action: VisualAction): VisualState => {
-  switch (action.type) {
-    case "SET_SELECTED":
-      return {
-        ...state,
-        selected: action.nodeID
-      }
-    case "SET_HIGHLIGHTED":
-      return {
-        ...state,
-        highlighted: action.variableName
-      }
-    case "SET_EVENT":
-      return {
-        ...state,
-        events: {
-          ...state.events,
-          [action.event]: action.handler
-        }
-      }
-    case "SET_TREE_LAYOUT":
-      return {
-        ...state,
-        treeLayout: {
-          ...state.treeLayout,
-          [action.parameter]: action.value
-        }
-      }
-    case "ADJUST_TREE_LAYOUT":
-      return {
-        ...state,
-        treeLayout: {
-          ...state.treeLayout,
-          [action.parameter]: state.treeLayout[action.parameter] + action.value
-        }
-      }
-    case "SET_NODE_DIMENSION":
-      return {
-        ...state,
-        dimensions: {
-          ...state.dimensions,
-          [action.dimension]: action.value
-        }
-      }
-    case "SET_EXPRESSION":
-      return {
-        ...state,
-        expression: action.expr
-      }
-    case "SET_MODE":
-      return {
-        ...state,
-        animation: {
-          ...state.animation,
-          mode: action.mode
-        }
-      }
-    case "SET_ANIMATION_SETTING":
-      return {
-        ...state,
-        animation: {
-          ...state.animation,
-          settings: {
-            ...state.animation.settings,
-            [action.setting]: action.value
-          }
-        }
-      }
-    case "SET_ANIMATION_ENABLED":
-      return {
-        ...state,
-        animation: {
-          ...state.animation,
-          enabled: action.value
-        }
-      }
-    case "UPDATE_DIMENSIONS":
-      return {
-        ...state,
-        dimensions: {
-          ...state.dimensions,
-          ...action.dimensions
-        }
-      }
-    default:
-      return state
+const visualSlice = createSlice({
+  name: "visual",
+  initialState: initialVisualState as VisualState,
+  reducers: {
+    setSelected: (state, action: PayloadAction<NodeID | undefined>) => {
+      state.selected = action.payload
+    },
+    setHighlighted: (state, action: PayloadAction<NodeID | undefined>) => {
+      state.highlighted = action.payload
+    },
+    setEvent: (state, action: PayloadAction<{ event: NodeEvent; handler?: EventHandler }>) => {
+      const { event, handler } = action.payload
+      state.events[event] = handler || (() => {})
+    },
+    setDimension: (state, action: PayloadAction<{ dimension: DimensionSetting; value: number }>) => {
+      const { dimension, value } = action.payload
+      state.dimensions[dimension] = value
+    },
+    setLayout: (state, action: PayloadAction<{ parameter: Layout; value: number }>) => {
+      const { parameter, value } = action.payload
+      state.treeLayout[parameter] = value
+    },
+    adjustLayout: (state, action: PayloadAction<{ parameter: Layout; value: number }>) => {
+      const { parameter, value } = action.payload
+      state.treeLayout[parameter] += value
+    },
+    setMode: (state, action: PayloadAction<AnimationMode>) => {
+      state.animation.mode = action.payload
+    },
+    setAnimationSetting: <A extends AnimationSettings, K extends AnimationSetting>(
+      state: VisualState,
+      action: PayloadAction<{ setting: K; value: A[K] }>
+    ) => {
+      const { setting, value } = action.payload
+      state.animation.settings[setting] = value
+    },
+    setAnimationEnabled: (state, action: PayloadAction<boolean>) => {
+      state.animation.enabled = action.payload
+    },
+    updateDimensions: (state, action: PayloadAction<{ [dimension in DimensionSetting]: number }>) => {
+      state.dimensions = { ...state.dimensions, ...action.payload }
+    }
   }
-}
+})
+
+export default visualSlice
+
+export const {
+  setSelected,
+  setHighlighted,
+  setEvent,
+  setDimension,
+  setLayout,
+  adjustLayout,
+  setMode,
+  setAnimationSetting,
+  setAnimationEnabled,
+  updateDimensions
+} = visualSlice.actions

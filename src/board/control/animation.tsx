@@ -9,7 +9,7 @@ const AnimationControl = () => {
     <div>
       <div className="menu-label">Speed</div>
       <Slider
-        onChange={(newValue: number) => dis(setAnimationSetting("tension", newValue))}
+        onChange={(value: number) => dis(setAnimationSetting({ setting: "tension", value }))}
         min={50}
         max={500}
         value={settings.tension || 100}

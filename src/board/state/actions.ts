@@ -1,4 +1,4 @@
 import { TreeAction } from "./tree/actions"
-import { VisualAction } from "./visual/actions"
+import visualSlice from "./visual/reducers"
 
-export type BoardAction = TreeAction | VisualAction
+export type BoardAction = TreeAction | keyof typeof visualSlice.actions

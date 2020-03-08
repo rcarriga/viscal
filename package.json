@@ -6,6 +6,7 @@
   "dependencies": {
     "@material-ui/core": "^4.9.5",
     "@material-ui/icons": "^4.9.1",
+    "@reduxjs/toolkit": "^1.2.5",
     "@types/parsimmon": "^1.10.1",
     "@types/randomcolor": "^0.5.3",
     "babel": "^6.23.0",

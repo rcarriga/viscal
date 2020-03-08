@@ -31,8 +31,8 @@ const BoardContent = () => {
       }}
       onWheel={e => {
         dis(setAnimationEnabled(false))
-        if (e.deltaX) dis(adjustLayout("startX", e.deltaX * -10))
-        else dis(adjustLayout("startX", e.deltaY * 10))
+        if (e.deltaX) dis(adjustLayout({ parameter: "startX", value: e.deltaX * -10 }))
+        else dis(adjustLayout({ parameter: "startX", value: e.deltaY * 10 }))
         dis(setAnimationEnabled(true))
       }}
     >
@@ -55,19 +55,28 @@ const usePopTree = (dis: any) => {
     if (!used) {
       setUsed(true)
       dis(
-        setEvent("click", nodeID => {
-          dis(setSelected(nodeID))
+        setEvent({
+          event: "click",
+          handler: nodeID => {
+            dis(setSelected(nodeID))
+          }
         })
       )
       dis(
-        setEvent("select", nodeID => {
-          dis(setSelected(nodeID))
+        setEvent({
+          event: "select",
+          handler: nodeID => {
+            dis(setSelected(nodeID))
+          }
         })
       )
-      dis(setEvent("highlight", nodeID => dis(setHighlighted(nodeID))))
+      dis(setEvent({ event: "highlight", handler: nodeID => dis(setHighlighted(nodeID)) }))
       dis(
-        setEvent("clearHighlight", () => {
-          dis(setHighlighted(undefined))
+        setEvent({
+          event: "clearHighlight",
+          handler: () => {
+            dis(setHighlighted(undefined))
+          }
         })
       )
     }
