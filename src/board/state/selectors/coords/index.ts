@@ -1,3 +1,4 @@
+import { createSelector } from "@reduxjs/toolkit"
 import {
   DimensionSettings,
   BoardState,
@@ -11,7 +12,6 @@ import {
   directChildren
 } from "board/state"
 import _ from "lodash"
-import { createSelector } from "reselect"
 import { constructDimensions } from "./dimensions"
 import { Coords, CoordOffsets, NodeCoord, CoordOffset, NodeDimensions } from "./types"
 

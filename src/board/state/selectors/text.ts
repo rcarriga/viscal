@@ -1,6 +1,6 @@
+import { createSelector } from "@reduxjs/toolkit"
 import { BoardState, Tree, NodeID, NodeJoins, joinsSelector, visibleChildren } from "board/state"
 import _ from "lodash"
-import { createSelector } from "reselect"
 
 const stringifyTree = (tree: Tree, rootID: NodeID, joins: NodeJoins): string => {
   const furthestJoins = _.reduce(

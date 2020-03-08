@@ -1,7 +1,7 @@
+import { createSelector } from "@reduxjs/toolkit"
 import { reduceTree, Tree, PrimitiveID, binder, directChildren } from "board/state/tree"
 import _ from "lodash"
 import randomcolor from "randomcolor"
-import { createSelector } from "reselect"
 import { AnimationSettings } from "../visual"
 import { BoardState, NodeID, TreeState, Color, Theme, DimensionSettings, TreeNode, ReductionStage } from ".."
 
