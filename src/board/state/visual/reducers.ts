@@ -4,7 +4,6 @@ import {
   VisualState,
   initialVisualState,
   DimensionSetting,
-  Layout,
   AnimationMode,
   AnimationSettings,
   AnimationSetting
@@ -23,14 +22,6 @@ const visualSlice = createSlice({
     setDimension: (state, action: PayloadAction<{ dimension: DimensionSetting; value: number }>) => {
       const { dimension, value } = action.payload
       state.dimensions[dimension] = value
-    },
-    setLayout: (state, action: PayloadAction<{ parameter: Layout; value: number }>) => {
-      const { parameter, value } = action.payload
-      state.treeLayout[parameter] = value
-    },
-    adjustLayout: (state, action: PayloadAction<{ parameter: Layout; value: number }>) => {
-      const { parameter, value } = action.payload
-      state.treeLayout[parameter] += value
     },
     setMode: (state, action: PayloadAction<AnimationMode>) => {
       state.animation.mode = action.payload
@@ -57,8 +48,6 @@ export const {
   setSelected,
   setHighlighted,
   setDimension,
-  setLayout,
-  adjustLayout,
   setMode,
   setAnimationSetting,
   setAnimationEnabled,

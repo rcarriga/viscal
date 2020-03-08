@@ -1,14 +1,5 @@
 import primElements from "board/content/graph/elements/primitive"
-import {
-  useAnimationSettings,
-  useStyles,
-  useLayout,
-  useTree,
-  useDimensions,
-  usePrimitives,
-  useCoords,
-  NodeID
-} from "board/state"
+import { useAnimationSettings, useStyles, useTree, useDimensions, usePrimitives, useCoords, NodeID } from "board/state"
 import React from "react"
 import { useSpring, animated, AnimatedValue } from "react-spring"
 import absElements from "./abstraction"
@@ -27,13 +18,12 @@ export interface ExprElementsProps {
 
 const ExprElements = (props: ExprElementsProps) => {
   const styles = useStyles()
-  const layout = useLayout()
   const tree = useTree()
   const dimensions = useDimensions()
   const primitives = usePrimitives()
   const coords = useCoords()
   const values = props.orderedKeys.flatMap(nodeID => {
-    const coord = { ...coords[nodeID], x: coords[nodeID].x + layout.startX, y: coords[nodeID].y + layout.startY }
+    const coord = coords[nodeID]
     const node = tree[nodeID]
     if (node.primitives.length) {
       const primitive = primitives[node.primitives[node.primitives.length - 1]]
@@ -107,14 +97,15 @@ export const Motion = (props: {
   onStart?: (name: string) => void
   children: (values: AnimatedValue<any>) => any
 }) => {
+  const { name, values, onRest, onStart, children } = props
   const config = useAnimationSettings()
   const motionVals = useSpring({
-    to: props.values,
-    onRest: () => props.onRest && props.onRest(props.name),
-    onStart: () => props.onStart && props.onStart(props.name),
+    to: values,
+    onRest: () => onRest && onRest(name),
+    onStart: () => onStart && onStart(name),
     config
   })
-  return props.children(motionVals)
+  return children(motionVals)
 }
 
 // const useAnimatedProps = function(

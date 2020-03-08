@@ -27,8 +27,6 @@ export const useConstants = () => useSelector(state => state.tree.present.consta
 
 export const useVisualState = () => useSelector(state => state.visual)
 
-export const useLayout = () => useSelector(state => state.visual.treeLayout)
-
 export const useDimensions = () => useSelector(state => state.visual.dimensions)
 
 export const useTheme = () => useSelector(state => state.visual.theme)
@@ -56,8 +54,4 @@ export const useAnimationSettings = () => useSelector(state => state.visual.anim
 
 export const useAnimationEnabled = () => useSelector(state => state.visual.animation.enabled)
 
-export const useCoord = (nodeID: NodeID): NodeCoord | undefined => {
-  const baseCoord = useCoords()[nodeID]
-  const layout = useLayout()
-  return baseCoord ? { ...baseCoord, x: baseCoord.x + layout.startX, y: baseCoord.y + layout.startY } : undefined
-}
+export const useCoord = (nodeID: NodeID): NodeCoord | undefined => useCoords()[nodeID]

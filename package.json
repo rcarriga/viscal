@@ -7,6 +7,7 @@
     "@material-ui/core": "^4.9.5",
     "@material-ui/icons": "^4.9.1",
     "@reduxjs/toolkit": "^1.2.5",
+    "@rehooks/component-size": "^1.0.3",
     "@types/parsimmon": "^1.10.1",
     "@types/randomcolor": "^0.5.3",
     "babel": "^6.23.0",
@@ -28,6 +29,7 @@
     "redux-thunk": "^2.3.0",
     "redux-undo": "^1.0.0",
     "reselect": "^4.0.0",
+    "svg-pan-zoom": "^3.6.1",
     "typescript": "^3.8.3"
   },
   "scripts": {

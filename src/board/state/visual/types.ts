@@ -32,15 +32,6 @@ export type DimensionSettings = typeof defaultDimensions
 
 export type DimensionSetting = keyof DimensionSettings
 
-const defaultTreeLayout = {
-  startX: 100,
-  startY: 400
-}
-
-export type TreeLayout = typeof defaultTreeLayout
-
-export type Layout = keyof TreeLayout
-
 export type EventHandler = (nodeID: NodeID) => void
 
 export type AnimationSetting = keyof AnimationSettings
@@ -70,7 +61,6 @@ export interface VisualState {
   highlighted?: NodeID
   theme: Theme
   dimensions: DimensionSettings
-  treeLayout: TreeLayout
   animation: AnimationState
 }
 
@@ -78,6 +68,5 @@ export const initialVisualState: VisualState = {
   expression: "",
   theme: defaultTheme,
   dimensions: defaultDimensions,
-  treeLayout: defaultTreeLayout,
   animation: defaultAnimationState
 }
