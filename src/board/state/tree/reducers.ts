@@ -1,6 +1,6 @@
+import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 import { isString } from "board/util"
 import _ from "lodash"
-import { BoardAction } from "../actions"
 import { parentsSelector } from "./selectors"
 import {
   VarIndex,
@@ -12,213 +12,217 @@ import {
   VarName,
   NodeID,
   REDUCTION_STAGES,
-  PrimitiveID
+  PrimitiveID,
+  LambdaReducerID
 } from "./types"
-import { reduceTree, partialMapTree } from "./util"
+import { traverseTree, partialMapTree } from "./util"
 
-export const tree = (state = initialTreeState, action: BoardAction): TreeState => {
-  switch (action.type) {
-    case "CLEAR_TREE":
-      return { root: "", nodes: {}, primitives: {}, constants: state.constants }
-    case "SET_ROOT":
-      return { ...state, root: action.nodeID }
-    case "SET_REDUCER":
-      return { ...state, reducer: action.reducerID }
-    case "ADD_VARIABLE":
-      return addNode(state, action.nodeID, createVar(action.nodeID, action.index, action.name))
-    case "ADD_ABSTRACTION":
-      return addNode(state, action.nodeID, createAbs(action.nodeID, action.variableName, action.child))
-    case "ADD_APPLICATION":
-      return addNode(state, action.nodeID, createAppl(action.nodeID, action.left, action.right))
-    case "QUEUE_REDUCTION": {
-      if (action.reduction) {
-        const deconstructPrimitives = _.reduce(
-          action.reduction.substitutions,
-          (newState, sub, replacedID) => {
-            const primitivesRemoved = state.nodes[replacedID].primitives.reduce(
-              (newState, primID) => removePrimitive(newState, primID),
-              newState
-            )
-            return _.reduce(
-              sub.primitives,
-              (newState, newID, oldID) => {
-                const oldPrim = newState.primitives[oldID]
-                return addPrimitive(newState, newID, sub.nodes[oldPrim.rootID], oldPrim.name)
-              },
-              primitivesRemoved
-            )
-          },
-          state
-        )
-        const withReduction: TreeState = {
-          ...deconstructPrimitives,
-          reduction: action.reduction
-        }
-        return { ...withReduction, nodes: addReplacementNodes(action.reduction, deconstructPrimitives.nodes) }
+const treeSlice = createSlice({
+  name: "tree",
+  initialState: initialTreeState as TreeState,
+  reducers: {
+    clearTree: state => ({ root: "", nodes: {}, primitives: {}, constants: state.constants }),
+    setRoot: (state, action: PayloadAction<NodeID>) => {
+      state.root = action.payload
+    },
+    addVariable: (state, action: PayloadAction<{ nodeID: NodeID; index: VarIndex; name: VarName }>) => {
+      const { nodeID, index, name } = action.payload
+      const varNode = createVar(nodeID, index, name)
+      state.nodes[nodeID] = varNode
+    },
+    addAbstraction: (state, action: PayloadAction<{ nodeID: NodeID; variableName: VarName; child?: NodeID }>) => {
+      const { nodeID, variableName, child } = action.payload
+      const absNode = createAbs(nodeID, variableName, child)
+      state.nodes[nodeID] = absNode
+    },
+    addApplication: (state, action: PayloadAction<{ nodeID: NodeID; left?: NodeID; right?: NodeID }>) => {
+      const { nodeID, left, right } = action.payload
+      const absNode = createAppl(nodeID, left, right)
+      state.nodes[nodeID] = absNode
+    },
+    queueReduction: (state, action: PayloadAction<ReductionStage | undefined>) => {
+      const reduction = action.payload
+      if (reduction) {
+        removeReductionPrimitives(state, reduction)
+        addReductionPrimitives(state, reduction)
+        addReplacementNodes(reduction, state.nodes)
+        state.reduction = reduction
       }
-      return state
-    }
-    case "NEXT_REDUCTION_STAGE":
+    },
+    nextReductionStage: state => {
       if (state.reduction) {
-        const stage = getNextStage(state.reduction)
-        if (!stage) return { ...state, reduction: undefined }
-        switch (stage.type) {
-          case "SUBSTITUTE":
-            return replaceNodes(state.reduction, { ...state, reduction: stage })
-          case "REMOVE":
-            return removeReduced(state, stage)
-          default:
-            return {
-              ...state,
-              reduction: stage
-            }
+        setNextStage(state)
+        if (state.reduction) {
+          if (state.reduction.type === "SUBSTITUTE") replaceVars(state.reduction, state)
+          else if (state.reduction.type === "REMOVE") removeReduced(state)
         }
       }
-      return state
-    case "CREATE_PRIMITIVE": {
-      return addPrimitive(state, action.primID, action.nodeID, action.name)
+    },
+    setConstant: (state, action: PayloadAction<{ name: string; text: string }>) => {
+      const { name, text } = action.payload
+      state.constants[name] = text
+    },
+    setReducer: (state, action: PayloadAction<LambdaReducerID>) => {
+      state.reducer = action.payload
+    },
+    createPrimitive: (state, action: PayloadAction<{ name: string; primID: PrimitiveID; rootID: NodeID }>) => {
+      const { name, primID, rootID } = action.payload
+      addPrimitive(state, primID, rootID, name)
+    },
+    destructurePrimitive: (state, action: PayloadAction<PrimitiveID>) => {
+      removePrimitive(state, action.payload)
     }
-    case "REMOVE_PRIMITIVE": {
-      return removePrimitive(state, action.primID)
-    }
-    default:
-      return state
-  }
-}
-
-const addPrimitive = (state: TreeState, primID: PrimitiveID, rootID: NodeID, name: string): TreeState => ({
-  ...state,
-  primitives: { ...state.primitives, [primID]: { name, rootID } },
-  nodes: {
-    ...state.nodes,
-    ...partialMapTree(state.nodes, node => ({ ...node, primitives: [...node.primitives, primID] }), rootID)
   }
 })
 
-const removePrimitive = (state: TreeState, primitiveID: PrimitiveID): TreeState => {
-  const primitive = state.primitives[primitiveID]
-  if (!primitive) return state
-  return {
-    ...state,
-    primitives: _.omit(state.primitives, primitiveID),
-    nodes: {
-      ...state.nodes,
-      ...partialMapTree(
-        state.nodes,
-        node => ({ ...node, primitives: node.primitives.filter(primID => primID !== primitiveID) }),
-        primitive.rootID
-      )
-    }
-  }
-}
+export default treeSlice
 
-const removeReduced = (state: TreeState, reduction: ReductionStage): TreeState => {
-  const newChild = state.nodes[reduction.abs].directChildren[0]
-  const replaceRoot = state.root === reduction.parentApplication
-  const replaceFrom = reduction.visibleParent === reduction.parentApplication ? state.root : reduction.visibleParent
-  const childReplaced = replaceChild(reduction.parentApplication, newChild, replaceFrom, state.nodes)
-  const newTree = _.omit(childReplaced, [...Object.keys(reduction.substitutions), reduction.abs, reduction.consumed])
-  const boundOutsideAbs = new Set(getBoundOutside(state.nodes, reduction.abs))
-  const newNodes = new Set(_.flatMap(reduction.substitutions, sub => _.values(sub.nodes)))
-  const absChildOffsetSubtracted = partialMapTree(
-    newTree,
-    (node, nodeID) => {
-      switch (node.type) {
-        case "VARIABLE":
-          return newNodes.has(nodeID)
-            ? node
-            : createVar(
-                nodeID,
-                node.index !== undefined ? node.index - (boundOutsideAbs.has(nodeID) ? 1 : 0) : undefined,
-                node.name,
-                node.primitives
-              )
-        default:
-          return node
-      }
-    },
-    newChild
+export const {
+  clearTree,
+  setRoot,
+  addVariable,
+  addAbstraction,
+  addApplication,
+  queueReduction,
+  nextReductionStage,
+  setConstant,
+  setReducer,
+  createPrimitive,
+  destructurePrimitive
+} = treeSlice.actions
+
+const removeReductionPrimitives = (state: TreeState, reduction: ReductionStage) =>
+  _.uniq(_.keys(reduction.substitutions).flatMap(replacedID => state.nodes[replacedID].primitives)).forEach(primID =>
+    removePrimitive(state, primID)
   )
 
-  return {
-    ...state,
-    reduction: reduction,
-    root: replaceRoot ? newChild : state.root,
-    nodes: { ...newTree, ...absChildOffsetSubtracted }
+const addReductionPrimitives = (state: TreeState, reduction: ReductionStage) => {
+  _.forEach(reduction.substitutions, sub =>
+    _.forEach(sub.primitives, (newID, oldID) => {
+      const oldPrim = state.primitives[oldID]
+      addPrimitive(state, newID, sub.nodes[oldPrim.rootID], oldPrim.name)
+    })
+  )
+}
+
+const addPrimitive = (state: TreeState, primID: PrimitiveID, rootID: NodeID, name: string) => {
+  state.primitives[primID] = { name, rootID }
+  state.nodes = {
+    ...state.nodes,
+    ...partialMapTree(state.nodes, node => ({ ...node, primitives: [...node.primitives, primID] }), rootID)
   }
 }
 
-const addReplacementNodes = (reduction: ReductionStage, tree: Tree): Tree =>
-  _.reduce(
-    reduction.substitutions,
-    (tree, substitution, toReplace) => {
-      const calcOffset = (offset: number, nodeID?: NodeID): VarIndex => {
-        if (!nodeID) return undefined
-        const node = tree[nodeID]
-        if (!node) return undefined
+const removePrimitive = (state: TreeState, primitiveID: PrimitiveID) => {
+  const primitive = state.primitives[primitiveID]
+  if (primitive) {
+    debugger
+    delete state.primitives[primitiveID]
+    traverseTree(
+      state.nodes,
+      node => {
+        _.remove(node.primitives, primID => primID === primitiveID)
+      },
+      primitive.rootID
+    )
+  }
+}
+
+const removeReduced = (state: TreeState) => {
+  const reduction = state.reduction
+  if (reduction) {
+    const newChild = state.nodes[reduction.abs].directChildren[0]
+    const replaceRoot = state.root === reduction.parentApplication
+    const replaceFrom = reduction.visibleParent === reduction.parentApplication ? state.root : reduction.visibleParent
+    replaceChild(reduction.parentApplication, newChild, replaceFrom, state.nodes)
+    const toRemove = [..._.keys(reduction.substitutions), reduction.abs, reduction.consumed]
+    toRemove.forEach(nodeID => _.unset(state.nodes, nodeID))
+    const boundOutsideAbs = new Set(getBoundOutside(state.nodes, reduction.abs))
+    const newNodes = new Set(_.flatMap(reduction.substitutions, sub => _.values(sub.nodes)))
+    traverseTree(
+      state.nodes,
+      (node, nodeID) => {
         switch (node.type) {
           case "VARIABLE":
-            return nodeID === toReplace ? offset : undefined
-          case "ABSTRACTION":
-            return node.child ? calcOffset(offset + 1, node.child) : undefined
+            state.nodes[nodeID] = newNodes.has(nodeID)
+              ? node
+              : createVar(
+                  nodeID,
+                  node.index !== undefined ? node.index - (boundOutsideAbs.has(nodeID) ? 1 : 0) : undefined,
+                  node.name,
+                  node.primitives
+                )
+            break
+          default:
+        }
+      },
+      newChild
+    )
+    if (replaceRoot) state.root = newChild
+  }
+}
+
+const indexFrom = (tree: Tree, goalID: NodeID, rootID: NodeID | undefined, index = 0): VarIndex => {
+  if (!rootID) return undefined
+  const node = tree[rootID]
+  if (!node) return undefined
+  switch (node.type) {
+    case "VARIABLE":
+      return rootID === goalID ? index : undefined
+    case "ABSTRACTION":
+      return indexFrom(tree, goalID, node.child, index)
+    case "APPLICATION": {
+      const left = indexFrom(tree, goalID, node.left, index)
+      return left === undefined ? indexFrom(tree, goalID, node.right, index) : left
+    }
+    default:
+      return undefined
+  }
+}
+
+const addReplacementNodes = (reduction: ReductionStage, tree: Tree) =>
+  _.forEach(reduction.substitutions, (substitution, toReplace) => {
+    const indexOffset = indexFrom(tree, toReplace, reduction.child) || 0
+
+    const getNodeSub = (nodeID: NodeID) => substitution.nodes[nodeID] || nodeID
+    const getPrimSub = (primID: PrimitiveID) => substitution.primitives[primID] || primID
+    const boundOutsideConsumed = new Set(getBoundOutside(tree, reduction.consumed))
+
+    traverseTree(
+      tree,
+      (node, nodeID) => {
+        const subID = getNodeSub(nodeID)
+        switch (node.type) {
+          case "VARIABLE": {
+            tree[subID] = createVar(
+              subID,
+              node.index !== undefined ? node.index + (boundOutsideConsumed.has(nodeID) ? indexOffset : 0) : undefined,
+              node.name,
+              node.primitives.map(getPrimSub)
+            )
+            break
+          }
+          case "ABSTRACTION": {
+            tree[subID] = createAbs(
+              subID,
+              node.variableName,
+              node.child ? getNodeSub(node.child) : node.child,
+              node.primitives.map(getPrimSub)
+            )
+            break
+          }
           case "APPLICATION": {
-            const left = calcOffset(offset, node.left)
-            return typeof left === "number" ? left : calcOffset(offset, node.right)
+            const newLeft = node.left ? getNodeSub(node.left) : node.left
+            const newRight = node.right ? getNodeSub(node.right) : node.right
+            tree[subID] = createAppl(subID, newLeft, newRight, node.primitives.map(getPrimSub))
+            break
           }
           default:
-            return undefined
         }
-      }
-
-      const indexOffset = calcOffset(0, reduction.child) || 0
-
-      const getNodeSub = (nodeID: NodeID) => substitution.nodes[nodeID] || nodeID
-      const getPrimSub = (primID: PrimitiveID) => substitution.primitives[primID] || primID
-      const boundOutsideConsumed = new Set(getBoundOutside(tree, reduction.consumed))
-
-      const consumedOffsetAdded = reduceTree(
-        tree,
-        (tree, node, nodeID) => {
-          const updated = () => {
-            switch (node.type) {
-              case "VARIABLE":
-                return createVar(
-                  getNodeSub(nodeID),
-                  node.index !== undefined
-                    ? node.index + (boundOutsideConsumed.has(nodeID) ? indexOffset : 0)
-                    : undefined,
-                  node.name,
-                  node.primitives.map(getPrimSub)
-                )
-              case "ABSTRACTION":
-                return createAbs(
-                  getNodeSub(nodeID),
-                  node.variableName,
-                  node.child ? getNodeSub(node.child) : node.child,
-                  node.primitives.map(getPrimSub)
-                )
-              case "APPLICATION": {
-                const newLeft = node.left ? getNodeSub(node.left) : node.left
-                const newRight = node.right ? getNodeSub(node.right) : node.right
-                return createAppl(getNodeSub(nodeID), newLeft, newRight, node.primitives.map(getPrimSub))
-              }
-              default:
-                return node
-            }
-          }
-          return {
-            ...tree,
-            [getNodeSub(nodeID)]: updated()
-          }
-        },
-        {},
-        reduction.consumed
-      )
-
-      return { ...tree, ...consumedOffsetAdded }
-    },
-    tree
-  )
+      },
+      reduction.consumed
+    )
+  })
 
 const getBoundOutside = (tree: Tree, rootID: NodeID, abstractions = 0): NodeID[] => {
   const root = tree[rootID]
@@ -236,36 +240,29 @@ const getBoundOutside = (tree: Tree, rootID: NodeID, abstractions = 0): NodeID[]
   }
 }
 
-const replaceNodes = (reduction: ReductionStage, state: TreeState): TreeState => {
-  const root = state.root
-  return {
-    ...state,
-    nodes: _.reduce(
-      reduction.substitutions,
-      (tree: Tree, sub, toReplace: NodeID) =>
-        replaceChild(toReplace, sub.nodes[reduction.consumed] || reduction.consumed, root, tree),
-      state.nodes
-    )
-  }
+const replaceVars = (reduction: ReductionStage, state: TreeState) => {
+  _.forEach(reduction.substitutions || {}, (sub, toReplace: NodeID) =>
+    replaceChild(toReplace, sub.nodes[reduction.consumed] || reduction.consumed, state.root, state.nodes)
+  )
 }
 
-const replaceChild = (oldChild: NodeID, newChild: NodeID, rootID: NodeID, tree: Tree): Tree => {
-  return partialMapTree(
+const replaceChild = (oldChild: NodeID, newChild: NodeID, rootID: NodeID, tree: Tree) => {
+  traverseTree(
     tree,
     (node, nodeID) => {
       switch (node.type) {
-        case "VARIABLE":
-          return node
         case "ABSTRACTION":
-          return node.child === oldChild ? createAbs(nodeID, node.variableName, newChild) : node
+          if (node.child === oldChild) tree[nodeID] = createAbs(nodeID, node.variableName, newChild)
+          break
         case "APPLICATION":
-          return node.left === oldChild
-            ? createAppl(nodeID, newChild, node.right)
-            : node.right === oldChild
-            ? createAppl(nodeID, node.left, newChild)
-            : node
+          tree[nodeID] =
+            node.left === oldChild
+              ? createAppl(nodeID, newChild, node.right)
+              : node.right === oldChild
+              ? createAppl(nodeID, node.left, newChild)
+              : node
+          break
         default:
-          return node
       }
     },
     rootID
@@ -305,19 +302,12 @@ const createAppl = (nodeID: NodeID, left?: NodeID, right?: NodeID, primitives: P
   children: tree => getChildren(nodeID, tree)
 })
 
-const addNode = (state: TreeState, nodeID: NodeID, expr: TreeNode): TreeState => {
-  return {
-    ...state,
-    nodes: {
-      ...state.nodes,
-      [nodeID]: expr
-    }
+const setNextStage = (state: TreeState) => {
+  const prev = state.reduction
+  if (prev) {
+    const stage = REDUCTION_STAGES[REDUCTION_STAGES.indexOf(prev.type) + 1]
+    state.reduction = stage ? { ...prev, type: stage } : undefined
   }
-}
-
-const getNextStage = (reduction: ReductionStage): ReductionStage | undefined => {
-  const stage = REDUCTION_STAGES[REDUCTION_STAGES.indexOf(reduction.type) + 1]
-  return stage ? { ...reduction, type: stage } : undefined
 }
 
 const getBinder = (

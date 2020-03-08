@@ -1,6 +1,6 @@
 import { textTreeSelector } from "board/state/selectors/text"
-import { useSelector as _useSelector, TypedUseSelectorHook, useDispatch as _useDispatch } from "react-redux"
-import { BoardState, coordsSelector, stylesSelector, BoardAction, NodeID, NodeStyle, NodeCoord, joinsSelector } from "."
+import { useSelector as _useSelector, TypedUseSelectorHook } from "react-redux"
+import { BoardState, coordsSelector, stylesSelector, NodeID, NodeStyle, NodeCoord, joinsSelector } from "."
 
 const useSelector: TypedUseSelectorHook<BoardState> = _useSelector
 
@@ -63,4 +63,3 @@ export const useCoord = (nodeID: NodeID): NodeCoord | undefined => {
   const layout = useLayout()
   return baseCoord ? { ...baseCoord, x: baseCoord.x + layout.startX, y: baseCoord.y + layout.startY } : undefined
 }
-

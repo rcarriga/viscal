@@ -9,7 +9,7 @@ import {
   useTextTree,
   NodeID,
   useDispatch,
-  removePrimitive,
+  destructurePrimitive,
   usePrimitives,
   TreeNode
 } from "board/state"
@@ -137,7 +137,7 @@ const RemovePrimitive = ({ node }: { node: TreeNode }) => {
   return primitive ? (
     <div>
       <div className="dropdown-divider" />
-      <div className="button" onClick={() => dis(removePrimitive(primID))}>
+      <div className="button" onClick={() => dis(destructurePrimitive(primID))}>
         Destructure Primitive
       </div>
     </div>

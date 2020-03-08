@@ -1,15 +1,16 @@
 import { combineReducers } from "redux"
 import undoable, { includeAction } from "redux-undo"
-import { TreeAction } from "./tree/actions"
-import { tree } from "./tree/reducers"
+import treeSlice from "./tree/reducers"
 import visualSlice from "./visual/reducers"
 
-const include = (actions: TreeAction["type"][]) => includeAction(actions)
+type TreeAction = keyof typeof treeSlice.actions
+
+const include = (actions: TreeAction[]) => includeAction(actions)
 
 const board = combineReducers({
-  tree: undoable(tree, {
+  tree: undoable(treeSlice.reducer, {
     ignoreInitialState: true,
-    filter: include(["SET_ROOT", "QUEUE_REDUCTION", "NEXT_REDUCTION_STAGE"])
+    filter: include(["setRoot", "queueReduction", "nextReductionStage"])
   }),
   visual: visualSlice.reducer
 })

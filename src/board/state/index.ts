@@ -8,7 +8,6 @@ export * from "./visual"
 export * from "./types"
 export * from "./hooks"
 export * from "./selectors"
-export * from "./actions"
 
 const store = configureStore({
   reducer: board,
