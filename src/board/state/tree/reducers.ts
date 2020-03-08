@@ -24,7 +24,7 @@ import {
 
 const treeSlice = createSlice({
   name: "tree",
-  initialState: initialTreeState as TreeState,
+  initialState: initialTreeState,
   reducers: {
     clearTree: state => ({ root: "", nodes: {}, primitives: {}, constants: state.constants }),
     setRoot: (state, action: PayloadAction<NodeID>) => {
