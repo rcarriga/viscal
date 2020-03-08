@@ -13,8 +13,7 @@ const store = configureStore({
   reducer: board,
   preloadedState: {
     tree: (initialTreeState as unknown) as StateWithHistory<TreeState>
-  },
-  middleware: getDefaultMiddleware({ serializableCheck: false })
+  }
 })
 
 export default store

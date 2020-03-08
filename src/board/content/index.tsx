@@ -1,14 +1,5 @@
-import {
-  setSelected,
-  adjustLayout,
-  setHighlighted,
-  setEvent,
-  nextReductionStage,
-  setAnimationEnabled,
-  useTreeState,
-  useDispatch
-} from "board/state"
-import React, { useEffect, useState } from "react"
+import { adjustLayout, nextReductionStage, setAnimationEnabled, useTreeState, useDispatch } from "board/state"
+import React from "react"
 import { animated } from "react-spring"
 import Graph from "./graph"
 import Tooltip from "./tooltip"
@@ -16,7 +7,6 @@ import Tooltip from "./tooltip"
 const BoardContent = () => {
   const treeState = useTreeState()
   const dis = useDispatch()
-  usePopTree(dis)
   return (
     <animated.svg
       id="board-content"
@@ -48,37 +38,3 @@ const BoardContent = () => {
 }
 
 export default BoardContent
-
-const usePopTree = (dis: any) => {
-  const [used, setUsed] = useState(false)
-  useEffect(() => {
-    if (!used) {
-      setUsed(true)
-      dis(
-        setEvent({
-          event: "click",
-          handler: nodeID => {
-            dis(setSelected(nodeID))
-          }
-        })
-      )
-      dis(
-        setEvent({
-          event: "select",
-          handler: nodeID => {
-            dis(setSelected(nodeID))
-          }
-        })
-      )
-      dis(setEvent({ event: "highlight", handler: nodeID => dis(setHighlighted(nodeID)) }))
-      dis(
-        setEvent({
-          event: "clearHighlight",
-          handler: () => {
-            dis(setHighlighted(undefined))
-          }
-        })
-      )
-    }
-  }, [used, dis])
-}

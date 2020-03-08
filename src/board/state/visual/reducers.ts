@@ -3,8 +3,6 @@ import { NodeID } from "board/state/tree"
 import {
   VisualState,
   initialVisualState,
-  NodeEvent,
-  EventHandler,
   DimensionSetting,
   Layout,
   AnimationMode,
@@ -21,10 +19,6 @@ const visualSlice = createSlice({
     },
     setHighlighted: (state, action: PayloadAction<NodeID | undefined>) => {
       state.highlighted = action.payload
-    },
-    setEvent: (state, action: PayloadAction<{ event: NodeEvent; handler?: EventHandler }>) => {
-      const { event, handler } = action.payload
-      state.events[event] = handler || (() => {})
     },
     setDimension: (state, action: PayloadAction<{ dimension: DimensionSetting; value: number }>) => {
       const { dimension, value } = action.payload
@@ -62,7 +56,6 @@ export default visualSlice
 export const {
   setSelected,
   setHighlighted,
-  setEvent,
   setDimension,
   setLayout,
   adjustLayout,

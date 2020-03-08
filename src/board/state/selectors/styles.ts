@@ -1,4 +1,4 @@
-import { reduceTree, Tree, PrimitiveID } from "board/state/tree"
+import { reduceTree, Tree, PrimitiveID, binder, directChildren } from "board/state/tree"
 import _ from "lodash"
 import randomcolor from "randomcolor"
 import { createSelector } from "reselect"
@@ -146,8 +146,8 @@ const overrideRemoved = (reduction: ReductionStage, override: StyleSettings, sta
 const createStyle = (nodeID: NodeID, state: StylesState, overrides: StyleSettings): NodeStyle | undefined => {
   const styleID = state.copies[nodeID] || nodeID
   const node = state.tree.nodes[styleID]
-  const binder = node && node.type === "VARIABLE" ? node.binder(state.tree) || styleID : styleID
-  const highlighted = (state.highlighted && (state.highlighted === styleID || state.highlighted === binder)) || false
+  const binderID = node && node.type === "VARIABLE" ? binder(state.tree, nodeID) || styleID : styleID
+  const highlighted = (state.highlighted && (state.highlighted === styleID || state.highlighted === binderID)) || false
   const selected = (state.selected && state.selected === styleID) || false
   if (node.primitives.length)
     return createPrimStyle(node.primitives[node.primitives.length - 1], state, { highlighted, selected, ...overrides })
@@ -170,8 +170,8 @@ const createVarStyle = (
 ): VarStyle => {
   const node = state.tree.nodes[nodeID]
   const theme = state.theme
-  const binder = node && node.type === "VARIABLE" ? node.binder(state.tree) || nodeID : nodeID
-  const color = transparent ? theme.transparent : state.colors[binder] || theme.unbinded
+  const binderID = node ? binder(state.tree, nodeID) || nodeID : nodeID
+  const color = transparent ? theme.transparent : state.colors[binderID] || theme.unbinded
   return {
     type: "VAR_STYLE",
     fill: color,
@@ -297,7 +297,7 @@ const constructCopyMap = (reduction: ReductionStage, tree: Tree): { [nodeID in N
     )
 
   const copyParent = () => {
-    const newChildID = tree[reduction.abs].directChildren[0]
+    const newChildID = directChildren(tree[reduction.abs])[0]
     const newChild = newChildID ? tree[newChildID] : undefined
     return newChild && newChild.type === "APPLICATION" ? { [newChildID]: reduction.parentApplication } : {}
   }
@@ -328,8 +328,8 @@ const createColor = (nodeID: NodeID, node: TreeNode, tree: TreeState): Color => 
     case "ABSTRACTION":
       return color(nodeID)
     case "VARIABLE": {
-      const binder = node.binder(tree)
-      return binder ? color(binder) : "rgba(0,0,0,1)"
+      const binderID = binder(tree, nodeID)
+      return binderID ? color(binderID) : "rgba(0,0,0,1)"
     }
     default:
       return "transparent"

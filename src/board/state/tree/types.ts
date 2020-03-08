@@ -7,8 +7,6 @@ export type NodeType = "NULL" | "VARIABLE" | "ABSTRACTION" | "APPLICATION"
 
 interface BaseExpression {
   type: NodeType
-  children: (tree: Tree) => NodeID[]
-  directChildren: NodeID[]
   primitives: PrimitiveID[]
 }
 
@@ -20,7 +18,6 @@ export interface Variable extends BaseExpression {
   type: "VARIABLE"
   index: VarIndex
   name: VarName
-  binder: (tree: TreeState) => NodeID | undefined
 }
 
 export interface Abstraction extends BaseExpression {

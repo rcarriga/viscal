@@ -29,8 +29,6 @@ export const useVisualState = () => useSelector(state => state.visual)
 
 export const useLayout = () => useSelector(state => state.visual.treeLayout)
 
-export const useEvents = () => useSelector(state => state.visual.events)
-
 export const useDimensions = () => useSelector(state => state.visual.dimensions)
 
 export const useTheme = () => useSelector(state => state.visual.theme)

@@ -2,7 +2,6 @@ import primElements from "board/content/graph/elements/primitive"
 import {
   useAnimationSettings,
   useStyles,
-  useEvents,
   useLayout,
   useTree,
   useDimensions,
@@ -14,12 +13,13 @@ import React from "react"
 import { useSpring, animated, AnimatedValue } from "react-spring"
 import absElements from "./abstraction"
 import applElements from "./application"
-import { ExprElementValues } from "./types"
+import { ExprElementValues, NodeEvents } from "./types"
 import varElements from "./variable"
 
 export * from "./types"
 
 export interface ExprElementsProps {
+  events: NodeEvents
   orderedKeys: NodeID[]
   onRest?: (name: string) => void
   onStart?: (name: string) => void
@@ -27,7 +27,6 @@ export interface ExprElementsProps {
 
 const ExprElements = (props: ExprElementsProps) => {
   const styles = useStyles()
-  const events = useEvents()
   const layout = useLayout()
   const tree = useTree()
   const dimensions = useDimensions()
@@ -38,15 +37,15 @@ const ExprElements = (props: ExprElementsProps) => {
     const node = tree[nodeID]
     if (node.primitives.length) {
       const primitive = primitives[node.primitives[node.primitives.length - 1]]
-      return primElements(nodeID, events, styles[nodeID], coord, dimensions, primitive)
+      return primElements(nodeID, props.events, styles[nodeID], coord, dimensions, primitive)
     }
     switch (node.type) {
       case "VARIABLE":
-        return varElements(nodeID, events, styles[nodeID], coord)
+        return varElements(nodeID, props.events, styles[nodeID], coord)
       case "ABSTRACTION":
-        return absElements(nodeID, events, styles[nodeID], coord, dimensions)
+        return absElements(nodeID, props.events, styles[nodeID], coord, dimensions)
       case "APPLICATION":
-        return applElements(nodeID, events, styles[nodeID], coord, dimensions)
+        return applElements(nodeID, props.events, styles[nodeID], coord, dimensions)
       default:
         return []
     }

@@ -1,21 +1,26 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
-import { isString } from "board/util"
 import _ from "lodash"
-import { parentsSelector } from "./selectors"
 import {
   VarIndex,
   TreeState,
-  TreeNode,
   Tree,
   initialTreeState,
   ReductionStage,
   VarName,
   NodeID,
-  REDUCTION_STAGES,
   PrimitiveID,
   LambdaReducerID
 } from "./types"
-import { traverseTree, partialMapTree } from "./util"
+import {
+  traverseTree,
+  partialMapTree,
+  createVar,
+  createAbs,
+  createAppl,
+  setNextStage,
+  directChildren,
+  visibleChildren
+} from "./util"
 
 const treeSlice = createSlice({
   name: "tree",
@@ -27,17 +32,17 @@ const treeSlice = createSlice({
     },
     addVariable: (state, action: PayloadAction<{ nodeID: NodeID; index: VarIndex; name: VarName }>) => {
       const { nodeID, index, name } = action.payload
-      const varNode = createVar(nodeID, index, name)
+      const varNode = createVar(index, name)
       state.nodes[nodeID] = varNode
     },
     addAbstraction: (state, action: PayloadAction<{ nodeID: NodeID; variableName: VarName; child?: NodeID }>) => {
       const { nodeID, variableName, child } = action.payload
-      const absNode = createAbs(nodeID, variableName, child)
+      const absNode = createAbs(variableName, child)
       state.nodes[nodeID] = absNode
     },
     addApplication: (state, action: PayloadAction<{ nodeID: NodeID; left?: NodeID; right?: NodeID }>) => {
       const { nodeID, left, right } = action.payload
-      const absNode = createAppl(nodeID, left, right)
+      const absNode = createAppl(left, right)
       state.nodes[nodeID] = absNode
     },
     queueReduction: (state, action: PayloadAction<ReductionStage | undefined>) => {
@@ -116,7 +121,6 @@ const addPrimitive = (state: TreeState, primID: PrimitiveID, rootID: NodeID, nam
 const removePrimitive = (state: TreeState, primitiveID: PrimitiveID) => {
   const primitive = state.primitives[primitiveID]
   if (primitive) {
-    debugger
     delete state.primitives[primitiveID]
     traverseTree(
       state.nodes,
@@ -131,7 +135,7 @@ const removePrimitive = (state: TreeState, primitiveID: PrimitiveID) => {
 const removeReduced = (state: TreeState) => {
   const reduction = state.reduction
   if (reduction) {
-    const newChild = state.nodes[reduction.abs].directChildren[0]
+    const newChild = directChildren(state.nodes[reduction.abs])[0]
     const replaceRoot = state.root === reduction.parentApplication
     const replaceFrom = reduction.visibleParent === reduction.parentApplication ? state.root : reduction.visibleParent
     replaceChild(reduction.parentApplication, newChild, replaceFrom, state.nodes)
@@ -147,7 +151,6 @@ const removeReduced = (state: TreeState) => {
             state.nodes[nodeID] = newNodes.has(nodeID)
               ? node
               : createVar(
-                  nodeID,
                   node.index !== undefined ? node.index - (boundOutsideAbs.has(nodeID) ? 1 : 0) : undefined,
                   node.name,
                   node.primitives
@@ -195,7 +198,6 @@ const addReplacementNodes = (reduction: ReductionStage, tree: Tree) =>
         switch (node.type) {
           case "VARIABLE": {
             tree[subID] = createVar(
-              subID,
               node.index !== undefined ? node.index + (boundOutsideConsumed.has(nodeID) ? indexOffset : 0) : undefined,
               node.name,
               node.primitives.map(getPrimSub)
@@ -204,7 +206,6 @@ const addReplacementNodes = (reduction: ReductionStage, tree: Tree) =>
           }
           case "ABSTRACTION": {
             tree[subID] = createAbs(
-              subID,
               node.variableName,
               node.child ? getNodeSub(node.child) : node.child,
               node.primitives.map(getPrimSub)
@@ -214,7 +215,7 @@ const addReplacementNodes = (reduction: ReductionStage, tree: Tree) =>
           case "APPLICATION": {
             const newLeft = node.left ? getNodeSub(node.left) : node.left
             const newRight = node.right ? getNodeSub(node.right) : node.right
-            tree[subID] = createAppl(subID, newLeft, newRight, node.primitives.map(getPrimSub))
+            tree[subID] = createAppl(newLeft, newRight, node.primitives.map(getPrimSub))
             break
           }
           default:
@@ -234,7 +235,7 @@ const getBoundOutside = (tree: Tree, rootID: NodeID, abstractions = 0): NodeID[]
       if (!root.child) return []
       return getBoundOutside(tree, root.child, abstractions + 1)
     case "APPLICATION":
-      return root.children(tree).flatMap(childID => getBoundOutside(tree, childID, abstractions))
+      return visibleChildren(root, tree).flatMap(childID => getBoundOutside(tree, childID, abstractions))
     default:
       return []
   }
@@ -252,14 +253,14 @@ const replaceChild = (oldChild: NodeID, newChild: NodeID, rootID: NodeID, tree: 
     (node, nodeID) => {
       switch (node.type) {
         case "ABSTRACTION":
-          if (node.child === oldChild) tree[nodeID] = createAbs(nodeID, node.variableName, newChild)
+          if (node.child === oldChild) tree[nodeID] = createAbs(node.variableName, newChild)
           break
         case "APPLICATION":
           tree[nodeID] =
             node.left === oldChild
-              ? createAppl(nodeID, newChild, node.right)
+              ? createAppl(newChild, node.right)
               : node.right === oldChild
-              ? createAppl(nodeID, node.left, newChild)
+              ? createAppl(node.left, newChild)
               : node
           break
         default:
@@ -267,70 +268,4 @@ const replaceChild = (oldChild: NodeID, newChild: NodeID, rootID: NodeID, tree: 
     },
     rootID
   )
-}
-
-const createVar = (nodeID: NodeID, index: VarIndex, name: VarName, primitives: PrimitiveID[] = []): TreeNode => ({
-  type: "VARIABLE",
-  index: index,
-  name: name,
-  primitives,
-  children: () => [],
-  directChildren: [],
-  binder: tree => getBinder(nodeID, index, tree)
-})
-
-const createAbs = (
-  nodeID: NodeID,
-  variableName: VarName,
-  child?: NodeID,
-  primitives: PrimitiveID[] = []
-): TreeNode => ({
-  type: "ABSTRACTION",
-  variableName: variableName,
-  child: child,
-  primitives,
-  directChildren: [child].filter(isString),
-  children: tree => getChildren(nodeID, tree)
-})
-
-const createAppl = (nodeID: NodeID, left?: NodeID, right?: NodeID, primitives: PrimitiveID[] = []): TreeNode => ({
-  type: "APPLICATION",
-  left: left,
-  right: right,
-  primitives,
-  directChildren: [left, right].filter(isString),
-  children: tree => getChildren(nodeID, tree)
-})
-
-const setNextStage = (state: TreeState) => {
-  const prev = state.reduction
-  if (prev) {
-    const stage = REDUCTION_STAGES[REDUCTION_STAGES.indexOf(prev.type) + 1]
-    state.reduction = stage ? { ...prev, type: stage } : undefined
-  }
-}
-
-const getBinder = (
-  nodeID: NodeID | undefined = undefined,
-  index: VarIndex | undefined,
-  tree: TreeState
-): NodeID | undefined => {
-  if (!nodeID || index === undefined) return undefined
-  const parents = parentsSelector(tree)
-  const node = getNode(nodeID, tree.nodes)
-  if (node.type === "ABSTRACTION") return index === 0 ? nodeID : getBinder(parents[nodeID], index - 1, tree)
-  else return parents[nodeID] ? getBinder(parents[nodeID], index, tree) : undefined
-}
-
-const getNode = (nodeID: NodeID, tree: Tree): TreeNode => {
-  return tree[nodeID] || { type: "NULL", children: [] }
-}
-
-const getChildren = (nodeID: NodeID, tree: Tree): NodeID[] => {
-  const node = getNode(nodeID, tree)
-  const left = node.directChildren ? getNode(node.directChildren[0], tree) : undefined
-  if (left && left.type === "APPLICATION") {
-    return [...getChildren(node.directChildren[0], tree), ...node.directChildren.slice(1)]
-  }
-  return node.directChildren
 }

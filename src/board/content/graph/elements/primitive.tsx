@@ -1,5 +1,7 @@
-import { PrimStyle, NodeID, NodeEvents, NodeStyle, NodeCoord, DimensionSettings, Primitive } from "board/state"
-import { RawExprProps, ExprElementValues } from "./types"
+import { PrimStyle, NodeID, NodeStyle, NodeCoord, DimensionSettings, Primitive } from "board/state"
+
+import _ from "lodash"
+import { RawExprProps, NodeEvents, ExprElementValues } from "./types"
 
 const primElements = (
   nodeID: NodeID,
@@ -58,14 +60,10 @@ const rawPrimElements = (props: RawPrimProps): ExprElementValues[] => {
   const calculatedFontSize = props.radius * 2 - (props.name.length > 3 ? (props.name.length - 3) * 7 : 0)
   const fontSize = calculatedFontSize > 2 ? calculatedFontSize : 3
 
-  const staticProps = {
-    onClick: (e: any) => {
-      e.stopPropagation()
-      props.events.click(props.id)
-    },
-    onMouseOver: () => props.events.highlight(props.id),
-    onMouseLeave: () => props.events.clearHighlight(props.id)
-  }
+  const staticProps = _.mapValues(props.events, handler => (e: any) => {
+    e.stopPropagation()
+    handler(props.id)
+  })
 
   return [
     {

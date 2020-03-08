@@ -11,17 +11,20 @@ import {
   useTreeState,
   setMode,
   useReducer,
-  REDUCTION_STAGES
+  REDUCTION_STAGES,
+  setSelected,
+  setHighlighted
 } from "board/state"
-import React, { useRef, Ref } from "react"
+import React, { useRef, Ref, useState } from "react"
 import { ActionCreators } from "redux-undo"
-import ExprElements from "./elements"
+import ExprElements, { NodeEvents } from "./elements"
 
 const Graph = () => {
   const keys = useOrderedKeys()
   const onStop = useAnimationControl()
   const { start, rest } = useMotionTrackers(onStop)
-  return <ExprElements orderedKeys={keys} onRest={rest} onStart={start} />
+  const events = useEvents()
+  return <ExprElements events={events} orderedKeys={keys} onRest={rest} onStart={start} />
 }
 
 export default Graph
@@ -102,4 +105,20 @@ const useOrderedKeys = () => {
     }
     return coords[a].x - coords[b].x || coords[b].w - coords[a].w
   })
+}
+
+const useEvents = (): NodeEvents => {
+  const dis = useDispatch()
+  const [events] = useState({
+    onClick: nodeID => {
+      dis(setSelected(nodeID))
+    },
+    onMouseOver: nodeID => {
+      dis(setHighlighted(nodeID))
+    },
+    onMouseLeave: () => {
+      dis(setHighlighted())
+    }
+  } as NodeEvents)
+  return events
 }
