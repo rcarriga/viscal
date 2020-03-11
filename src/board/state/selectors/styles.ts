@@ -75,13 +75,13 @@ const createStyles = (state: StylesState): NodeStyles => {
         ...overrideConsumed(reduction, { highlighted: true }, state),
         ...overrideUnbinded(reduction, { transparent: true }, state)
       }
-    case "FADE":
-      return {
-        ...initStyles,
-        ...overrideReplacement(reduction, { highlighted: true }, state),
-        ...overrideReplaced(reduction, { transparent: true }, state),
-        ...overrideRemoved(reduction, { transparent: true }, state)
-      }
+    // case "FADE":
+    //   return {
+    //     ...initStyles,
+    //     ...overrideReplacement(reduction, { highlighted: true }, state),
+    //     ...overrideReplaced(reduction, { transparent: true }, state),
+    //     ...overrideRemoved(reduction, { transparent: true }, state)
+    //   }
     default:
       return {
         ...initStyles,
@@ -303,14 +303,14 @@ const constructCopyMap = (reduction: ReductionStage, tree: Tree): { [nodeID in N
   }
 
   switch (reduction.type) {
-    case "SHIFT_ABS":
-    case "SHIFT_PARENT":
-    case "FADE": {
-      return {
-        ...copyReplaced(),
-        ...copyParent()
-      }
-    }
+    // case "SHIFT_ABS":
+    // case "SHIFT_PARENT":
+    // case "FADE": {
+    //   return {
+    //     ...copyReplaced(),
+    //     ...copyParent()
+    //   }
+    // }
     case "REMOVE":
       return {}
     default:

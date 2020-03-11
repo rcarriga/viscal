@@ -12,10 +12,10 @@ const BoardContent = () => {
   const [panning, setPanning] = useState(false)
   return (
     <div ref={ref} style={{ width: "100%", height: "100%" }}>
-      <animated.svg
+      <svg
         id="board-content"
         pointerEvents="all"
-        className="has-background-light"
+        className=""
         viewBox={`${x - width / 10} ${y - height / 2} ${width} ${height}`}
         style={{
           width: "100%",
@@ -37,7 +37,7 @@ const BoardContent = () => {
         </filter>
         <Graph />
         <Tooltip />
-      </animated.svg>
+      </svg>
     </div>
   )
 }

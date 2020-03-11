@@ -66,12 +66,12 @@ const useAnimationControl = () => {
 
 const useMotionTrackers = (onStop: () => void) => {
   const movingSet: Ref<Set<string>> = useRef(new Set([]))
-  const isMoving = useRef(false)
+  const [isMoving, setMoving] = useState(false)
   const start = (sym: string) => {
     if (movingSet.current) {
       movingSet.current.add(sym)
-      if (!isMoving.current) {
-        isMoving.current = true
+      if (!isMoving) {
+        setMoving(true)
       }
     }
   }
@@ -80,7 +80,7 @@ const useMotionTrackers = (onStop: () => void) => {
       movingSet.current.delete(sym)
       if (movingSet.current.size === 0) {
         onStop()
-        isMoving.current = false
+        setMoving(false)
       }
     }
   }
