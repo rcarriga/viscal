@@ -16,9 +16,13 @@ const treeSlice = createSlice({
   name: "tree",
   initialState: initialTreeState,
   reducers: {
-    clearTree: state => ({ root: "", nodes: {}, primitives: {}, constants: state.constants }),
+    clearTree: state => ({ root: "", originalRoot: "", nodes: {}, primitives: {}, constants: state.constants }),
     setRoot: (state, action: PayloadAction<NodeID>) => {
       state.root = action.payload
+      if (!state.originalRoot) state.originalRoot = action.payload
+    },
+    resetRoot: state => {
+      state.root = state.originalRoot
     },
     addVariable: (state, action: PayloadAction<{ nodeID: NodeID; binder?: NodeID; name: VarName }>) => {
       const { nodeID, binder, name } = action.payload
@@ -75,6 +79,7 @@ export default treeSlice
 export const {
   clearTree,
   setRoot,
+  resetRoot,
   addVariable,
   addAbstraction,
   addApplication,

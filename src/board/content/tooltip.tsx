@@ -11,7 +11,9 @@ import {
   useDispatch,
   destructurePrimitive,
   usePrimitives,
-  TreeNode
+  TreeNode,
+  setRoot,
+  useRoot
 } from "board/state"
 import React from "react"
 import { useSpring, animated, config } from "react-spring"
@@ -48,7 +50,11 @@ const Tooltip = () => {
               default:
             }
           })()}
-          <RemovePrimitive node={node} />
+          <div className="dropdown-divider" />
+          <div className="columns">
+            <RemovePrimitive node={node} />
+            <ChangeRoot nodeID={nodeID} />
+          </div>
         </div>
       )
     }
@@ -66,13 +72,7 @@ const Tooltip = () => {
     >
       <div className="card" style={{ border: "3px solid grey", borderRadius: 3 }}>
         <div className="card-content">
-          {
-            <animated.button
-              className="delete"
-              onClick={() => dis(setSelected(""))}
-              style={deleteStyle as any}
-            ></animated.button>
-          }
+          <animated.button className="delete" onClick={() => dis(setSelected(""))} style={deleteStyle as any} />
           {description()}
         </div>
       </div>
@@ -134,10 +134,27 @@ const RemovePrimitive = ({ node }: { node: TreeNode }) => {
   const primitive = usePrimitives()[primID]
 
   return primitive ? (
-    <div>
-      <div className="dropdown-divider" />
+    <div className="column">
       <div className="button" onClick={() => dis(destructurePrimitive(primID))}>
         Destructure Primitive
+      </div>
+    </div>
+  ) : null
+}
+
+const ChangeRoot = ({ nodeID }: { nodeID: NodeID }) => {
+  const dis = useDispatch()
+  const root = useRoot()
+  return root !== nodeID ? (
+    <div className="column">
+      <div
+        className="button"
+        onClick={() => {
+          dis(setSelected())
+          dis(setRoot(nodeID))
+        }}
+      >
+        Focus
       </div>
     </div>
   ) : null

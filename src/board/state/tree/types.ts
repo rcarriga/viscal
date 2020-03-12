@@ -87,6 +87,7 @@ export type Primitives = { [primID in PrimitiveID]: Primitive }
 
 export interface TreeState {
   root: NodeID
+  originalRoot: NodeID
   nodes: Tree
   primitives: Primitives
   reducer?: LambdaReducerID
@@ -97,6 +98,7 @@ export interface TreeState {
 export const initialTreeState: TreeState = {
   nodes: {},
   root: "",
+  originalRoot: "",
   primitives: {},
   constants: {
     RECURSE: "λ f. (λ x. f (x x)) (λ x. f (x x))",
