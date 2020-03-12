@@ -1,5 +1,5 @@
 import { createSelector } from "@reduxjs/toolkit"
-import { reduceTree, Tree, PrimitiveID, binder, directChildren } from "board/state/tree"
+import { reduceTree, Tree, PrimitiveID, directChildren } from "board/state/tree"
 import _ from "lodash"
 import randomcolor from "randomcolor"
 import { AnimationSettings } from "../visual"
@@ -147,7 +147,7 @@ const overrideRemoved = (reduction: ReductionStage, override: StyleSettings, sta
 const createStyle = (nodeID: NodeID, state: StylesState, overrides: StyleSettings): NodeStyle | undefined => {
   const styleID = state.copies[nodeID] || nodeID
   const node = state.tree.nodes[styleID]
-  const binderID = node && node.type === "VARIABLE" ? binder(state.tree, nodeID) || styleID : styleID
+  const binderID = node?.type === "VARIABLE" ? node.binder || styleID : styleID
   const highlighted = (state.highlighted && (state.highlighted === styleID || state.highlighted === binderID)) || false
   const selected = (state.selected && state.selected === styleID) || false
   if (node.primitives.length)
@@ -171,7 +171,7 @@ const createVarStyle = (
 ): VarStyle => {
   const node = state.tree.nodes[nodeID]
   const theme = state.theme
-  const binderID = node ? binder(state.tree, nodeID) || nodeID : nodeID
+  const binderID = node?.type === "VARIABLE" ? node.binder || nodeID : nodeID
   const color = transparent ? theme.transparent : state.colors[binderID] || theme.unbinded
   return {
     type: "VAR_STYLE",
@@ -329,8 +329,7 @@ const createColor = (nodeID: NodeID, node: TreeNode, tree: TreeState): Color => 
     case "ABSTRACTION":
       return color(nodeID)
     case "VARIABLE": {
-      const binderID = binder(tree, nodeID)
-      return binderID ? color(binderID) : "rgba(0,0,0,1)"
+      return node.binder ? color(node.binder) : "rgba(0,0,0,1)"
     }
     default:
       return "transparent"

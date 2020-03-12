@@ -26,7 +26,8 @@ const Tooltip = () => {
   const node = useTree()[nodeID]
   const style = useSpring({
     opacity: nodeID && coord ? 1 : 0,
-    config: config.gentle
+    config: config.gentle,
+    cursor: "default"
   })
   const deleteStyle = useSpring({
     float: "right",
@@ -85,7 +86,6 @@ const VarDescription = ({ node, nodeID }: { node: Variable; nodeID: NodeID }) =>
       <DescriptionTitle name="Variable" />
       <DescriptionRow name={"Name"} value={node.name} />
       <DescriptionRow name={"ID"} value={nodeID} />
-      <DescriptionRow name={"DrBruijn Index"} value={node.index} />
     </div>
   )
 }

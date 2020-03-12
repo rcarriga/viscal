@@ -16,7 +16,7 @@ interface NullExpression extends BaseExpression {
 
 export interface Variable extends BaseExpression {
   type: "VARIABLE"
-  index: VarIndex
+  binder?: NodeID
   name: VarName
 }
 

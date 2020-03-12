@@ -96,28 +96,38 @@ export const parseExpression = (
       expr: ParsedExpr | undefined,
       indices: { [name: string]: number },
       nextID: NodeID,
+      abstractions: NodeID[] = [],
       primitives: Primitives = {}
     ): Primitives => {
       if (!expr) return primitives
       switch (expr.type) {
         case "CONST": {
           const primID = generateID()
-          return fillState(expr.expr, indices, nextID, { ...primitives, [primID]: { rootID: nextID, name: expr.name } })
+          return fillState(expr.expr, indices, nextID, abstractions, {
+            ...primitives,
+            [primID]: { rootID: nextID, name: expr.name }
+          })
         }
         case "VAR":
-          dis(addVariable({ nodeID: nextID, index: indices[expr.varName], name: expr.varName }))
+          dis(addVariable({ nodeID: nextID, binder: abstractions[indices[expr.varName]], name: expr.varName }))
           return primitives
         case "ABS": {
           const childID = generateID()
           dis(addAbstraction({ nodeID: nextID, variableName: expr.varName, child: childID }))
-          return fillState(expr.child, { ...incrementIndex(indices), [expr.varName]: 0 }, childID, primitives)
+          return fillState(
+            expr.child,
+            { ...incrementIndex(indices), [expr.varName]: 0 },
+            childID,
+            [nextID, ...abstractions],
+            primitives
+          )
         }
         case "APPL": {
           const leftID = generateID()
           const rightID = generateID()
           dis(addApplication({ nodeID: nextID, left: leftID, right: rightID }))
-          const leftPrims = fillState(expr.left, indices, leftID, primitives)
-          return fillState(expr.right, indices, rightID, leftPrims)
+          const leftPrims = fillState(expr.left, indices, leftID, abstractions, primitives)
+          return fillState(expr.right, indices, rightID, abstractions, leftPrims)
         }
         default:
           return primitives

@@ -6,7 +6,6 @@ import {
   ReductionStage,
   TreeState,
   NodeID,
-  Tree,
   DimensionSettings,
   TreeNode,
   NodeJoins,
