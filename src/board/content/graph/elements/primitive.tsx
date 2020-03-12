@@ -57,8 +57,7 @@ const rawPrimElements = (props: RawPrimProps): ExprElementValues[] => {
         l${-props.heightMargin},${circleBuffer + bufferOffset}
         l${-1},0`
 
-  const calculatedFontSize = props.radius * 2 - (props.name.length > 3 ? (props.name.length - 3) * 7 : 0)
-  const fontSize = calculatedFontSize > 2 ? calculatedFontSize : 3
+  const fontSize = props.radius * 1.5
 
   const staticProps = _.mapValues(props.events, handler => (e: any) => {
     e.stopPropagation()
@@ -77,12 +76,12 @@ const rawPrimElements = (props: RawPrimProps): ExprElementValues[] => {
       key: `${props.id}_text`,
       text: props.name,
       animated: {
-        x: props.x + props.radius * 2,
-        y: props.y + fontSize / 3,
+        x: props.x + props.width / 2,
+        y: props.y,
         fontSize,
         ...props.style.text
       },
-      static: staticProps
+      static: { ...staticProps, textAnchor: "middle", dominantBaseline: "middle" }
     }
   ]
 }

@@ -1,5 +1,16 @@
 import { isString } from "../../util"
-import { Tree, TreeNode, NodeID, VarIndex, VarName, PrimitiveID, TreeState, REDUCTION_STAGES, parentsSelector } from "."
+import {
+  Tree,
+  TreeNode,
+  NodeID,
+  VarIndex,
+  VarName,
+  PrimitiveID,
+  TreeState,
+  REDUCTION_STAGES,
+  parentsSelector,
+  Primitive
+} from "."
 /**
  * Depth first search through the tree for first node to pass a predicate.
  *
@@ -167,5 +178,12 @@ export const indexFrom = (tree: Tree, goalID: NodeID, rootID: NodeID | undefined
     }
     default:
       return undefined
+  }
+}
+
+export const getPrimitive = (nodeID: NodeID | TreeNode, state: TreeState): Primitive | undefined => {
+  const node = typeof nodeID === "object" ? nodeID : state.nodes[nodeID]
+  if (node?.primitives.length) {
+    return state.primitives[node.primitives[node.primitives.length - 1]]
   }
 }

@@ -12,6 +12,7 @@ import {
   NodeJoins,
   visibleChildren
 } from "board/state"
+import { getPrimitive } from "board/state/tree"
 import _ from "lodash"
 
 export const constructDimensions = (
@@ -20,7 +21,7 @@ export const constructDimensions = (
   joins: NodeJoins
 ): NodeDimensions => {
   const dimensionOffsets = calculateDimensionOffsets(settings, joins, state.reduction)
-  return calculateDimensions(state.root, state.nodes, settings, dimensionOffsets)
+  return calculateDimensions(state.root, state, settings, dimensionOffsets)
 }
 
 const calculateDimensionOffsets = (
@@ -66,14 +67,14 @@ const calculateDimensionOffsets = (
 
 const calculateDimensions = (
   rootID: NodeID,
-  tree: Tree,
+  tree: TreeState,
   settings: DimensionSettings,
   offsets: DimensionOffsets,
   dimensions: NodeDimensions = {}
 ): NodeDimensions => {
-  const root = tree[rootID]
+  const root = tree.nodes[rootID]
   if (root) {
-    const children = visibleChildren(rootID, tree)
+    const children = visibleChildren(rootID, tree.nodes)
     const childDimensions = root.primitives.length
       ? dimensions
       : children
@@ -97,13 +98,14 @@ const elementWidth = (
   node: TreeNode,
   nodeDimensions: NodeDimensions,
   settings: DimensionSettings,
-  tree: Tree
+  tree: TreeState
 ): number => {
   const sumChildren = () =>
-    visibleChildren(node, tree)
-      .map(childID => (tree[childID] ? nodeDimensions[childID].w : -settings.widthMargin))
+    visibleChildren(node, tree.nodes)
+      .map(childID => (tree.nodes[childID] ? nodeDimensions[childID].w : -settings.widthMargin))
       .reduce((sum, w) => sum + w + settings.widthMargin, 0)
-  if (node.primitives.length) return settings.circleRadius * 4 + settings.widthMargin * 2
+  const prim = getPrimitive(node, tree)
+  if (prim) return settings.circleRadius * 2 + settings.widthMargin * 2 + settings.circleRadius * prim.name.length
   switch (node.type) {
     case "VARIABLE":
       return settings.circleRadius * 2
@@ -120,7 +122,7 @@ const elementHeight = (
   node: TreeNode,
   nodeDimensions: NodeDimensions,
   settings: DimensionSettings,
-  tree: Tree
+  tree: TreeState
 ): number => {
   switch (node.type) {
     case "VARIABLE":
