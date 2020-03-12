@@ -304,14 +304,12 @@ const constructCopyMap = (reduction: ReductionStage, tree: Tree): { [nodeID in N
   }
 
   switch (reduction.type) {
-    // case "SHIFT_ABS":
-    // case "SHIFT_PARENT":
-    // case "FADE": {
-    //   return {
-    //     ...copyReplaced(),
-    //     ...copyParent()
-    //   }
-    // }
+    case "FADE": {
+      return {
+        ...copyReplaced(),
+        ...copyParent()
+      }
+    }
     case "REMOVE":
       return {}
     default:
