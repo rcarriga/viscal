@@ -1,7 +1,7 @@
 import primElements from "board/content/graph/elements/primitive"
 import { useAnimationSettings, useStyles, useTree, useDimensions, usePrimitives, useCoords, NodeID } from "board/state"
+import { motion, AnimatePresence } from "framer-motion"
 import React from "react"
-import { useSpring, animated, AnimatedValue } from "react-spring"
 import absElements from "./abstraction"
 import applElements from "./application"
 import { ExprElementValues, NodeEvents } from "./types"
@@ -40,21 +40,14 @@ const ExprElements = (props: ExprElementsProps) => {
         return []
     }
   })
-  // const animatedProps = useAnimatedProps(
-  //   props.values.map(v => v.key),
-  //   props.values.map(v => v.animated),
-  //   props.onRest,
-  //   props.onStart
-  // )
-  // {animatedProps((animatedProp, item, __, index) => {
-  //   return <animated.path {...props.common} {...props.values[index].static} {...animatedProp} />
-  // })}
   return (
-    <animated.g>
-      {values.map(value => (
-        <ExprElement key={value.key} name={value.key} {...value} onRest={props.onRest} onStart={props.onStart} />
-      ))}
-    </animated.g>
+    <motion.g>
+      <AnimatePresence initial={false}>
+        {values.map(value => (
+          <ExprElement key={value.key} name={value.key} {...value} onRest={props.onRest} onStart={props.onStart} />
+        ))}
+      </AnimatePresence>
+    </motion.g>
   )
 }
 
@@ -67,66 +60,26 @@ export type ExprElementProps = ExprElementValues & {
 }
 
 const ExprElement = (props: ExprElementProps) => {
-  return (
-    <Motion
-      name={props.name}
-      values={props.animated}
-      onRest={() => props.onRest && props.onRest(props.name)}
-      onStart={() => props.onStart && props.onStart(props.name)}
-    >
-      {animatedProps => {
-        switch (props.type) {
-          case "TEXT":
-            return (
-              <animated.text {...props.static} {...animatedProps}>
-                {props.text}
-              </animated.text>
-            )
-          default:
-            return <animated.path {...props.static} {...animatedProps} />
-        }
-      }}
-    </Motion>
-  )
-}
-//
-export const Motion = (props: {
-  name: string
-  values: any
-  onRest?: (name: string) => void
-  onStart?: (name: string) => void
-  children: (values: AnimatedValue<any>) => any
-}) => {
-  const { name, values, onRest, onStart, children } = props
+  if (props.name === "Test") console.log("here")
   const config = useAnimationSettings()
-  const motionVals = useSpring({
-    to: values,
-    onRest: () => onRest && onRest(name),
-    onStart: () => onStart && onStart(name),
-    config
-  })
-  return children(motionVals)
+  const { onRest, onStart } = props
+  const elemProps = {
+    ...props.static,
+    onAnimationStart: () => onStart && onStart(props.name),
+    onAnimationComplete: () => onRest && onRest(props.name),
+    exit: {
+      stroke: "rgba(0, 0, 0, 0)",
+      fill: "rgba(0, 0, 0, 0)",
+      transition: { type: "tween", duration: 0.1 }
+    },
+    transition: config,
+    initial: { ...props.animated, stroke: "rgba(0, 0, 0, 0)", fill: "rgba(0, 0, 0, 0)" },
+    animate: { ...props.animated }
+  }
+  switch (props.type) {
+    case "TEXT":
+      return <motion.text {...elemProps}>{props.text}</motion.text>
+    default:
+      return <motion.path {...elemProps} />
+  }
 }
-
-// const useAnimatedProps = function(
-//   keys: string[],
-//   values: any[],
-//   onRest: (name: string) => void = () => {},
-//   onStart: (name: string) => void = () => {}
-// ) {
-//   const config = useAnimationSettings()
-//   return useTransition(values, {
-//     key: keys,
-//     from: value => value,
-//     update: (value, index) => ({
-//       ...value,
-//       onRest: (...args) => {
-//         onRest(keys[index])
-//       },
-//       onStart: (...args) => {
-//         onStart(keys[index])
-//       }
-//     }),
-//     config
-//   })
-// }

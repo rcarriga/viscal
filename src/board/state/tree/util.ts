@@ -1,5 +1,5 @@
 import { isString } from "../../util"
-import { Tree, TreeNode, NodeID, VarIndex, VarName, PrimitiveID, TreeState, REDUCTION_STAGES, parentsSelector } from "."
+import { Tree, TreeNode, NodeID, VarIndex, VarName, PrimitiveID, TreeState, REDUCTION_STAGES, Primitive } from "."
 /**
  * Depth first search through the tree for first node to pass a predicate.
  *
@@ -87,9 +87,9 @@ export const traverseTree = (tree: Tree, f: (node: TreeNode, nodeID: NodeID) => 
   )
 }
 
-export const createVar = (index: VarIndex, name: VarName, primitives: PrimitiveID[] = []): TreeNode => ({
+export const createVar = (name: VarName, binder?: NodeID, primitives: PrimitiveID[] = []): TreeNode => ({
   type: "VARIABLE",
-  index: index,
+  binder,
   name: name,
   primitives
 })
@@ -114,19 +114,6 @@ export const setNextStage = (state: TreeState) => {
     const stage = REDUCTION_STAGES[REDUCTION_STAGES.indexOf(prev.type) + 1]
     state.reduction = stage ? { ...prev, type: stage } : undefined
   }
-}
-
-export const binder = (tree: TreeState, nodeID: NodeID): NodeID | undefined => {
-  const varNode = tree.nodes[nodeID]
-  if (varNode.type !== "VARIABLE") return undefined
-  return getBinder(tree, nodeID, varNode.index)
-}
-const getBinder = (tree: TreeState, nodeID: NodeID | undefined, index: VarIndex): NodeID | undefined => {
-  if (!nodeID || index === undefined) return undefined
-  const parents = parentsSelector(tree)
-  const node = getNode(nodeID, tree.nodes)
-  if (node.type === "ABSTRACTION") return index === 0 ? nodeID : getBinder(tree, parents[nodeID], index - 1)
-  else return parents[nodeID] ? getBinder(tree, parents[nodeID], index) : undefined
 }
 
 export const getNode = (nodeID: NodeID, tree: Tree): TreeNode => {
@@ -167,5 +154,12 @@ export const indexFrom = (tree: Tree, goalID: NodeID, rootID: NodeID | undefined
     }
     default:
       return undefined
+  }
+}
+
+export const getPrimitive = (nodeID: NodeID | TreeNode, state: TreeState): Primitive | undefined => {
+  const node = typeof nodeID === "object" ? nodeID : state.nodes[nodeID]
+  if (node?.primitives.length) {
+    return state.primitives[node.primitives[node.primitives.length - 1]]
   }
 }

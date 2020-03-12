@@ -16,7 +16,7 @@ interface NullExpression extends BaseExpression {
 
 export interface Variable extends BaseExpression {
   type: "VARIABLE"
-  index: VarIndex
+  binder?: NodeID
   name: VarName
 }
 
@@ -53,8 +53,6 @@ export const REDUCTION_STAGES = [
   "HOVER",
   "UNBIND",
   "SUBSTITUTE",
-  "SHIFT_ABS",
-  "SHIFT_PARENT",
   "FADE",
   "REMOVE"
 ] as const

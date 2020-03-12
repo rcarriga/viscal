@@ -11,8 +11,7 @@ import {
   NodeSubstitution,
   PrimitiveSubstitution,
   visibleChildren,
-  directChildren,
-  binder
+  directChildren
 } from "board/state"
 import _ from "lodash"
 import { generateID } from "../util"
@@ -96,7 +95,7 @@ const createNodeSubstitution = (nodeID: NodeID, tree: Tree): NodeSubstitution =>
 
 const getRemoved = (binderID: NodeID, tree: TreeState): NodeID[] =>
   _.keys(
-    _.pickBy(tree.nodes, (_node, nodeID) => {
-      return binder(tree, nodeID) === binderID
+    _.pickBy(tree.nodes, node => {
+      return node.type === "VARIABLE" && node.binder === binderID
     })
   )

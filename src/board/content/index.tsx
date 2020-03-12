@@ -1,6 +1,6 @@
 import useComponentSize from "@rehooks/component-size"
+import { motion } from "framer-motion"
 import React, { useState, useRef } from "react"
-import { animated } from "react-spring"
 import Graph from "./graph"
 import Tooltip from "./tooltip"
 
@@ -11,23 +11,22 @@ const BoardContent = () => {
   const [y, setY] = useState(0)
   const [panning, setPanning] = useState(false)
   return (
-    <div ref={ref} style={{ width: "100%", height: "100%" }}>
-      <animated.svg
+    <div ref={ref} className="has-background-light" style={{ width: "100%", height: "100%" }}>
+      <motion.svg
         id="board-content"
         pointerEvents="all"
-        className="has-background-light"
+        className=""
         viewBox={`${x - width / 10} ${y - height / 2} ${width} ${height}`}
         style={{
           width: "100%",
-          height: "100%"
+          height: "100%",
+          cursor: panning ? "move" : "pointer"
         }}
-        onMouseDown={() => setPanning(true)}
-        onMouseUp={() => setPanning(false)}
-        onMouseMove={e => {
-          if (panning) {
-            setX(x - e.movementX)
-            setY(y - e.movementY)
-          }
+        onPanStart={() => setPanning(true)}
+        onPanEnd={() => setPanning(false)}
+        onPan={(_e, info) => {
+          setX(x - info.delta.x)
+          setY(y - info.delta.y)
         }}
       >
         <filter id="goo">
@@ -37,7 +36,7 @@ const BoardContent = () => {
         </filter>
         <Graph />
         <Tooltip />
-      </animated.svg>
+      </motion.svg>
     </div>
   )
 }

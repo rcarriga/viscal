@@ -1,4 +1,4 @@
-import { SpringConfig } from "react-spring"
+import { Orchestration, Tween } from "framer-motion"
 import { NodeID } from "../tree"
 
 export type Color = string
@@ -36,7 +36,7 @@ export type EventHandler = (nodeID: NodeID) => void
 
 export type AnimationSetting = keyof AnimationSettings
 
-export type AnimationSettings = SpringConfig
+export type AnimationSettings = Orchestration & Tween
 
 export type AnimationMode = "STOP" | "PLAY" | "FORWARD" | "REVERSE"
 
@@ -48,8 +48,8 @@ export interface AnimationState {
 
 const defaultAnimationState: AnimationState = {
   settings: {
-    tension: 200,
-    clamp: true
+    type: "tween",
+    duration: 0.5
   },
   enabled: true,
   mode: "STOP"
