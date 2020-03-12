@@ -75,13 +75,14 @@ const createStyles = (state: StylesState): NodeStyles => {
         ...overrideConsumed(reduction, { highlighted: true }, state),
         ...overrideUnbinded(reduction, { transparent: true }, state)
       }
-    // case "FADE":
-    //   return {
-    //     ...initStyles,
-    //     ...overrideReplacement(reduction, { highlighted: true }, state),
-    //     ...overrideReplaced(reduction, { transparent: true }, state),
-    //     ...overrideRemoved(reduction, { transparent: true }, state)
-    //   }
+    case "FADE":
+      return {
+        ...initStyles,
+        ...overrideReplacement(reduction, { highlighted: true }, state),
+        ...overrideReplaced(reduction, { transparent: true }, state),
+        ...overrideRemoved(reduction, { transparent: true }, state),
+        ...overrideConsumed(reduction, { transparent: true }, state)
+      }
     default:
       return {
         ...initStyles,
@@ -251,10 +252,10 @@ const createPrimStyle = (
   const theme = state.theme
   return {
     type: "PRIM_STYLE",
-    fill: theme.stroke,
+    fill: transparent ? theme.transparent : theme.stroke,
     animation: state.animation,
     text: {
-      fill: theme.text
+      fill: transparent ? theme.transparent : theme.text
     },
     stroke: {
       stroke: transparent

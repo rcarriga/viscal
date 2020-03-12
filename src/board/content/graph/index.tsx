@@ -15,7 +15,7 @@ import {
   setSelected,
   setHighlighted
 } from "board/state"
-import React, { useRef, Ref, useState } from "react"
+import React, { useRef, useState, useEffect } from "react"
 import { ActionCreators } from "redux-undo"
 import ExprElements, { NodeEvents } from "./elements"
 
@@ -36,7 +36,7 @@ const useAnimationControl = () => {
   const reducer = reducers[useReducer() || ""] || { useReduction: () => undefined }
   const nextReduction = () => reducer.useReduction(tree)
   const mode = useMode()
-  return () => {
+  const continueControl = () => {
     switch (mode) {
       case "PLAY":
         if (reduction) dis(nextReductionStage())
@@ -62,26 +62,24 @@ const useAnimationControl = () => {
       default:
     }
   }
+  useEffect(continueControl, [mode])
+  return continueControl
 }
 
 const useMotionTrackers = (onStop: () => void) => {
-  const movingSet: Ref<Set<string>> = useRef(new Set([]))
+  const movingSet = useRef(new Set([] as string[]))
   const [isMoving, setMoving] = useState(false)
-  const start = (sym: string) => {
-    if (movingSet.current) {
-      movingSet.current.add(sym)
-      if (!isMoving) {
-        setMoving(true)
-      }
+  const start = (name: string) => {
+    movingSet.current.add(name)
+    if (!isMoving) {
+      setMoving(true)
     }
   }
-  const rest = (sym: string) => {
-    if (movingSet.current) {
-      movingSet.current.delete(sym)
-      if (movingSet.current.size === 0) {
-        onStop()
-        setMoving(false)
-      }
+  const rest = (name: string) => {
+    movingSet.current.delete(name)
+    if (movingSet.current.size === 0) {
+      onStop()
+      setMoving(false)
     }
   }
   return { start, rest }

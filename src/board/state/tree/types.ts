@@ -46,7 +46,16 @@ export type Substitution = {
 }
 export type Substitutions = { [variable in NodeID]: Substitution }
 
-export const REDUCTION_STAGES = ["SELECT", "CONSUME", "LIFT", "HOVER", "UNBIND", "SUBSTITUTE", "REMOVE"] as const
+export const REDUCTION_STAGES = [
+  "SELECT",
+  "CONSUME",
+  "LIFT",
+  "HOVER",
+  "UNBIND",
+  "SUBSTITUTE",
+  "FADE",
+  "REMOVE"
+] as const
 
 export interface ReductionStage {
   type: typeof REDUCTION_STAGES[number]

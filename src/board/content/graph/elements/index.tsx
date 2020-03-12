@@ -1,8 +1,7 @@
 import primElements from "board/content/graph/elements/primitive"
 import { useAnimationSettings, useStyles, useTree, useDimensions, usePrimitives, useCoords, NodeID } from "board/state"
-import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import React from "react"
-import { animated, AnimatedValue } from "react-spring"
 import absElements from "./abstraction"
 import applElements from "./application"
 import { ExprElementValues, NodeEvents } from "./types"
@@ -41,18 +40,9 @@ const ExprElements = (props: ExprElementsProps) => {
         return []
     }
   })
-  // const animatedProps = useAnimatedProps(
-  //   props.values.map(v => v.key),
-  //   props.values.map(v => v.animated),
-  //   props.onRest,
-  //   props.onStart
-  // )
-  // {animatedProps((animatedProp, item, __, index) => {
-  //   return <animated.path {...props.common} {...props.values[index].static} {...animatedProp} />
-  // })}
   return (
     <motion.g>
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {values.map(value => (
           <ExprElement key={value.key} name={value.key} {...value} onRest={props.onRest} onStart={props.onStart} />
         ))}
@@ -70,65 +60,26 @@ export type ExprElementProps = ExprElementValues & {
 }
 
 const ExprElement = (props: ExprElementProps) => {
+  if (props.name === "Test") console.log("here")
+  const config = useAnimationSettings()
   const { onRest, onStart } = props
+  const elemProps = {
+    ...props.static,
+    onAnimationStart: () => onStart && onStart(props.name),
+    onAnimationComplete: () => onRest && onRest(props.name),
+    exit: {
+      stroke: "rgba(0, 0, 0, 0)",
+      fill: "rgba(0, 0, 0, 0)",
+      transition: { type: "tween", duration: 0.1 }
+    },
+    transition: config,
+    initial: { ...props.animated, stroke: "rgba(0, 0, 0, 0)", fill: "rgba(0, 0, 0, 0)" },
+    animate: { ...props.animated }
+  }
   switch (props.type) {
     case "TEXT":
-      return (
-        <motion.text
-          {...props.static}
-          exit={{ stroke: "rgba(0, 0, 0, 0)", fill: "rgba(0, 0, 0, 0)" }}
-          initial={{ ...props.animated, stroke: "rgba(0, 0, 0, 0)", fill: "rgba(0, 0, 0, 0)" }}
-          animate={props.animated}
-        >
-          {props.text}
-        </motion.text>
-      )
+      return <motion.text {...elemProps}>{props.text}</motion.text>
     default:
-      return (
-        <motion.path
-          {...props.static}
-          onAnimationStart={() => onStart && onStart(props.name)}
-          onAnimationComplete={() => onRest && onRest(props.name)}
-          exit={{ stroke: "rgba(0, 0, 0, 0)", fill: "rgba(0, 0, 0, 0)" }}
-          initial={{ ...props.animated, stroke: "rgba(0, 0, 0, 0)", fill: "rgba(0, 0, 0, 0)" }}
-          animate={props.animated}
-        />
-      )
+      return <motion.path {...elemProps} />
   }
 }
-//
-export const Motion = (props: {
-  name: string
-  values: any
-  onRest?: (name: string) => void
-  onStart?: (name: string) => void
-  children: (values: AnimatedValue<any>) => any
-}) => {
-  const { name, values, onRest, onStart, children } = props
-  const config = useAnimationSettings()
-  // const motionVals = useMotionValue(values)
-  return children(values)
-}
-
-// const useAnimatedProps = function(
-//   keys: string[],
-//   values: any[],
-//   onRest: (name: string) => void = () => {},
-//   onStart: (name: string) => void = () => {}
-// ) {
-//   const config = useAnimationSettings()
-//   return useTransition(values, {
-//     key: keys,
-//     from: value => value,
-//     update: (value, index) => ({
-//       ...value,
-//       onRest: (...args) => {
-//         onRest(keys[index])
-//       },
-//       onStart: (...args) => {
-//         onStart(keys[index])
-//       }
-//     }),
-//     config
-//   })
-// }
