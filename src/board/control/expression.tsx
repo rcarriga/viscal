@@ -2,7 +2,7 @@ import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown"
 import CancelIcon from "@material-ui/icons/Cancel"
 import HelpIcon from "@material-ui/icons/Help"
 import { parseExpression } from "board/calculus"
-import { useDispatch, clearTree, useTextTree, useConstants } from "board/state"
+import { useDispatch, clearTree, useTextTree, useConstants, useOriginalRoot, useRoot, resetRoot } from "board/state"
 import _ from "lodash"
 import React, { useState, useEffect } from "react"
 import { useSpring, animated } from "react-spring"
@@ -15,6 +15,8 @@ const ExpressionControl = () => {
   const [input, setInput] = useState(expr)
   const toggle = () => setActive(!active)
   const constants = useConstants()
+  const root = useOriginalRoot()
+  const focused = useRoot()
   useEffect(() => {
     dis(clearTree())
     dis(ActionCreators.clearHistory())
@@ -23,8 +25,13 @@ const ExpressionControl = () => {
   return (
     <div>
       <div className="menu-label">Expression</div>
-      <div>
-        <TreeText medium={"true"} onClick={() => setActive(!active)} style={{ cursor: "pointer", marginBottom: 20 }} />
+      <div style={{ marginBottom: 20 }}>
+        <TreeText medium={"true"} onClick={() => setActive(!active)} style={{ cursor: "pointer" }} />
+        {root !== focused ? (
+          <div className="button" style={{ marginTop: 10 }} onClick={() => dis(resetRoot())}>
+            Reset Focus
+          </div>
+        ) : null}
       </div>
       <div>
         <div className={`modal ${active ? "is-active" : ""}`}>

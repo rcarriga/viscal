@@ -10,6 +10,10 @@ export const useTreeState = () => useSelector(state => state.tree.present)
 
 export const useTree = () => useSelector(state => state.tree.present.nodes)
 
+export const useRoot = () => useSelector(state => state.tree.present.root)
+
+export const useOriginalRoot = () => useSelector(state => state.tree.present.originalRoot)
+
 export const useReduction = () => useSelector(state => state.tree.present.reduction)
 
 export const useReducer = () => useSelector(state => state.tree.present.reducer)
