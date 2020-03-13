@@ -111,8 +111,11 @@ export const createAppl = (left?: NodeID, right?: NodeID, primitives: PrimitiveI
 export const setNextStage = (state: TreeState) => {
   const prev = state.reduction
   if (prev) {
-    const stage = REDUCTION_STAGES[REDUCTION_STAGES.indexOf(prev.type) + 1]
-    state.reduction = stage ? { ...prev, type: stage } : undefined
+    if (prev.type === "CONSUME" && Object.keys(prev.substitutions || {}).length === 0) prev.type = "FADE"
+    else {
+      const stage = REDUCTION_STAGES[REDUCTION_STAGES.indexOf(prev.type) + 1]
+      state.reduction = stage ? { ...prev, type: stage } : undefined
+    }
   }
 }
 
