@@ -5,3 +5,5 @@
 [![License](https://img.shields.io/github/license/rcarriga/viscal)](LICENSE)
 
 A visual representation of the lambda calculus and animation of beta reduction.
+
+Still currently in development!
