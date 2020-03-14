@@ -52,6 +52,7 @@ const addOverrides = (
           if (coords[toReplace]) {
             const yOffset = settings.heightMargin * 2 + settings.circleRadius * 4
             switch (reduction.type) {
+              case "SELECT":
               case "CONSUME":
                 return {
                   ...coords,
@@ -95,7 +96,7 @@ const addOverrides = (
     const newChild = newChildID ? state.nodes[newChildID] : undefined
     if (newChild && newChild.type === "APPLICATION" && coords[reduction.parentApplication]) {
       return {
-        [newChildID]: { ...coords[reduction.parentApplication], nodeID: newChildID },
+        [newChildID]: { ...coords[reduction.abs], nodeID: newChildID },
         ...replacementOverrides
       }
     }
@@ -126,7 +127,7 @@ const calculateCoordOffsets = (settings: DimensionSettings, joins: NodeJoins, st
     )
 
   const jOffsets = joinOffsets()
-  if (!state.reduction) return jOffsets
+  if (!state.reduction || state.reduction.type === "SELECT") return jOffsets
   const redOffsets = reductionOffsets(state.reduction)
   return _.mergeWith({}, jOffsets, redOffsets, addOffset)
 }

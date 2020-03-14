@@ -172,7 +172,7 @@ const createVarStyle = (
   const node = state.tree.nodes[nodeID]
   const theme = state.theme
   const binderID = node?.type === "VARIABLE" ? node.binder || nodeID : nodeID
-  const color = transparent ? theme.transparent : state.colors[binderID] || theme.unbinded
+  const color = transparent ? theme.transparent : state.colors[binderID] || theme.stroke
   return {
     type: "VAR_STYLE",
     fill: color,
@@ -317,21 +317,25 @@ const constructCopyMap = (reduction: ReductionStage, tree: Tree): { [nodeID in N
   }
 }
 
-const createColors = (tree: TreeState): VarColors => {
-  return _.mapValues(tree.nodes, (node, nodeID) => createColor(nodeID, node, tree))
+const createColors = (tree: TreeState, theme: Theme): VarColors => {
+  return _.mapValues(tree.nodes, (node, nodeID) => createColor(nodeID, node, theme))
 }
 
-const createColor = (nodeID: NodeID, node: TreeNode, tree: TreeState): Color => {
+const createColor = (nodeID: NodeID, node: TreeNode, theme: Theme): Color => {
   const color = (nodeID: NodeID) => randomcolor({ seed: nodeID, luminosity: "bright" })
   switch (node.type) {
     case "ABSTRACTION":
       return color(nodeID)
     case "VARIABLE": {
-      return node.binder ? color(node.binder) : "rgba(0,0,0,1)"
+      return theme.unbinded
     }
     default:
       return "transparent"
   }
 }
 
-const colorsSelector = createSelector((state: BoardState) => state.tree.present, createColors)
+const colorsSelector = createSelector(
+  (state: BoardState) => state.tree.present,
+  (state: BoardState) => state.visual.theme,
+  createColors
+)
