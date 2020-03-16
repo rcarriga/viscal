@@ -83,7 +83,6 @@ const VarDescription = ({ node, nodeID }: { node: Variable; nodeID: NodeID }) =>
     <div className="">
       <DescriptionTitle name="Variable" />
       <DescriptionRow name={"Name"} value={node.name} />
-      <DescriptionRow name={"ID"} value={nodeID} />
     </div>
   )
 }
@@ -93,7 +92,6 @@ const AbsDescription = ({ node, text, nodeID }: { node: Abstraction; nodeID: Nod
     <div className="">
       <DescriptionTitle name="Abstraction" />
       <DescriptionRow name={"Scoped Variable"} value={node.variableName} />
-      <DescriptionRow name={"ID"} value={nodeID} />
       <DescriptionRow name={"Text"} value={text} />
     </div>
   )
@@ -103,7 +101,6 @@ const ApplDescription = ({ text, nodeID }: { text: string; nodeID: NodeID }) => 
   return (
     <div className="">
       <DescriptionTitle name="Application" />
-      <DescriptionRow name={"ID"} value={nodeID} />
       <DescriptionRow name={"Text"} value={text} />
     </div>
   )
