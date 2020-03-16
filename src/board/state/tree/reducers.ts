@@ -19,7 +19,10 @@ const treeSlice = createSlice({
     clearTree: state => ({ root: "", originalRoot: "", nodes: {}, primitives: {}, constants: state.constants }),
     setRoot: (state, action: PayloadAction<NodeID>) => {
       state.root = action.payload
-      if (!state.originalRoot) state.originalRoot = action.payload
+    },
+    setOriginalRoot: (state, action: PayloadAction<NodeID>) => {
+      state.originalRoot = action.payload
+      state.root = action.payload
     },
     resetRoot: state => {
       state.root = state.originalRoot
@@ -79,6 +82,7 @@ export default treeSlice
 export const {
   clearTree,
   setRoot,
+  setOriginalRoot,
   resetRoot,
   addVariable,
   addAbstraction,
@@ -136,7 +140,10 @@ const removeReduced = (state: TreeState) => {
     replaceChild(reduction.parentApplication, newChild, replaceFrom, state.nodes)
     const toRemove = [..._.keys(reduction.substitutions), reduction.abs, reduction.consumed]
     toRemove.forEach(nodeID => _.unset(state.nodes, nodeID))
-    if (replaceRoot) state.root = newChild
+    if (replaceRoot) {
+      if (state.originalRoot === state.root) state.originalRoot = newChild
+      state.root = newChild
+    }
   }
 }
 
