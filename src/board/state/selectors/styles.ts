@@ -149,7 +149,7 @@ const createStyle = (nodeID: NodeID, state: StylesState, overrides: StyleSetting
   const node = state.tree.nodes[styleID]
   const binderID = node?.type === "VARIABLE" ? node.binder || styleID : styleID
   const highlighted = state.highlighted.includes(styleID) || state.highlighted.includes(binderID)
-  const selected = state.selected.includes(styleID)
+  const selected = state.selected.includes(styleID) || state.selected.includes(binderID)
   if (node.primitives.length)
     return createPrimStyle(node.primitives[node.primitives.length - 1], state, { highlighted, selected, ...overrides })
   switch (node.type) {
