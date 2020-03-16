@@ -13,10 +13,10 @@ const visualSlice = createSlice({
   name: "visual",
   initialState: initialVisualState as VisualState,
   reducers: {
-    setSelected: (state, action: PayloadAction<NodeID | undefined>) => {
+    setSelected: (state, action: PayloadAction<NodeID[]>) => {
       state.selected = action.payload
     },
-    setHighlighted: (state, action: PayloadAction<NodeID | undefined>) => {
+    setHighlighted: (state, action: PayloadAction<NodeID[]>) => {
       state.highlighted = action.payload
     },
     setDimension: (state, action: PayloadAction<{ dimension: DimensionSetting; value: number }>) => {

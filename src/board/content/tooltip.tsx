@@ -1,6 +1,5 @@
 import {
   useSelected,
-  useHighlighted,
   useCoord,
   Variable,
   setSelected,
@@ -21,8 +20,7 @@ import { useSpring, animated, config } from "react-spring"
 const Tooltip = () => {
   const dis = useDispatch()
   const selected = useSelected()
-  const highlighted = useHighlighted()
-  const nodeID = selected || highlighted || ""
+  const nodeID = selected.length === 1 ? selected[0] : ""
   const text = useTextTree(nodeID)
   const coord = useCoord(nodeID)
   const node = useTree()[nodeID]
@@ -72,7 +70,7 @@ const Tooltip = () => {
     >
       <div className="card" style={{ border: "3px solid grey", borderRadius: 3 }}>
         <div className="card-content">
-          <animated.button className="delete" onClick={() => dis(setSelected(""))} style={deleteStyle as any} />
+          <animated.button className="delete" onClick={() => dis(setSelected([]))} style={deleteStyle as any} />
           {description()}
         </div>
       </div>
@@ -150,7 +148,7 @@ const ChangeRoot = ({ nodeID }: { nodeID: NodeID }) => {
       <div
         className="button"
         onClick={() => {
-          dis(setSelected())
+          dis(setSelected([]))
           dis(setRoot(nodeID))
         }}
       >

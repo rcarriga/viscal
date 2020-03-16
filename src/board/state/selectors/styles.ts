@@ -49,8 +49,8 @@ type StylesState = {
   colors: VarColors
   dimensions: DimensionSettings
   animation: AnimationSettings
-  highlighted?: NodeID
-  selected?: NodeID
+  highlighted: NodeID[]
+  selected: NodeID[]
 }
 
 type StyleSettings = {
@@ -148,8 +148,8 @@ const createStyle = (nodeID: NodeID, state: StylesState, overrides: StyleSetting
   const styleID = state.copies[nodeID] || nodeID
   const node = state.tree.nodes[styleID]
   const binderID = node?.type === "VARIABLE" ? node.binder || styleID : styleID
-  const highlighted = (state.highlighted && (state.highlighted === styleID || state.highlighted === binderID)) || false
-  const selected = (state.selected && state.selected === styleID) || false
+  const highlighted = state.highlighted.includes(styleID) || state.highlighted.includes(binderID)
+  const selected = state.selected.includes(styleID)
   if (node.primitives.length)
     return createPrimStyle(node.primitives[node.primitives.length - 1], state, { highlighted, selected, ...overrides })
   switch (node.type) {
@@ -189,7 +189,7 @@ const createVarStyle = (
         : !node
         ? color
         : theme.varStroke,
-      strokeWidth: state.dimensions.strokeWidth
+      strokeWidth: state.dimensions.strokeWidth * (selected || highlighted ? 2 : 1)
     }
   }
 }
@@ -212,7 +212,7 @@ const createAbsStyle = (
         : highlighted
         ? theme.highlightedStroke
         : theme.stroke,
-      strokeWidth: state.dimensions.strokeWidth,
+      strokeWidth: state.dimensions.strokeWidth * (selected || highlighted ? 1.5 : 1),
       strokeLinecap: "square"
     },
     input: createVarStyle(nodeID, state, { transparent, selected, highlighted }),
@@ -238,7 +238,7 @@ const createApplStyle = (
         : highlighted
         ? state.theme.highlightedStroke
         : state.theme.stroke,
-      strokeWidth: state.dimensions.strokeWidth
+      strokeWidth: state.dimensions.strokeWidth * (selected || highlighted ? 1.5 : 1)
     },
     output: createVarStyle("", state, { transparent, selected, highlighted })
   }
@@ -265,7 +265,7 @@ const createPrimStyle = (
         : highlighted
         ? state.theme.highlightedStroke
         : state.theme.stroke,
-      strokeWidth: state.dimensions.strokeWidth
+      strokeWidth: state.dimensions.strokeWidth * (selected || highlighted ? 1.5 : 1)
     }
   }
 }

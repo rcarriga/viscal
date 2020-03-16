@@ -57,8 +57,8 @@ const defaultAnimationState: AnimationState = {
 
 export interface VisualState {
   expression: string
-  selected?: NodeID
-  highlighted?: NodeID
+  selected: NodeID[]
+  highlighted: NodeID[]
   theme: Theme
   dimensions: DimensionSettings
   animation: AnimationState
@@ -66,6 +66,8 @@ export interface VisualState {
 
 export const initialVisualState: VisualState = {
   expression: "",
+  selected: [],
+  highlighted: [],
   theme: defaultTheme,
   dimensions: defaultDimensions,
   animation: defaultAnimationState

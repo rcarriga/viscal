@@ -44,7 +44,7 @@ const treeSlice = createSlice({
       if (reduction) {
         removeReductionPrimitives(state, reduction)
         addReductionPrimitives(state, reduction)
-        addReplacementNodes(reduction, state.nodes)
+        addReplacementNodes(reduction, state)
         state.reduction = reduction
       }
     },
@@ -140,7 +140,8 @@ const removeReduced = (state: TreeState) => {
   }
 }
 
-const addReplacementNodes = (reduction: ReductionStage, tree: Tree) =>
+const addReplacementNodes = (reduction: ReductionStage, state: TreeState) => {
+  const tree = state.nodes
   _.forEach(reduction.substitutions, substitution => {
     const getNodeSub = (nodeID: NodeID) => substitution.nodes[nodeID] || nodeID
     const getPrimSub = (primID: PrimitiveID) => substitution.primitives[primID] || primID
@@ -174,6 +175,7 @@ const addReplacementNodes = (reduction: ReductionStage, tree: Tree) =>
       reduction.consumed
     )
   })
+}
 
 const replaceVars = (reduction: ReductionStage, state: TreeState) => {
   _.forEach(reduction.substitutions || {}, (sub, toReplace: NodeID) =>

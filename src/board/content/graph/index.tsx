@@ -91,7 +91,7 @@ const useOrderedKeys = () => {
   const reduction = useReduction()
   return Object.keys(coords).sort((a, b) => {
     const nodeID = coords[a].nodeID
-    if (nodeID === highlighted || nodeID === selected) return 1
+    if (highlighted.includes(nodeID) || selected.includes(nodeID)) return 1
     if (reduction) {
       if (
         nodeID === reduction.consumed ||
@@ -109,13 +109,13 @@ const useEvents = (): NodeEvents => {
   const dis = useDispatch()
   const [events] = useState({
     onClick: nodeID => {
-      dis(setSelected(nodeID))
+      dis(setSelected([nodeID]))
     },
     onMouseOver: nodeID => {
-      dis(setHighlighted(nodeID))
+      dis(setHighlighted([nodeID]))
     },
     onMouseLeave: () => {
-      dis(setHighlighted())
+      dis(setHighlighted([]))
     }
   } as NodeEvents)
   return events
