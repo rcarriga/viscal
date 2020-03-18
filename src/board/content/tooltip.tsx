@@ -1,5 +1,6 @@
 import {
   useSelected,
+  useHighlighted,
   useCoord,
   Variable,
   setSelected,
@@ -20,7 +21,8 @@ import { useSpring, animated, config } from "react-spring"
 const Tooltip = () => {
   const dis = useDispatch()
   const selected = useSelected()
-  const nodeID = selected.length === 1 ? selected[0] : ""
+  const highlighted = useHighlighted()
+  const nodeID = selected.length === 1 ? selected[0] : highlighted[0] || ""
   const text = useTextTree(nodeID)
   const coord = useCoord(nodeID)
   const node = useTree()[nodeID]
@@ -31,7 +33,7 @@ const Tooltip = () => {
   })
   const deleteStyle = useSpring({
     float: "right",
-    opacity: selected ? 1 : 0
+    opacity: selected.length ? 1 : 0
   })
   const description = () => {
     if (nodeID && node) {
