@@ -22,7 +22,7 @@ const Tooltip = () => {
   const dis = useDispatch()
   const selected = useSelected()
   const highlighted = useHighlighted()
-  const nodeID = selected || highlighted || ""
+  const nodeID = selected.length === 1 ? selected[0] : highlighted[0] || ""
   const text = useTextTree(nodeID)
   const coord = useCoord(nodeID)
   const node = useTree()[nodeID]
@@ -33,7 +33,7 @@ const Tooltip = () => {
   })
   const deleteStyle = useSpring({
     float: "right",
-    opacity: selected ? 1 : 0
+    opacity: selected.length ? 1 : 0
   })
   const description = () => {
     if (nodeID && node) {
@@ -72,7 +72,7 @@ const Tooltip = () => {
     >
       <div className="card" style={{ border: "3px solid grey", borderRadius: 3 }}>
         <div className="card-content">
-          <animated.button className="delete" onClick={() => dis(setSelected(""))} style={deleteStyle as any} />
+          <animated.button className="delete" onClick={() => dis(setSelected([]))} style={deleteStyle as any} />
           {description()}
         </div>
       </div>
@@ -85,7 +85,6 @@ const VarDescription = ({ node, nodeID }: { node: Variable; nodeID: NodeID }) =>
     <div className="">
       <DescriptionTitle name="Variable" />
       <DescriptionRow name={"Name"} value={node.name} />
-      <DescriptionRow name={"ID"} value={nodeID} />
     </div>
   )
 }
@@ -95,7 +94,6 @@ const AbsDescription = ({ node, text, nodeID }: { node: Abstraction; nodeID: Nod
     <div className="">
       <DescriptionTitle name="Abstraction" />
       <DescriptionRow name={"Scoped Variable"} value={node.variableName} />
-      <DescriptionRow name={"ID"} value={nodeID} />
       <DescriptionRow name={"Text"} value={text} />
     </div>
   )
@@ -105,7 +103,6 @@ const ApplDescription = ({ text, nodeID }: { text: string; nodeID: NodeID }) => 
   return (
     <div className="">
       <DescriptionTitle name="Application" />
-      <DescriptionRow name={"ID"} value={nodeID} />
       <DescriptionRow name={"Text"} value={text} />
     </div>
   )
@@ -150,7 +147,7 @@ const ChangeRoot = ({ nodeID }: { nodeID: NodeID }) => {
       <div
         className="button"
         onClick={() => {
-          dis(setSelected())
+          dis(setSelected([]))
           dis(setRoot(nodeID))
         }}
       >

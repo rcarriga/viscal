@@ -19,7 +19,10 @@ const treeSlice = createSlice({
     clearTree: state => ({ root: "", originalRoot: "", nodes: {}, primitives: {}, constants: state.constants }),
     setRoot: (state, action: PayloadAction<NodeID>) => {
       state.root = action.payload
-      if (!state.originalRoot) state.originalRoot = action.payload
+    },
+    setOriginalRoot: (state, action: PayloadAction<NodeID>) => {
+      state.originalRoot = action.payload
+      state.root = action.payload
     },
     resetRoot: state => {
       state.root = state.originalRoot
@@ -44,7 +47,7 @@ const treeSlice = createSlice({
       if (reduction) {
         removeReductionPrimitives(state, reduction)
         addReductionPrimitives(state, reduction)
-        addReplacementNodes(reduction, state.nodes)
+        addReplacementNodes(reduction, state)
         state.reduction = reduction
       }
     },
@@ -79,6 +82,7 @@ export default treeSlice
 export const {
   clearTree,
   setRoot,
+  setOriginalRoot,
   resetRoot,
   addVariable,
   addAbstraction,
@@ -136,11 +140,15 @@ const removeReduced = (state: TreeState) => {
     replaceChild(reduction.parentApplication, newChild, replaceFrom, state.nodes)
     const toRemove = [..._.keys(reduction.substitutions), reduction.abs, reduction.consumed]
     toRemove.forEach(nodeID => _.unset(state.nodes, nodeID))
-    if (replaceRoot) state.root = newChild
+    if (replaceRoot) {
+      if (state.originalRoot === state.root) state.originalRoot = newChild
+      state.root = newChild
+    }
   }
 }
 
-const addReplacementNodes = (reduction: ReductionStage, tree: Tree) =>
+const addReplacementNodes = (reduction: ReductionStage, state: TreeState) => {
+  const tree = state.nodes
   _.forEach(reduction.substitutions, substitution => {
     const getNodeSub = (nodeID: NodeID) => substitution.nodes[nodeID] || nodeID
     const getPrimSub = (primID: PrimitiveID) => substitution.primitives[primID] || primID
@@ -174,6 +182,7 @@ const addReplacementNodes = (reduction: ReductionStage, tree: Tree) =>
       reduction.consumed
     )
   })
+}
 
 const replaceVars = (reduction: ReductionStage, state: TreeState) => {
   _.forEach(reduction.substitutions || {}, (sub, toReplace: NodeID) =>

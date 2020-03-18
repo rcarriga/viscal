@@ -49,8 +49,8 @@ type StylesState = {
   colors: VarColors
   dimensions: DimensionSettings
   animation: AnimationSettings
-  highlighted?: NodeID
-  selected?: NodeID
+  highlighted: NodeID[]
+  selected: NodeID[]
 }
 
 type StyleSettings = {
@@ -68,6 +68,12 @@ const createStyles = (state: StylesState): NodeStyles => {
   )
   if (!reduction) return initStyles
   switch (reduction.type) {
+    case "SELECT":
+      return {
+        ...initStyles,
+        ...overrideReplacement(reduction, { transparent: true }, state),
+        ...overrideConsumed(reduction, { highlighted: true }, state)
+      }
     case "UNBIND":
       return {
         ...initStyles,
@@ -148,8 +154,8 @@ const createStyle = (nodeID: NodeID, state: StylesState, overrides: StyleSetting
   const styleID = state.copies[nodeID] || nodeID
   const node = state.tree.nodes[styleID]
   const binderID = node?.type === "VARIABLE" ? node.binder || styleID : styleID
-  const highlighted = (state.highlighted && (state.highlighted === styleID || state.highlighted === binderID)) || false
-  const selected = (state.selected && state.selected === styleID) || false
+  const highlighted = state.highlighted.includes(styleID) || state.highlighted.includes(binderID)
+  const selected = state.selected.includes(styleID) || state.selected.includes(binderID)
   if (node.primitives.length)
     return createPrimStyle(node.primitives[node.primitives.length - 1], state, { highlighted, selected, ...overrides })
   switch (node.type) {
@@ -188,7 +194,7 @@ const createVarStyle = (
         ? theme.highlightedStroke
         : !node
         ? color
-        : theme.varStroke,
+        : theme.transparent,
       strokeWidth: state.dimensions.strokeWidth
     }
   }

@@ -3,11 +3,12 @@ import { useSelected, useDispatch, NodeID, createPrimitive, setSelected } from "
 import React, { useState } from "react"
 
 const PrimitveControl = () => {
-  const selected = useSelected()
+  const selectedList = useSelected()
+  const selected = selectedList.length === 1 ? selectedList[0] : ""
   const [modal, setModal] = useState(false)
   return (
     <div>
-      <PrimitiveModal show={modal} nodeID={selected || ""} onClose={() => setModal(false)} />
+      <PrimitiveModal show={modal} nodeID={selected} onClose={() => setModal(false)} />
       <div className="menu-label">Primitives</div>
       <div className="" style={{ display: "flex", justifyContent: "center" }}>
         <button
@@ -48,7 +49,7 @@ const PrimitiveModal = (props: { nodeID: NodeID; show: boolean; onClose: () => v
               onClick={() => {
                 if (props.nodeID && input) {
                   dis(createPrimitive({ name: input, primID: generateID(), rootID: props.nodeID }))
-                  dis(setSelected())
+                  dis(setSelected([]))
                 }
                 close()
               }}

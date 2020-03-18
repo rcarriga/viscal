@@ -50,8 +50,6 @@ export const useHighlighted = () => useSelector(state => state.visual.highlighte
 
 export const useSelected = () => useSelector(state => state.visual.selected)
 
-export const useExpression = () => useSelector(state => state.visual.expression)
-
 export const useMode = () => useSelector(state => state.visual.animation.mode)
 
 export const useAnimationSettings = () => useSelector(state => state.visual.animation.settings)

@@ -5,7 +5,7 @@ import {
   addApplication,
   createPrimitive,
   NodeID,
-  setRoot,
+  setOriginalRoot,
   ExprConstants,
   Primitives
 } from "board/state"
@@ -136,7 +136,7 @@ export const parseExpression = (
     const rootID = generateID()
     const prims = fillState(parsed, {}, rootID)
     _.forEach(prims, (prim, primID) => dis(createPrimitive({ name: prim.name, primID, rootID: prim.rootID })))
-    dis(setRoot(rootID))
+    dis(setOriginalRoot(rootID))
   } else {
     return res
   }
