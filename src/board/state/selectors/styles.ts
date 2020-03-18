@@ -68,6 +68,12 @@ const createStyles = (state: StylesState): NodeStyles => {
   )
   if (!reduction) return initStyles
   switch (reduction.type) {
+    case "SELECT":
+      return {
+        ...initStyles,
+        ...overrideReplacement(reduction, { transparent: true }, state),
+        ...overrideConsumed(reduction, { highlighted: true }, state)
+      }
     case "UNBIND":
       return {
         ...initStyles,
@@ -189,7 +195,7 @@ const createVarStyle = (
         : !node
         ? color
         : theme.transparent,
-      strokeWidth: state.dimensions.strokeWidth * (selected || highlighted ? 2 : 1)
+      strokeWidth: state.dimensions.strokeWidth
     }
   }
 }
@@ -212,7 +218,7 @@ const createAbsStyle = (
         : highlighted
         ? theme.highlightedStroke
         : theme.stroke,
-      strokeWidth: state.dimensions.strokeWidth * (selected || highlighted ? 1.5 : 1),
+      strokeWidth: state.dimensions.strokeWidth,
       strokeLinecap: "square"
     },
     input: createVarStyle(nodeID, state, { transparent, selected, highlighted }),
@@ -238,7 +244,7 @@ const createApplStyle = (
         : highlighted
         ? state.theme.highlightedStroke
         : state.theme.stroke,
-      strokeWidth: state.dimensions.strokeWidth * (selected || highlighted ? 1.5 : 1)
+      strokeWidth: state.dimensions.strokeWidth
     },
     output: createVarStyle("", state, { transparent, selected, highlighted })
   }
@@ -265,7 +271,7 @@ const createPrimStyle = (
         : highlighted
         ? state.theme.highlightedStroke
         : state.theme.stroke,
-      strokeWidth: state.dimensions.strokeWidth * (selected || highlighted ? 1.5 : 1)
+      strokeWidth: state.dimensions.strokeWidth
     }
   }
 }
