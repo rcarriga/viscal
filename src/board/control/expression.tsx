@@ -27,11 +27,14 @@ const ExpressionControl = () => {
       <div className="menu-label">Expression</div>
       <div style={{ marginBottom: 20 }}>
         <TreeText medium={"true"} onClick={() => setActive(!active)} style={{ cursor: "pointer" }} />
-        {root !== focused ? (
-          <div className="button" style={{ marginTop: 10 }} onClick={() => dis(resetRoot())}>
-            Reset Focus
-          </div>
-        ) : null}
+        <div
+          className={`button has-text-${root !== focused ? "link" : "grey"}`}
+          title={root !== focused ? "Reset focus" : "Can't reset focus"}
+          style={{ width: "100%", marginTop: 10 }}
+          onClick={() => dis(resetRoot())}
+        >
+          {root !== focused ? "Focused" : "Full View"}
+        </div>
       </div>
       <div>
         <div className={`modal ${active ? "is-active" : ""}`}>

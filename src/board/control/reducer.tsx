@@ -17,7 +17,7 @@ const ReducerControl = () => {
   const mode = useMode()
   const [showDrop, setDrop] = useState(false)
   return (
-    <div style={{ marginTop: 20 }}>
+    <div>
       <div className="menu-label">Reduction</div>
 
       <div
@@ -50,7 +50,7 @@ const ReducerControl = () => {
               onMouseOver={() => setDrop(true)}
               onMouseLeave={() => setDrop(false)}
               style={{ width: "100%" }}
-              className={`button ${currentReducer ? "has-text-info" : "has-text-dark"}`}
+              className={`button ${currentReducer ? "has-text-info" : "has-text-grey"}`}
             >
               {currentReducer ? currentReducer.name : "No Method"}
             </button>

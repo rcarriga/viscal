@@ -1,28 +1,16 @@
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown"
 import AnimationControl from "board/control/animation"
 import PrimitveControl from "board/control/primitive"
+import { motion } from "framer-motion"
 import React, { useState } from "react"
-import { animated, useSpring } from "react-spring"
 
 import ExpressionControl from "./expression"
 import ReducerControl from "./reducer"
 import ScaleControl from "./scale"
 
-const ControlPanel = (props: any) => {
+const ControlPanel = () => {
   const [show, setShow] = useState(true)
-  const arrow = useSpring({
-    display: "inline-block",
-    transform: show ? "rotate(180deg)" : "rotate(720deg)"
-  })
-  const children = useSpring({
-    display: "block",
-    padding: 5,
-    maxHeight: show ? 300 : 0,
-    opacity: show ? 1 : 0,
-    overflow: show ? "visible" : "hidden",
-    clear: "both"
-  })
-
+  const [div, setDiv] = useState(null as HTMLDivElement | null)
   return (
     <div className="box" style={{ width: 250 }}>
       <div
@@ -31,21 +19,40 @@ const ControlPanel = (props: any) => {
         }}
         onClick={() => setShow(!show)}
       >
-        <div className="subtitle" style={{ float: "left" }}>
+        <div className="subtitle" style={{ float: "left", margin: 0 }}>
           Controls
         </div>
         <div style={{ float: "right" }}>
-          <animated.div style={arrow}>
+          <motion.div
+            animate={{
+              display: "inline-block",
+              transform: show ? "rotate(180deg)" : "rotate(0deg)"
+            }}
+          >
             <ArrowDropDownIcon />
-          </animated.div>
+          </motion.div>
         </div>
+        <div style={{ background: "black", width: "100%", opacity: 0 }}>_</div>
       </div>
-      <animated.div className="menu" style={children as any}>
-        <ExpressionControl />
-        <ScaleControl />
-        <AnimationControl />
-        <PrimitveControl />
-      </animated.div>
+      <motion.div
+        className="menu"
+        transition={{ type: "spring", stiffness: 50 }}
+        animate={{
+          display: "block",
+          padding: 5,
+          maxHeight: show && div ? div.clientHeight + 10 : 0,
+          overflow: "hidden",
+          clear: "both",
+          marginBottom: show ? 20 : 0
+        }}
+      >
+        <motion.div ref={setDiv}>
+          <ExpressionControl />
+          <ScaleControl />
+          <AnimationControl />
+          <PrimitveControl />
+        </motion.div>
+      </motion.div>
       <ReducerControl />
     </div>
   )
