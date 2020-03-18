@@ -188,7 +188,7 @@ const createVarStyle = (
         ? theme.highlightedStroke
         : !node
         ? color
-        : theme.varStroke,
+        : theme.transparent,
       strokeWidth: state.dimensions.strokeWidth * (selected || highlighted ? 2 : 1)
     }
   }
