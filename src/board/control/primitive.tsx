@@ -13,7 +13,7 @@ const PrimitveControl = () => {
       <div className="" style={{ display: "flex", justifyContent: "center" }}>
         <button
           onClick={() => selected && setModal(true)}
-          className={`button ${selected ? "has-text-info" : "has-text-dark"} `}
+          className={`button ${selected ? "has-text-info" : "has-text-grey"} `}
           style={{ width: "100%" }}
         >
           {selected ? "Create" : "Select a Node"}
