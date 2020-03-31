@@ -9,7 +9,7 @@ const defaultTheme = {
   selectedStroke: "rgba(62, 61, 50, 1)",
   stroke: "rgba(139, 139, 139, 1)",
   transparent: "rgba(0, 0, 0, 0)",
-  unbinded: "rgba(139, 139, 139, 1)"
+  unbinded: "rgba(0, 0, 0, 1)"
 }
 
 export type Theme = typeof defaultTheme
