@@ -48,7 +48,7 @@ const ExpressionControl = () => {
                   <div className="subtitle is-5">Current Form</div>
                   <TreeText />
                   <Divider />
-                  <Input value={input} onChange={e => setInput(e.currentTarget.value)} />
+                  <Input value={input} onChange={e => setInput(e.currentTarget.value.replace("\\", "λ"))} />
                 </div>
                 <div style={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>
                   <button
@@ -171,7 +171,7 @@ const Help = (props: { style: React.CSSProperties }) => {
       <div className="message-body">
         {
           'Expressions can be input as text. Examples of these can be seen in the built-in functions. Abstractions are \
-        written with "λ" or "\\", followed by a list of lower-case variable names separated by spaces and finally \
+        written with "λ" which can be inputted as a backslash "\\", followed by a list of lower-case variable names separated by spaces and finally \
         terminated by ".". Numbers can be entered as digits. Built-ins are used by using the upper-case name.'
         }
       </div>
