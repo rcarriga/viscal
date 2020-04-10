@@ -72,7 +72,8 @@ const createStyles = (state: StylesState): NodeStyles => {
       return {
         ...initStyles,
         ...overrideReplacement(reduction, { transparent: true }, state),
-        ...overrideConsumed(reduction, { highlighted: true }, state)
+        ...overrideConsumed(reduction, { highlighted: true }, state),
+        ...overrideUnbinded(reduction, { highlighted: true }, state)
       }
     case "UNBIND":
       return {
@@ -93,7 +94,8 @@ const createStyles = (state: StylesState): NodeStyles => {
       return {
         ...initStyles,
         ...overrideReplacement(reduction, { highlighted: true }, state),
-        ...overrideConsumed(reduction, { highlighted: true }, state)
+        ...overrideConsumed(reduction, { highlighted: true }, state),
+        ...overrideUnbinded(reduction, { highlighted: true }, state)
       }
   }
 }
@@ -156,9 +158,9 @@ const createStyle = (nodeID: NodeID, state: StylesState, overrides: StyleSetting
   const binderID = node?.type === "VARIABLE" ? node.binder || styleID : styleID
   const highlighted = state.highlighted.includes(styleID) || state.highlighted.includes(binderID)
   const selected = state.selected.includes(styleID) || state.selected.includes(binderID)
-  if (node.primitives.length)
+  if (node?.primitives?.length)
     return createPrimStyle(node.primitives[node.primitives.length - 1], state, { highlighted, selected, ...overrides })
-  switch (node.type) {
+  switch (node?.type) {
     case "VARIABLE":
       return createVarStyle(styleID, state, { highlighted, selected, ...overrides })
     case "ABSTRACTION":
