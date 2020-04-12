@@ -3,7 +3,6 @@ import {
   DimensionOffsets,
   DimensionOffset,
   NodeDimensions,
-  ReductionStage,
   TreeState,
   NodeID,
   DimensionSettings,
@@ -19,14 +18,14 @@ export const constructDimensions = (
   settings: DimensionSettings,
   joins: NodeJoins
 ): NodeDimensions => {
-  const dimensionOffsets = calculateDimensionOffsets(settings, joins, state.reduction)
+  const dimensionOffsets = calculateDimensionOffsets(settings, joins, state)
   return calculateDimensions(state.root, state, settings, dimensionOffsets)
 }
 
 const calculateDimensionOffsets = (
   settings: DimensionSettings,
   joins: NodeJoins,
-  reduction?: ReductionStage
+  state: TreeState
 ): DimensionOffsets => {
   const joinOffsets = (): DimensionOffsets => {
     const maxDistances = _.reduce(
@@ -40,6 +39,7 @@ const calculateDimensionOffsets = (
     return _.reduce(
       joins,
       (offsets, join, nodeID) => {
+        if (state.nodes[join.jointTo].primitives.length) return offsets
         switch (join.type) {
           case "ABSTRACTION":
             return {

@@ -17,7 +17,7 @@ const abstractionJoins = (
 ): NodeJoins => {
   const parentNode = tree[parentID]
   const root = tree[rootID]
-  if (!root || root.primitives.length) return joins
+  if (!root) return joins
   if (!parentNode || parentNode.type !== "ABSTRACTION" || root.type !== "ABSTRACTION")
     return directChildren(root).reduce((joins, child) => abstractionJoins(tree, child, reduction, joins, rootID), joins)
   const parentJoin = joins[parentID]
@@ -40,7 +40,7 @@ const abstractionJoins = (
 const applicationJoins = (tree: Tree, rootID: NodeID = "", joins: NodeJoins = {}, parentID: NodeID = ""): NodeJoins => {
   const parentNode = tree[parentID]
   const root = tree[rootID]
-  if (!root || root.primitives.length) return joins
+  if (!root) return joins
   if (!parentNode || parentNode.type !== "APPLICATION" || root.type !== "APPLICATION")
     return directChildren(root).reduce((joins, child) => applicationJoins(tree, child, joins, rootID), joins)
   const parentJoin = joins[parentID]
