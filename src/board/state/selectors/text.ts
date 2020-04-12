@@ -23,8 +23,7 @@ const stringifyTree = (tree: Tree, rootID: NodeID, joins: NodeJoins): string => 
     }
   }
   const root = tree[rootID]
-  if (!root) return ""
-  switch (root.type) {
+  switch (root?.type) {
     case "VARIABLE":
       return root.name
     case "ABSTRACTION": {
