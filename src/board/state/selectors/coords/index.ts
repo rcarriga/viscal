@@ -107,6 +107,10 @@ const addOverrides = (
 }
 
 const calculateCoordOffsets = (settings: DimensionSettings, joins: NodeJoins, state: TreeState): CoordOffsets => {
+  const rootOffset =
+    state.nodes[state.root]?.type === "APPLICATION"
+      ? { [state.root]: { x: -(settings.widthMargin + settings.circleRadius) } }
+      : {}
   const reductionOffsets = (reduction: ReductionStage) => {
     const xOffset = settings.widthMargin + settings.circleRadius
     const afterConsumed = visibleChildren(reduction.visibleParent, state.nodes)[2]
@@ -127,9 +131,9 @@ const calculateCoordOffsets = (settings: DimensionSettings, joins: NodeJoins, st
     )
 
   const jOffsets = joinOffsets()
-  if (!state.reduction || state.reduction.type === "SELECT") return jOffsets
+  if (!state.reduction || state.reduction.type === "SELECT") return _.mergeWith({}, jOffsets, rootOffset, addOffset)
   const redOffsets = reductionOffsets(state.reduction)
-  return _.mergeWith({}, jOffsets, redOffsets, addOffset)
+  return _.mergeWith({}, jOffsets, redOffsets, rootOffset, addOffset)
 }
 
 const fillCoords = (
