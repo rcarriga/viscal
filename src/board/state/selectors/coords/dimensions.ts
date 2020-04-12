@@ -3,7 +3,6 @@ import {
   DimensionOffsets,
   DimensionOffset,
   NodeDimensions,
-  ReductionStage,
   TreeState,
   NodeID,
   DimensionSettings,
