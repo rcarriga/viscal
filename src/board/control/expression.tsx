@@ -19,8 +19,8 @@ const ExpressionControl = () => {
   const focused = useRoot()
   useEffect(() => {
     dis(clearTree())
-    dis(ActionCreators.clearHistory())
     parseExpression(expr, dis, constants)
+    dis(ActionCreators.clearHistory())
   }, [constants, dis, expr])
   return (
     <div>
