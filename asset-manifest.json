@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/viscal/static/css/main.80889977.chunk.css",
+    "main.js": "/viscal/static/js/main.640ec07d.chunk.js",
+    "main.js.map": "/viscal/static/js/main.640ec07d.chunk.js.map",
+    "runtime-main.js": "/viscal/static/js/runtime-main.c535778d.js",
+    "runtime-main.js.map": "/viscal/static/js/runtime-main.c535778d.js.map",
+    "static/css/2.cf932dc2.chunk.css": "/viscal/static/css/2.cf932dc2.chunk.css",
+    "static/js/2.bf5aa143.chunk.js": "/viscal/static/js/2.bf5aa143.chunk.js",
+    "static/js/2.bf5aa143.chunk.js.map": "/viscal/static/js/2.bf5aa143.chunk.js.map",
+    "index.html": "/viscal/index.html",
+    "precache-manifest.e05a5100093325e9c705ac2f05cb7ca1.js": "/viscal/precache-manifest.e05a5100093325e9c705ac2f05cb7ca1.js",
+    "service-worker.js": "/viscal/service-worker.js",
+    "static/css/2.cf932dc2.chunk.css.map": "/viscal/static/css/2.cf932dc2.chunk.css.map",
+    "static/css/main.80889977.chunk.css.map": "/viscal/static/css/main.80889977.chunk.css.map",
+    "static/js/2.bf5aa143.chunk.js.LICENSE.txt": "/viscal/static/js/2.bf5aa143.chunk.js.LICENSE.txt",
+    "static/media/font-awesome.min.css": "/viscal/static/media/fontawesome-webfont.fee66e71.woff"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.c535778d.js",
+    "static/css/2.cf932dc2.chunk.css",
+    "static/js/2.bf5aa143.chunk.js",
+    "static/css/main.80889977.chunk.css",
+    "static/js/main.640ec07d.chunk.js"
+  ]
+}
